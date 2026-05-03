@@ -5,6 +5,12 @@ const isWeb = Platform.OS === "web";
 export const secureStorage = {
   async getItem(key: string): Promise<string | null> {
     if (isWeb) {
+      if (!__DEV__) {
+        console.warn(
+          "⚠️ Web storage uses localStorage — tokens are vulnerable to XSS. " +
+          "Consider httpOnly cookies for production."
+        );
+      }
       return localStorage.getItem(key);
     }
     const { getItemAsync } = await import("expo-secure-store");

@@ -1,13 +1,26 @@
-const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:8000";
+class RetryableError extends Error {
+  noRetry = false;
+}
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL || (() => {
+  if (!__DEV__) {
+    throw new Error("EXPO_PUBLIC_API_URL must be set in production");
+  }
+  console.warn("EXPO_PUBLIC_API_URL not set, defaulting to http://localhost:8000");
+  return "http://localhost:8000";
+})();
 const API_PREFIX = "/api/v1";
 
 const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 500;
 
+/** Callback invoked when a 401 is received. Set by authStore. */
+type UnauthorizedHandler = () => void;
+
 class ApiClient {
   private baseUrl: string;
   private token: string | null = null;
-  private onUnauthorized: (() => void) | null = null;
+  private onUnauthorized: UnauthorizedHandler | null = null;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
@@ -17,7 +30,7 @@ class ApiClient {
     this.token = token;
   }
 
-  setOnUnauthorized(handler: () => void) {
+  setOnUnauthorized(handler: UnauthorizedHandler) {
     this.onUnauthorized = handler;
   }
 
@@ -54,6 +67,7 @@ class ApiClient {
 
         clearTimeout(timeoutId);
 
+        // Handle 401 Unauthorized — trigger logout
         if (response.status === 401) {
           if (this.onUnauthorized) {
             this.onUnauthorized();
@@ -61,29 +75,59 @@ class ApiClient {
           throw new Error("Unauthorized");
         }
 
+        // Handle 429 Rate Limit — respect Retry-After header
+        if (response.status === 429) {
+          const retryAfter = response.headers.get("Retry-After");
+          const delay = retryAfter
+            ? parseInt(retryAfter, 10) * 1000
+            : BASE_DELAY_MS * Math.pow(2, attempt);
+          if (attempt < MAX_RETRIES - 1) {
+            await new Promise((resolve) => setTimeout(resolve, delay));
+            continue;
+          }
+          throw new Error("Rate limited. Please try again later.");
+        }
+
         if (!response.ok) {
-          const error = await response.json().catch(() => ({ detail: "Request failed" }));
-          const errMessage = error.detail || `HTTP ${response.status}`;
-          const err = new Error(errMessage);
+          // Validate content type before parsing
+          const contentType = response.headers.get("content-type") || "";
+          let errMessage: string;
+          if (contentType.includes("application/json")) {
+            const error = await response.json().catch(() => ({ detail: "Request failed" }));
+            errMessage = error.detail || `HTTP ${response.status}`;
+          } else {
+            errMessage = `HTTP ${response.status}`;
+          }
+          const err = new RetryableError(errMessage);
           if (response.status >= 400 && response.status < 500) {
-            (err as any)._noRetry = true;
+            err.noRetry = true;
           }
           throw err;
+        }
+
+        // Validate content type for success responses
+        const contentType = response.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+          throw new Error("Unexpected response format from server");
         }
 
         return response.json();
       } catch (err) {
         clearTimeout(timeoutId);
-        lastError = err as Error;
 
-        if (lastError.name === "AbortError") {
-          lastError = new Error("Request timed out");
+        // Handle AbortError (timeout) — don't retry, fail immediately
+        if (err instanceof Error && err.name === "AbortError") {
+          throw new Error("Request timed out");
         }
 
-        if (lastError.message === "Unauthorized" || (lastError as any)._noRetry) {
+        lastError = err as Error;
+
+        // Don't retry on 401 or client errors (4xx)
+        if (lastError.message === "Unauthorized" || (lastError instanceof RetryableError && lastError.noRetry)) {
           throw lastError;
         }
 
+        // Retry with exponential backoff
         if (attempt < MAX_RETRIES - 1) {
           const delay = BASE_DELAY_MS * Math.pow(2, attempt);
           await new Promise((resolve) => setTimeout(resolve, delay));

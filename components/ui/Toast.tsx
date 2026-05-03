@@ -30,6 +30,8 @@ export function Toast({ message, type = "success", visible, onHide }: ToastProps
 
   return (
     <Animated.View
+      accessibilityLiveRegion="polite"
+      accessibilityRole="alert"
       style={[
         styles.container,
         { opacity, bottom: 100 + insets.bottom, backgroundColor: type === "success" ? Colors.white : Colors.gray200 },

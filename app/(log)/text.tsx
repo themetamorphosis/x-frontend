@@ -24,8 +24,9 @@ export default function TextLogScreen() {
       const result = await parseText(trimmed);
       setAIResult(result, "ai_text");
       router.push("/(log)/confirm");
-    } catch (e: any) {
-      setToast({ visible: true, message: e.message || "Failed to parse food description", type: "error" });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Failed to parse food description";
+      setToast({ visible: true, message, type: "error" });
     } finally {
       setLoading(false);
     }

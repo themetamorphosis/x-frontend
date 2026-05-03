@@ -85,7 +85,7 @@ export default function ConfirmScreen() {
         )
       );
 
-      const succeeded = results.filter((r): r is PromiseFulfilledResult<any> => r.status === "fulfilled");
+      const succeeded = results.filter((r): r is PromiseFulfilledResult<FoodLogEntry> => r.status === "fulfilled");
       const failed = results.filter((r) => r.status === "rejected");
 
       for (const result of succeeded) {
@@ -115,9 +115,10 @@ export default function ConfirmScreen() {
         reset();
         router.replace("/(tabs)");
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       haptic.error();
-      setToast({ visible: true, message: e.message || "Failed to save", type: "error" });
+      const message = e instanceof Error ? e.message : "Failed to save";
+      setToast({ visible: true, message, type: "error" });
     } finally {
       setSaving(false);
     }

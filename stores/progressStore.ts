@@ -86,7 +86,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
       set({ weekly: data });
     } catch (e) {
       console.error("Failed to fetch weekly data:", e);
-      set({ weekly: null });
+      // Keep previous data on transient errors — don't clear
     }
   },
 
@@ -96,7 +96,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
       set({ streaks: data });
     } catch (e) {
       console.error("Failed to fetch streaks:", e);
-      set({ streaks: null });
+      // Keep previous data on transient errors — don't clear
     }
   },
 

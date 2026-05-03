@@ -8,8 +8,7 @@ import { Button } from "../../components/ui/Button";
 import { Toast } from "../../components/ui/Toast";
 import { getBarcodeProduct, FoodDbItem } from "../../services/foodDb";
 import { useFoodLogStore } from "../../stores/foodLogStore";
-import { saveFoodLog } from "../../services/food";
-import { useDailyStore } from "../../stores/dailyStore";
+import { useSaveFoodLog } from "../../hooks/useSaveFoodLog";
 import { Colors } from "../../utils/colors";
 
 export default function BarcodeScreen() {
@@ -21,7 +20,7 @@ export default function BarcodeScreen() {
   const [quantity, setQuantity] = useState(1);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const { mealType } = useFoodLogStore();
-  const addFoodLog = useDailyStore((s) => s.addFoodLog);
+  const { saving, save } = useSaveFoodLog();
 
   const requestPermission = async () => {
     const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -46,7 +45,7 @@ export default function BarcodeScreen() {
   const handleSave = async () => {
     if (!product) return;
     try {
-      const log = await saveFoodLog({
+      await save({
         food_name: product.name,
         portion: `${quantity} × ${product.serving_size}`,
         calories: Math.round(product.calories * quantity),
@@ -57,10 +56,9 @@ export default function BarcodeScreen() {
         meal_type: mealType,
         source: "barcode",
       });
-      addFoodLog({ ...log, meal_type: mealType });
-      router.replace("/(tabs)");
-    } catch (e: any) {
-      setToast({ message: e.message || "Failed to save", type: "error" });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Failed to save";
+      setToast({ message, type: "error" });
     }
   };
 

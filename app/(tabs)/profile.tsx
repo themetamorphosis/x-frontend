@@ -109,7 +109,7 @@ export default function ProfileScreen() {
                   <TextInput
                     value={field.value}
                     onChangeText={field.set}
-                    keyboardType={field.kb as any}
+                    keyboardType={field.kb as "decimal-pad" | "number-pad"}
                     accessibilityLabel={field.label}
                     style={styles.textInput}
                   />

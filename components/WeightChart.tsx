@@ -54,7 +54,7 @@ function WeightChartNative({ data, goalWeight, sorted }: { data: WeightEntry[]; 
           yKeys={["y"]}
           domain={{ y: [minW - 1, maxW + 1] }}
         >
-          {({ points }: any) => (
+          {({ points }: { points: { y: Array<{ x: number; y: number }> } }) => (
             <>
               <Line points={points.y} color={Colors.white} strokeWidth={2} curveType="natural" />
               <Scatter points={points.y} radius={3} color={Colors.white} />

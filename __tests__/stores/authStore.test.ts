@@ -19,7 +19,7 @@ describe("authStore", () => {
 
   describe("setAuth", () => {
     it("sets all auth fields", () => {
-      useAuthStore.getState().setAuth("tok", "uid1", "a@b.com", "Alice", "http://img");
+      useAuthStore.getState().setAuth("tok", "refresh_tok", "uid1", "a@b.com", "Alice", "http://img");
       const s = useAuthStore.getState();
       expect(s.token).toBe("tok");
       expect(s.userId).toBe("uid1");
@@ -30,19 +30,20 @@ describe("authStore", () => {
       expect(s.isLoading).toBe(false);
     });
 
-    it("saves token to SecureStore", () => {
-      useAuthStore.getState().setAuth("tok", "uid1", "a@b.com");
+    it("saves token and refresh token to SecureStore", () => {
+      useAuthStore.getState().setAuth("tok", "refresh_tok", "uid1", "a@b.com");
       expect(mockSecureStore.setItemAsync).toHaveBeenCalledWith("nutrilog_jwt", "tok");
+      expect(mockSecureStore.setItemAsync).toHaveBeenCalledWith("nutrilog_refresh", "refresh_tok");
     });
 
     it("sets token on api client", () => {
       const spy = jest.spyOn(api, "setToken");
-      useAuthStore.getState().setAuth("tok", "uid1", "a@b.com");
+      useAuthStore.getState().setAuth("tok", "refresh_tok", "uid1", "a@b.com");
       expect(spy).toHaveBeenCalledWith("tok");
     });
 
     it("defaults name and avatarUrl to undefined", () => {
-      useAuthStore.getState().setAuth("tok", "uid1", "a@b.com");
+      useAuthStore.getState().setAuth("tok", "refresh_tok", "uid1", "a@b.com");
       const s = useAuthStore.getState();
       expect(s.name).toBeUndefined();
       expect(s.avatarUrl).toBeUndefined();
@@ -51,7 +52,7 @@ describe("authStore", () => {
 
   describe("clearAuth", () => {
     it("resets all fields to null", () => {
-      useAuthStore.getState().setAuth("tok", "uid1", "a@b.com", "Alice");
+      useAuthStore.getState().setAuth("tok", "refresh_tok", "uid1", "a@b.com", "Alice");
       useAuthStore.getState().clearAuth();
       const s = useAuthStore.getState();
       expect(s.token).toBeNull();
@@ -62,9 +63,10 @@ describe("authStore", () => {
       expect(s.isAuthenticated).toBe(false);
     });
 
-    it("deletes token from SecureStore", () => {
+    it("deletes token and refresh token from SecureStore", () => {
       useAuthStore.getState().clearAuth();
       expect(mockSecureStore.deleteItemAsync).toHaveBeenCalledWith("nutrilog_jwt");
+      expect(mockSecureStore.deleteItemAsync).toHaveBeenCalledWith("nutrilog_refresh");
     });
 
     it("clears token on api client", () => {
@@ -75,7 +77,7 @@ describe("authStore", () => {
   });
 
   describe("loadToken", () => {
-    it("returns false when no token in SecureStore", async () => {
+    it("returns false when no refresh token in SecureStore", async () => {
       mockSecureStore.getItemAsync.mockResolvedValueOnce(null);
       const result = await useAuthStore.getState().loadToken();
       expect(result).toBe(false);
@@ -83,9 +85,10 @@ describe("authStore", () => {
     });
 
     it("returns true and sets auth when refresh succeeds", async () => {
-      mockSecureStore.getItemAsync.mockResolvedValueOnce("old_tok");
+      mockSecureStore.getItemAsync.mockResolvedValueOnce("old_refresh_tok");
       jest.spyOn(api, "post").mockResolvedValueOnce({
         access_token: "new_tok",
+        refresh_token: "new_refresh_tok",
         user: { id: "u1", email: "a@b.com", name: "Alice", avatar_url: null },
       });
       const result = await useAuthStore.getState().loadToken();
@@ -94,23 +97,23 @@ describe("authStore", () => {
       expect(useAuthStore.getState().isAuthenticated).toBe(true);
     });
 
+    it("sends refresh token in request body", async () => {
+      mockSecureStore.getItemAsync.mockResolvedValueOnce("old_refresh_tok");
+      const postSpy = jest.spyOn(api, "post").mockResolvedValueOnce({
+        access_token: "new_tok",
+        refresh_token: "new_refresh_tok",
+        user: { id: "u1", email: "a@b.com" },
+      });
+      await useAuthStore.getState().loadToken();
+      expect(postSpy).toHaveBeenCalledWith("/auth/refresh", { refresh_token: "old_refresh_tok" });
+    });
+
     it("clears auth when refresh fails", async () => {
-      mockSecureStore.getItemAsync.mockResolvedValueOnce("old_tok");
+      mockSecureStore.getItemAsync.mockResolvedValueOnce("old_refresh_tok");
       jest.spyOn(api, "post").mockRejectedValueOnce(new Error("network"));
       const result = await useAuthStore.getState().loadToken();
       expect(result).toBe(false);
       expect(useAuthStore.getState().isAuthenticated).toBe(false);
-    });
-
-    it("sets api token before calling refresh", async () => {
-      mockSecureStore.getItemAsync.mockResolvedValueOnce("old_tok");
-      const setTokenSpy = jest.spyOn(api, "setToken");
-      jest.spyOn(api, "post").mockResolvedValueOnce({
-        access_token: "new_tok",
-        user: { id: "u1", email: "a@b.com" },
-      });
-      await useAuthStore.getState().loadToken();
-      expect(setTokenSpy).toHaveBeenCalledWith("old_tok");
     });
   });
 });

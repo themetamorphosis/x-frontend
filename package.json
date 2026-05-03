@@ -7,10 +7,14 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "test": "jest --passWithNoTests",
+    "test": "jest",
     "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --ext .ts,.tsx"
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "bundle:analyze": "npx expo export --platform web --dump-sourcemap && echo 'Bundle exported. Use source-map-explorer or webpack-bundle-analyzer to analyze.'",
+    "prepare": "cd .. && husky x-frontend/.husky"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
@@ -69,7 +73,7 @@
   },
   "private": true,
   "jest": {
-    "preset": "ts-jest",
+    "preset": "jest-expo",
     "testEnvironment": "jsdom",
     "roots": [
       "<rootDir>/__tests__"
@@ -101,5 +105,14 @@
       "^react-native-svg$": "<rootDir>/__mocks__/react-native-svg.ts",
       "^react-native-reanimated$": "<rootDir>/__mocks__/react-native-reanimated.ts"
     }
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "jest --bail --findRelatedTests --passWithNoTests"
+    ],
+    "*.{ts,tsx,json,css}": [
+      "prettier --write"
+    ]
   }
 }

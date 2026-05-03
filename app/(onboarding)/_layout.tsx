@@ -1,7 +1,9 @@
 import { Stack } from "expo-router";
+import { ErrorBoundary } from "../../components/ErrorBoundary";
 
 export default function OnboardingLayout() {
   return (
+    <ErrorBoundary>
     <Stack
       screenOptions={{
         headerShown: false,
@@ -9,5 +11,6 @@ export default function OnboardingLayout() {
         animation: "slide_from_right",
       }}
     />
+    </ErrorBoundary>
   );
 }

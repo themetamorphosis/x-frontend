@@ -1,5 +1,6 @@
 import { ReactNode, memo } from "react";
-import { View, ViewStyle } from "react-native";
+import { View, ViewStyle, AccessibilityRole } from "react-native";
+import { Colors } from "../../utils/colors";
 
 interface CardProps {
   children: ReactNode;
@@ -7,7 +8,7 @@ interface CardProps {
   noPadding?: boolean;
   accessible?: boolean;
   accessibilityLabel?: string;
-  accessibilityRole?: any;
+  accessibilityRole?: AccessibilityRole;
 }
 
 export const Card = memo(function Card({ children, style, noPadding = false, ...accessibilityProps }: CardProps) {
@@ -15,11 +16,11 @@ export const Card = memo(function Card({ children, style, noPadding = false, ...
     <View
       {...accessibilityProps}
       style={{
-        backgroundColor: "#111111",
+        backgroundColor: Colors.gray100,
         borderRadius: 12,
         padding: noPadding ? 0 : 16,
         borderWidth: 1,
-        borderColor: "#1A1A1A",
+        borderColor: Colors.gray200,
         ...style,
       }}
     >

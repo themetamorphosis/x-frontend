@@ -1,3 +1,4 @@
+import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Card } from "../ui/Card";
 import { Colors } from "../../utils/colors";
@@ -9,7 +10,7 @@ interface Props {
   onDelete: () => void;
 }
 
-export function FoodListItem({ item, onPress, onDelete }: Props) {
+export const FoodListItem = React.memo(function FoodListItem({ item, onPress, onDelete }: Props) {
   return (
     <TouchableOpacity activeOpacity={0.7} onPress={onPress} accessibilityRole="button" accessibilityLabel={`${item.name}: ${item.calories} calories`}>
       <Card style={styles.card}>
@@ -31,7 +32,7 @@ export function FoodListItem({ item, onPress, onDelete }: Props) {
       </Card>
     </TouchableOpacity>
   );
-}
+});
 
 const styles = StyleSheet.create({
   card: { marginBottom: 8 },

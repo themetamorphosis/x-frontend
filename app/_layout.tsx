@@ -1,7 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { View, ActivityIndicator } from "react-native";
+import { View, ActivityIndicator, ErrorUtils, Platform } from "react-native";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import * as Sentry from "@sentry/react-native";
 import { useAuthStore } from "../stores/authStore";
 import { useProfileStore } from "../stores/profileStore";
 import { registerForPushNotifications, savePushToken } from "../services/notifications";
@@ -11,9 +13,20 @@ import { useNetworkStatus } from "../hooks/useNetworkStatus";
 import { mutationQueue } from "../utils/mutationQueue";
 import { initSentry } from "../utils/sentry";
 import { api } from "../services/api";
+import { Colors } from "../utils/colors";
 import "../global.css";
 
 initSentry();
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30_000,        // 30 seconds
+      retry: 2,
+      refetchOnWindowFocus: true,
+    },
+  },
+});
 
 export default function RootLayout() {
   const { isAuthenticated, isLoading, loadToken } = useAuthStore();
@@ -27,6 +40,17 @@ export default function RootLayout() {
     loadToken().then((ok) => {
       if (ok) fetchProfile();
     });
+
+    // Global unhandled rejection handler
+    if (Platform.OS !== "web") {
+      const defaultHandler = ErrorUtils.getGlobalHandler?.();
+      ErrorUtils.setGlobalHandler?.((error: Error, isFatal?: boolean) => {
+        console.error("Unhandled error:", error, "fatal:", isFatal);
+        Sentry.captureException(error);
+        if (defaultHandler) defaultHandler(error, isFatal);
+      });
+    }
+
     return () => { mutationQueue.destroy(); };
   }, [loadToken, fetchProfile]);
 
@@ -69,22 +93,24 @@ export default function RootLayout() {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, backgroundColor: "#000000", alignItems: "center", justifyContent: "center" }}>
-        <ActivityIndicator color="#FFFFFF" size="small" />
+      <View style={{ flex: 1, backgroundColor: Colors.black, alignItems: "center", justifyContent: "center" }}>
+        <ActivityIndicator color={Colors.white} size="small" />
       </View>
     );
   }
 
   return (
-    <ErrorBoundary>
-      <StatusBar style="light" />
-      {!isConnected && <OfflineBanner />}
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: "#000000" },
-        }}
-      />
-    </ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <ErrorBoundary>
+        <StatusBar style="light" />
+        {!isConnected && <OfflineBanner />}
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: Colors.black },
+          }}
+        />
+      </ErrorBoundary>
+    </QueryClientProvider>
   );
 }

@@ -81,7 +81,7 @@ function WeeklyTrendNative({ dailyTotals, calorieTarget }: WeeklyTrendProps) {
             x: [0.5, 7.5],
           }}
         >
-          {({ points, chartBounds }: any) => (
+          {({ points, chartBounds }: { points: { y: Array<{ x: number; y: number }> }; chartBounds: { left: number; right: number; top: number; bottom: number } }) => (
             <Bar
               points={points.y}
               chartBounds={chartBounds}

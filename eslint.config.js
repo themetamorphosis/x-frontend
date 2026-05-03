@@ -19,7 +19,7 @@ module.exports = [
     },
     rules: {
       ...tsPlugin.configs.recommended.rules,
-      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
@@ -27,6 +27,6 @@ module.exports = [
     },
   },
   {
-    ignores: ["node_modules/", ".expo/", "dist/", "__tests__/"],
+    ignores: ["node_modules/", ".expo/", "dist/"],
   },
 ];

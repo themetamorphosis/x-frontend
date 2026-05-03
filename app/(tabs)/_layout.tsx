@@ -1,5 +1,6 @@
 import { Tabs } from "expo-router";
 import { View } from "react-native";
+import { ErrorBoundary } from "../../components/ErrorBoundary";
 
 function TabIcon({ name: _name, focused }: { name: string; focused: boolean }) {
   return (
@@ -25,6 +26,7 @@ function TabIcon({ name: _name, focused }: { name: string; focused: boolean }) {
 
 export default function TabsLayout() {
   return (
+    <ErrorBoundary>
     <Tabs
       screenOptions={{
         headerShown: false,
@@ -75,5 +77,6 @@ export default function TabsLayout() {
         }}
       />
     </Tabs>
+    </ErrorBoundary>
   );
 }

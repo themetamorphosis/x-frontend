@@ -4,6 +4,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "../services/api";
 import type { LoggedFood, DailyTargets, MealFoods, DailySummary } from "../types/food";
 
+interface PersistedDailyState {
+  summary: DailySummary | null;
+  _summaryDate: string;
+}
+
 interface DailyState {
   summary: DailySummary | null;
   loading: boolean;
@@ -28,8 +33,9 @@ export const useDailyStore = create<DailyState>()(
           const params = date ? `?date=${date}` : "";
           const data = await api.get<DailySummary>(`/dashboard/daily${params}`);
           set({ summary: data, loading: false });
-        } catch (e: any) {
-          set({ error: e.message || "Failed to load dashboard", loading: false });
+        } catch (e: unknown) {
+          const message = e instanceof Error ? e.message : "Failed to load dashboard";
+          set({ error: message, loading: false });
         }
       },
 
@@ -97,10 +103,19 @@ export const useDailyStore = create<DailyState>()(
   {
     name: "nutrilog-daily",
     storage: createJSONStorage(() => AsyncStorage),
-    partialize: (state) => ({ summary: state.summary }),
-    onRehydrateStorage: () => (_state, error) => {
+    partialize: (state) => ({
+      summary: state.summary,
+      _summaryDate: new Date().toISOString().slice(0, 10),
+    }),
+    onRehydrateStorage: () => (state, error) => {
       if (error) {
         console.error("[dailyStore] Failed to rehydrate:", error);
+        return;
+      }
+      // Clear stale data from previous day
+      const today = new Date().toISOString().slice(0, 10);
+      if (state && (state as PersistedDailyState)._summaryDate !== today) {
+        state.summary = null;
       }
     },
   }

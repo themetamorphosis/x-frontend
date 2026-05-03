@@ -1,4 +1,6 @@
+import React from "react";
 import { TouchableOpacity, Text, ActivityIndicator, ViewStyle } from "react-native";
+import { Colors } from "../../utils/colors";
 
 interface ButtonProps {
   title: string;
@@ -10,7 +12,7 @@ interface ButtonProps {
   accessibilityHint?: string;
 }
 
-export function Button({
+export const Button = React.memo(function Button({
   title,
   onPress,
   variant = "primary",
@@ -29,15 +31,15 @@ export function Button({
   };
 
   const variants: Record<string, ViewStyle> = {
-    primary: { backgroundColor: "#FFFFFF" },
-    secondary: { backgroundColor: "#111111", borderWidth: 1, borderColor: "#222222" },
+    primary: { backgroundColor: Colors.white },
+    secondary: { backgroundColor: Colors.gray100, borderWidth: 1, borderColor: Colors.gray300 },
     ghost: { backgroundColor: "transparent" },
   };
 
   const textColors: Record<string, string> = {
-    primary: "#000000",
-    secondary: "#FFFFFF",
-    ghost: "#888888",
+    primary: Colors.black,
+    secondary: Colors.white,
+    ghost: Colors.gray600,
   };
 
   return (
@@ -67,4 +69,4 @@ export function Button({
       )}
     </TouchableOpacity>
   );
-}
+});

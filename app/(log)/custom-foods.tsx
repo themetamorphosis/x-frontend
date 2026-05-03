@@ -7,14 +7,13 @@ import { FoodListItem } from "../../components/log/FoodListItem";
 import { QuickLogModal } from "../../components/log/QuickLogModal";
 import { AddFoodModal } from "../../components/log/AddFoodModal";
 import { getCustomFoods, createCustomFood, deleteCustomFood, type FoodDbItem } from "../../services/foodDb";
-import { saveFoodLog } from "../../services/food";
-import { useDailyStore } from "../../stores/dailyStore";
+import { useSaveFoodLog } from "../../hooks/useSaveFoodLog";
 import { Colors } from "../../utils/colors";
 import { detectMealType } from "../../utils/mealType";
 
 export default function CustomFoodsScreen() {
   const router = useRouter();
-  const addFoodLog = useDailyStore((s) => s.addFoodLog);
+  const { saving: hookSaving, save } = useSaveFoodLog();
 
   const [foods, setFoods] = useState<FoodDbItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -86,7 +85,7 @@ export default function CustomFoodsScreen() {
     if (!quickLogFood) return;
     setSaving(true);
     try {
-      const entry = await saveFoodLog({
+      await save({
         meal_type: detectMealType(),
         food_name: quickLogFood.name,
         portion: quickLogFood.portion || `${quantity} serving${quantity !== 1 ? "s" : ""}`,
@@ -97,19 +96,7 @@ export default function CustomFoodsScreen() {
         fiber_g: Math.round((quickLogFood.fiber_g || 0) * quantity * 10) / 10,
         source: "custom",
       });
-      addFoodLog({
-        id: entry.id,
-        food_name: entry.food_name,
-        portion: entry.portion,
-        calories: entry.calories,
-        protein_g: entry.protein_g,
-        carbs_g: entry.carbs_g,
-        fat_g: entry.fat_g,
-        fiber_g: entry.fiber_g,
-        meal_type: entry.meal_type,
-      });
       setQuickLogFood(null);
-      router.replace("/(tabs)");
     } catch {
       setToast({ visible: true, message: "Failed to log food", type: "error" });
     }

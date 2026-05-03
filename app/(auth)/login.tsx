@@ -13,9 +13,35 @@ import { Colors } from "../../utils/colors";
 
 WebBrowser.maybeCompleteAuthSession();
 
+interface LoginUser {
+  id: string;
+  email: string;
+  name?: string | null;
+  avatar_url?: string | null;
+}
+
+interface LoginResponse {
+  access_token: string;
+  refresh_token: string;
+  user: LoginUser;
+}
+
 const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com";
 const IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || "YOUR_IOS_CLIENT_ID.apps.googleusercontent.com";
 const ANDROID_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || "YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com";
+
+// Validate OAuth config at module load (fails fast in production builds)
+if (!__DEV__) {
+  for (const [name, value] of Object.entries({
+    EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: WEB_CLIENT_ID,
+    EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID: IOS_CLIENT_ID,
+    EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID: ANDROID_CLIENT_ID,
+  })) {
+    if (value.startsWith("YOUR_")) {
+      throw new Error(`Missing OAuth config: ${name}. Set it in your .env file.`);
+    }
+  }
+}
 
 export default function LoginScreen() {
   const { setAuth } = useAuthStore();
@@ -33,11 +59,12 @@ export default function LoginScreen() {
   const exchangeToken = useCallback(async (googleIdToken: string) => {
     setLoading(true);
     try {
-      const data = await api.post<{ access_token: string; user: any }>("/auth/google", {
+      const data = await api.post<LoginResponse>("/auth/google", {
         token: googleIdToken,
       });
       setAuth(
         data.access_token,
+        data.refresh_token,
         data.user.id,
         data.user.email,
         data.user.name,
@@ -63,9 +90,10 @@ export default function LoginScreen() {
   async function devLogin() {
     setLoading(true);
     try {
-      const data = await api.post<{ access_token: string; user: any }>("/auth/dev-login");
+      const data = await api.post<LoginResponse>("/auth/dev-login");
       setAuth(
         data.access_token,
+        data.refresh_token,
         data.user.id,
         data.user.email,
         data.user.name,

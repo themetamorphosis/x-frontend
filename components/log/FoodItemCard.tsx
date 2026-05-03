@@ -1,3 +1,4 @@
+import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Card } from "../ui/Card";
 import { Colors } from "../../utils/colors";
@@ -11,7 +12,7 @@ interface Props {
   onRemove: () => void;
 }
 
-export function FoodItemCard({ food, onEdit, onSaveToLibrary, onRemove }: Props) {
+export const FoodItemCard = React.memo(function FoodItemCard({ food, onEdit, onSaveToLibrary, onRemove }: Props) {
   return (
     <Card style={styles.card}>
       <View style={styles.row}>
@@ -39,7 +40,7 @@ export function FoodItemCard({ food, onEdit, onSaveToLibrary, onRemove }: Props)
       </View>
     </Card>
   );
-}
+});
 
 const styles = StyleSheet.create({
   card: { marginBottom: 8 },

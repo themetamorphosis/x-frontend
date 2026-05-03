@@ -1,4 +1,6 @@
+import React from "react";
 import { TextInput, Text, View, ViewStyle } from "react-native";
+import { Colors } from "../../utils/colors";
 
 interface InputProps {
   label?: string;
@@ -11,7 +13,7 @@ interface InputProps {
   style?: ViewStyle;
 }
 
-export function Input({
+export const Input = React.memo(function Input({
   label,
   value,
   onChangeText,
@@ -26,7 +28,7 @@ export function Input({
       {label && (
         <Text
           style={{
-            color: "#555555",
+            color: Colors.gray500,
             fontSize: 11,
             fontWeight: "500",
             letterSpacing: 0.5,
@@ -39,25 +41,26 @@ export function Input({
       )}
       <TextInput
         style={{
-          backgroundColor: "#111111",
+          backgroundColor: Colors.gray100,
           borderWidth: 1,
-          borderColor: "#222222",
+          borderColor: Colors.gray300,
           borderRadius: 12,
           paddingHorizontal: 16,
           paddingVertical: 14,
-          color: "#FFFFFF",
+          color: Colors.white,
           fontSize: 16,
           minHeight: multiline ? 100 : undefined,
         }}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="#333333"
+        placeholderTextColor={Colors.gray400}
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
         multiline={multiline}
         textAlignVertical={multiline ? "top" : undefined}
+        accessibilityLabel={label || placeholder}
       />
     </View>
   );
-}
+});

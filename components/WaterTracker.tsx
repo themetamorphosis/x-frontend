@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { Card } from "./ui/Card";
 import { api } from "../services/api";
 import { useDailyStore } from "../stores/dailyStore";
+import { Colors } from "../utils/colors";
 
 interface WaterTrackerProps {
   current_ml: number;
@@ -39,7 +40,7 @@ export const WaterTracker = memo(function WaterTracker({ current_ml, target_ml =
       >
         <Text
           style={{
-            color: "#555555",
+            color: Colors.gray500,
             fontSize: 11,
             fontWeight: "500",
             letterSpacing: 0.5,
@@ -48,7 +49,7 @@ export const WaterTracker = memo(function WaterTracker({ current_ml, target_ml =
         >
           Water
         </Text>
-        <Text style={{ color: "#FFFFFF", fontSize: 14, fontWeight: "600" }}>
+        <Text style={{ color: Colors.white, fontSize: 14, fontWeight: "600" }}>
           {current_ml} / {target_ml} ml
         </Text>
       </View>
@@ -56,7 +57,7 @@ export const WaterTracker = memo(function WaterTracker({ current_ml, target_ml =
       <View
         style={{
           height: 6,
-          backgroundColor: "#1A1A1A",
+          backgroundColor: Colors.gray200,
           borderRadius: 3,
           marginBottom: 12,
         }}
@@ -79,13 +80,13 @@ export const WaterTracker = memo(function WaterTracker({ current_ml, target_ml =
           accessibilityLabel="Add 250 milliliters of water"
           style={{
             flex: 1,
-            backgroundColor: "#1A1A1A",
+            backgroundColor: Colors.gray200,
             paddingVertical: 10,
             borderRadius: 6,
             alignItems: "center",
           }}
         >
-          <Text style={{ color: "#FFFFFF", fontSize: 13, fontWeight: "600" }}>+250 ml</Text>
+          <Text style={{ color: Colors.white, fontSize: 13, fontWeight: "600" }}>+250 ml</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => addWater(500)}
@@ -94,13 +95,13 @@ export const WaterTracker = memo(function WaterTracker({ current_ml, target_ml =
           accessibilityLabel="Add 500 milliliters of water"
           style={{
             flex: 1,
-            backgroundColor: "#1A1A1A",
+            backgroundColor: Colors.gray200,
             paddingVertical: 10,
             borderRadius: 6,
             alignItems: "center",
           }}
         >
-          <Text style={{ color: "#FFFFFF", fontSize: 13, fontWeight: "600" }}>+500 ml</Text>
+          <Text style={{ color: Colors.white, fontSize: 13, fontWeight: "600" }}>+500 ml</Text>
         </TouchableOpacity>
       </View>
     </Card>

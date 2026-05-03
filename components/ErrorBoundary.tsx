@@ -10,16 +10,17 @@ interface Props {
 interface State {
   hasError: boolean;
   error: Error | null;
+  resetKey: number;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, resetKey: 0 };
   }
 
   static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+    return { hasError: true, error, resetKey: 0 };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
@@ -28,25 +29,36 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   handleReset = () => {
-    this.setState({ hasError: false, error: null });
+    this.setState((prev) => ({ hasError: false, error: null, resetKey: prev.resetKey + 1 }));
   };
 
   render() {
     if (this.state.hasError) {
       return (
-        <View style={styles.container}>
-          <Text style={styles.title}>SOMETHING WENT WRONG</Text>
+        <View
+          style={styles.container}
+          accessibilityLiveRegion="assertive"
+          accessible
+          accessibilityRole="alert"
+        >
+          <Text style={styles.title}>Something went wrong</Text>
           <Text style={styles.message}>
             {this.state.error?.message || "An unexpected error occurred."}
           </Text>
-          <TouchableOpacity onPress={this.handleReset} style={styles.button}>
-            <Text style={styles.buttonText}>TRY AGAIN</Text>
+          <TouchableOpacity
+            onPress={this.handleReset}
+            style={styles.button}
+            accessibilityRole="button"
+            accessibilityLabel="Try again"
+            accessibilityHint="Resets the app and attempts to recover from the error"
+          >
+            <Text style={styles.buttonText}>Try Again</Text>
           </TouchableOpacity>
         </View>
       );
     }
 
-    return this.props.children;
+    return <View key={this.state.resetKey} style={{ flex: 1 }}>{this.props.children}</View>;
   }
 }
 

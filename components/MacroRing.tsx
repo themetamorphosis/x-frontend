@@ -1,6 +1,7 @@
 import { useEffect, memo } from "react";
 import { View, Text } from "react-native";
 import Svg, { Circle } from "react-native-svg";
+import { Colors } from "../utils/colors";
 import Animated, {
   useSharedValue,
   useAnimatedProps,
@@ -50,7 +51,7 @@ export const MacroRing = memo(function MacroRing({ label, current, target, unit 
             cx={SIZE / 2}
             cy={SIZE / 2}
             r={RADIUS}
-            stroke="#1A1A1A"
+            stroke={Colors.gray200}
             strokeWidth={STROKE_WIDTH}
             fill="none"
           />
@@ -58,7 +59,7 @@ export const MacroRing = memo(function MacroRing({ label, current, target, unit 
             cx={SIZE / 2}
             cy={SIZE / 2}
             r={RADIUS}
-            stroke="#FFFFFF"
+            stroke={Colors.white}
             strokeWidth={STROKE_WIDTH}
             fill="none"
             strokeDasharray={CIRCUMFERENCE}
@@ -77,14 +78,14 @@ export const MacroRing = memo(function MacroRing({ label, current, target, unit 
             alignItems: "center",
           }}
         >
-          <Text style={{ color: "#FFFFFF", fontSize: 16, fontWeight: "700" }}>
+          <Text style={{ color: Colors.white, fontSize: 16, fontWeight: "700" }}>
             {Math.round(current)}
           </Text>
         </View>
       </View>
       <Text
         style={{
-          color: "#555555",
+          color: Colors.gray500,
           fontSize: 10,
           fontWeight: "500",
           letterSpacing: 0.5,
@@ -93,7 +94,7 @@ export const MacroRing = memo(function MacroRing({ label, current, target, unit 
       >
         {label}
       </Text>
-      <Text style={{ color: "#333333", fontSize: 10, marginTop: 2 }}>
+      <Text style={{ color: Colors.gray400, fontSize: 10, marginTop: 2 }}>
         / {target}
         {unit}
       </Text>

@@ -18,6 +18,7 @@ export function EditModal({ visible, food, onClose, onSave }: Props) {
   const [protein, setProtein] = useState("");
   const [carbs, setCarbs] = useState("");
   const [fat, setFat] = useState("");
+  const [fiber, setFiber] = useState("");
 
   useEffect(() => {
     if (food && visible) {
@@ -27,6 +28,7 @@ export function EditModal({ visible, food, onClose, onSave }: Props) {
       setProtein(String(food.protein_g));
       setCarbs(String(food.carbs_g));
       setFat(String(food.fat_g));
+      setFiber(String(food.fiber_g ?? 0));
     }
   }, [food, visible]);
 
@@ -65,6 +67,14 @@ export function EditModal({ visible, food, onClose, onSave }: Props) {
               </View>
             </View>
 
+            <View style={[styles.row, { marginTop: 12 }]}>
+              <View style={styles.field}>
+                <Text style={styles.label}>Fiber (g)</Text>
+                <TextInput style={styles.input} value={fiber} onChangeText={setFiber} keyboardType="decimal-pad" accessibilityLabel="Fiber in grams" />
+              </View>
+              <View style={styles.field} />
+            </View>
+
             <View style={styles.buttonRow}>
               <TouchableOpacity onPress={onClose} style={styles.cancelBtn} accessibilityRole="button" accessibilityLabel="Cancel editing">
                 <Text style={styles.cancelText}>Cancel</Text>
@@ -78,7 +88,7 @@ export function EditModal({ visible, food, onClose, onSave }: Props) {
                     protein_g: parseFloat(protein) || 0,
                     carbs_g: parseFloat(carbs) || 0,
                     fat_g: parseFloat(fat) || 0,
-                    fiber_g: 0,
+                    fiber_g: parseFloat(fiber) || 0,
                   })
                 }
                 style={styles.saveBtn}

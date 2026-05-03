@@ -16,9 +16,8 @@ import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Toast } from "../../components/ui/Toast";
 import { searchFoods, FoodDbItem } from "../../services/foodDb";
-import { saveFoodLog } from "../../services/food";
 import { useFoodLogStore } from "../../stores/foodLogStore";
-import { useDailyStore } from "../../stores/dailyStore";
+import { useSaveFoodLog } from "../../hooks/useSaveFoodLog";
 import { Colors } from "../../utils/colors";
 
 const DEBOUNCE_MS = 300;
@@ -51,8 +50,9 @@ export default function SearchScreen() {
       }
       setHasMore(data.length > 0);
       setPage(p);
-    } catch (e: any) {
-      setToast({ message: e.message || "Search failed", type: "error" });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Search failed";
+      setToast({ message, type: "error" });
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -86,10 +86,12 @@ export default function SearchScreen() {
     };
   }, []);
 
+  const { saving, save } = useSaveFoodLog();
+
   const handleSave = async () => {
     if (!selected) return;
     try {
-      const log = await saveFoodLog({
+      await save({
         food_name: selected.name,
         portion: `${quantity} × ${selected.serving_size}`,
         calories: Math.round(selected.calories * quantity),
@@ -100,10 +102,9 @@ export default function SearchScreen() {
         meal_type: mealType,
         source: "search",
       });
-      addFoodLog({ ...log, meal_type: mealType });
-      router.replace("/(tabs)");
-    } catch (e: any) {
-      setToast({ message: e.message || "Failed to save", type: "error" });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Failed to save";
+      setToast({ message, type: "error" });
     }
   };
 
