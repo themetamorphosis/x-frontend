@@ -1,0 +1,116 @@
+import { useState, useCallback } from "react";
+import { View, Text, StyleSheet } from "react-native";
+import * as WebBrowser from "expo-web-browser";
+import * as Google from "expo-auth-session/providers/google";
+import { useEffect } from "react";
+import { ScreenWrapper } from "../../components/ui/ScreenWrapper";
+import { Button } from "../../components/ui/Button";
+import { Toast } from "../../components/ui/Toast";
+import { useAuthStore } from "../../stores/authStore";
+import { useProfileStore } from "../../stores/profileStore";
+import { api } from "../../services/api";
+import { Colors } from "../../utils/colors";
+
+WebBrowser.maybeCompleteAuthSession();
+
+const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com";
+const IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || "YOUR_IOS_CLIENT_ID.apps.googleusercontent.com";
+const ANDROID_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || "YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com";
+
+export default function LoginScreen() {
+  const { setAuth } = useAuthStore();
+  const { fetchProfile } = useProfileStore();
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    webClientId: WEB_CLIENT_ID,
+    iosClientId: IOS_CLIENT_ID,
+    androidClientId: ANDROID_CLIENT_ID,
+    scopes: ["openid", "profile", "email"],
+  });
+
+  const exchangeToken = useCallback(async (googleIdToken: string) => {
+    setLoading(true);
+    try {
+      const data = await api.post<{ access_token: string; user: any }>("/auth/google", {
+        token: googleIdToken,
+      });
+      setAuth(
+        data.access_token,
+        data.user.id,
+        data.user.email,
+        data.user.name,
+        data.user.avatar_url
+      );
+      fetchProfile();
+    } catch {
+      setToast({ message: "Sign in failed. Please try again.", type: "error" });
+    } finally {
+      setLoading(false);
+    }
+  }, [setAuth, fetchProfile]);
+
+  useEffect(() => {
+    if (response?.type === "success") {
+      const { authentication } = response;
+      if (authentication?.idToken) {
+        exchangeToken(authentication.idToken);
+      }
+    }
+  }, [response, exchangeToken]);
+
+  async function devLogin() {
+    setLoading(true);
+    try {
+      const data = await api.post<{ access_token: string; user: any }>("/auth/dev-login");
+      setAuth(
+        data.access_token,
+        data.user.id,
+        data.user.email,
+        data.user.name,
+        data.user.avatar_url
+      );
+      fetchProfile();
+    } catch {
+      setToast({ message: "Dev login failed. Is DEV_MODE enabled on the backend?", type: "error" });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <ScreenWrapper>
+      <View style={styles.container}>
+        <Text style={styles.appName}>NutriLog</Text>
+        <Text style={styles.tagline}>AI-powered nutrition tracking</Text>
+        <Button
+          title="Continue with Google"
+          onPress={() => promptAsync()}
+          disabled={!request || loading}
+          style={styles.fullWidth}
+        />
+        {__DEV__ && (
+          <Button
+            title="Dev Login"
+            onPress={devLogin}
+            disabled={loading}
+            variant="secondary"
+            style={styles.devButton}
+          />
+        )}
+        {toast && (
+          <Toast message={toast.message} type={toast.type} visible={true} onHide={() => setToast(null)} />
+        )}
+      </View>
+    </ScreenWrapper>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: "center", alignItems: "center" },
+  appName: { fontSize: 36, fontWeight: "700", color: Colors.white, letterSpacing: -1, marginBottom: 8 },
+  tagline: { fontSize: 14, color: Colors.gray500, letterSpacing: 0.5, marginBottom: 64 },
+  fullWidth: { width: "100%" },
+  devButton: { width: "100%", marginTop: 12 },
+});

@@ -1,0 +1,181 @@
+import { useState, useCallback } from "react";
+import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, StyleSheet } from "react-native";
+import { useRouter, useFocusEffect } from "expo-router";
+import { ScreenWrapper } from "../../components/ui/ScreenWrapper";
+import { Toast } from "../../components/ui/Toast";
+import { FoodListItem } from "../../components/log/FoodListItem";
+import { QuickLogModal } from "../../components/log/QuickLogModal";
+import { AddFoodModal } from "../../components/log/AddFoodModal";
+import { getCustomFoods, createCustomFood, deleteCustomFood, type FoodDbItem } from "../../services/foodDb";
+import { saveFoodLog } from "../../services/food";
+import { useDailyStore } from "../../stores/dailyStore";
+import { Colors } from "../../utils/colors";
+import { detectMealType } from "../../utils/mealType";
+
+export default function CustomFoodsScreen() {
+  const router = useRouter();
+  const addFoodLog = useDailyStore((s) => s.addFoodLog);
+
+  const [foods, setFoods] = useState<FoodDbItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState({ visible: false, message: "", type: "success" as "success" | "error" });
+  const [quickLogFood, setQuickLogFood] = useState<FoodDbItem | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      const load = async () => {
+        try {
+          const data = await getCustomFoods();
+          if (!cancelled) setFoods(data);
+        } catch {
+          if (!cancelled) setToast({ visible: true, message: "Failed to load foods", type: "error" });
+        }
+        if (!cancelled) setLoading(false);
+      };
+      load();
+      return () => { cancelled = true; };
+    }, [])
+  );
+
+  const handleDelete = (food: FoodDbItem) => {
+    Alert.alert("Delete", `Remove "${food.name}" from your foods?`, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await deleteCustomFood(food.source_id);
+            setFoods((prev) => prev.filter((f) => f.source_id !== food.source_id));
+          } catch {
+            setToast({ visible: true, message: "Failed to delete", type: "error" });
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleAdd = async (data: { name: string; portion: string; calories: number; protein_g: number; carbs_g: number; fat_g: number }) => {
+    if (!data.name) {
+      setToast({ visible: true, message: "Name is required", type: "error" });
+      return;
+    }
+    setSaving(true);
+    try {
+      const created = await createCustomFood({
+        name: data.name,
+        portion: data.portion || undefined,
+        calories: data.calories,
+        protein_g: data.protein_g,
+        carbs_g: data.carbs_g,
+        fat_g: data.fat_g,
+      });
+      setFoods((prev) => [...prev, created]);
+      setShowAdd(false);
+    } catch {
+      setToast({ visible: true, message: "Failed to create custom food", type: "error" });
+    }
+    setSaving(false);
+  };
+
+  const handleQuickLog = async (quantity: number) => {
+    if (!quickLogFood) return;
+    setSaving(true);
+    try {
+      const entry = await saveFoodLog({
+        meal_type: detectMealType(),
+        food_name: quickLogFood.name,
+        portion: quickLogFood.portion || `${quantity} serving${quantity !== 1 ? "s" : ""}`,
+        calories: Math.round(quickLogFood.calories * quantity),
+        protein_g: Math.round(quickLogFood.protein_g * quantity * 10) / 10,
+        carbs_g: Math.round(quickLogFood.carbs_g * quantity * 10) / 10,
+        fat_g: Math.round(quickLogFood.fat_g * quantity * 10) / 10,
+        fiber_g: Math.round((quickLogFood.fiber_g || 0) * quantity * 10) / 10,
+        source: "custom",
+      });
+      addFoodLog({
+        id: entry.id,
+        food_name: entry.food_name,
+        portion: entry.portion,
+        calories: entry.calories,
+        protein_g: entry.protein_g,
+        carbs_g: entry.carbs_g,
+        fat_g: entry.fat_g,
+        fiber_g: entry.fiber_g,
+        meal_type: entry.meal_type,
+      });
+      setQuickLogFood(null);
+      router.replace("/(tabs)");
+    } catch {
+      setToast({ visible: true, message: "Failed to log food", type: "error" });
+    }
+    setSaving(false);
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const data = await getCustomFoods();
+      setFoods(data);
+    } catch {
+      setToast({ visible: true, message: "Failed to refresh", type: "error" });
+    }
+    setRefreshing(false);
+  };
+
+  return (
+    <ScreenWrapper>
+      <Toast visible={toast.visible} message={toast.message} type={toast.type} onHide={() => setToast({ ...toast, visible: false })} />
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Text style={styles.backArrow}>←</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>My Foods</Text>
+        <TouchableOpacity onPress={() => setShowAdd(true)} accessibilityRole="button" accessibilityLabel="Add custom food">
+          <Text style={styles.addButtonText}>+ Add</Text>
+        </TouchableOpacity>
+      </View>
+
+      {loading ? (
+        <ActivityIndicator color={Colors.white} style={styles.loader} />
+      ) : foods.length === 0 ? (
+        <View style={styles.empty}>
+          <Text style={styles.emptyTitle}>No saved foods</Text>
+          <Text style={styles.emptyDesc}>Add foods you eat frequently for quick logging</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={foods}
+          renderItem={({ item }) => (
+            <FoodListItem item={item} onPress={() => setQuickLogFood(item)} onDelete={() => handleDelete(item)} />
+          )}
+          keyExtractor={(item) => item.source_id}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+        />
+      )}
+
+      <QuickLogModal visible={quickLogFood !== null} food={quickLogFood} saving={saving} onClose={() => setQuickLogFood(null)} onLog={handleQuickLog} />
+      <AddFoodModal visible={showAdd} saving={saving} onClose={() => setShowAdd(false)} onSave={handleAdd} />
+    </ScreenWrapper>
+  );
+}
+
+const styles = StyleSheet.create({
+  header: { paddingTop: 16, paddingBottom: 16, flexDirection: "row", alignItems: "center" },
+  backButton: { marginRight: 16 },
+  backArrow: { color: Colors.white, fontSize: 16 },
+  headerTitle: { fontSize: 13, color: Colors.gray500, letterSpacing: 0.5, textTransform: "uppercase", flex: 1 },
+  addButtonText: { color: Colors.white, fontSize: 13 },
+  loader: { marginTop: 48 },
+  listContent: { paddingBottom: 16 },
+  empty: { alignItems: "center", paddingTop: 64 },
+  emptyTitle: { color: Colors.gray400, fontSize: 13, textTransform: "uppercase", letterSpacing: 0.5 },
+  emptyDesc: { color: Colors.gray300, fontSize: 12, marginTop: 8 },
+});
