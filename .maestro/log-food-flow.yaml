@@ -1,0 +1,14 @@
+appId: com.nutrilog.app
+---
+- launchApp
+- tapOn: "Dev Login"
+- waitForAnimationToEnd
+- tapOn: "Log"
+- tapOn: "Describe"
+- inputText: "2 scrambled eggs with toast"
+- tapOn: "Analyze"
+- waitForAnimationToEnd
+- assertVisible: "Confirm"
+- tapOn: "Save"
+- waitForAnimationToEnd
+- assertVisible: "Today"

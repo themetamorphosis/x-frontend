@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "../services/api";
+import { Sentry } from "../utils/sentry";
 
 interface Profile {
   id: string;
@@ -42,6 +43,7 @@ interface ProfileState {
   onboarding: OnboardingData;
   isLoading: boolean;
   profileLoaded: boolean;
+  error: string | null;
 
   setProfile: (profile: Profile) => void;
   setTargets: (targets: Targets) => void;
@@ -73,6 +75,7 @@ export const useProfileStore = create<ProfileState>()(
       onboarding: { ...emptyOnboarding },
       isLoading: false,
       profileLoaded: false,
+      error: null,
 
       setProfile: (profile) => set({ profile }),
       setTargets: (targets) => set({ targets }),
@@ -86,12 +89,14 @@ export const useProfileStore = create<ProfileState>()(
       },
 
       fetchProfile: async () => {
-        set({ isLoading: true });
+        set({ isLoading: true, error: null });
         try {
           const profile = await api.get<Profile>("/user/profile");
           set({ profile, isLoading: false, profileLoaded: true });
-        } catch {
-          set({ isLoading: false, profileLoaded: true });
+        } catch (e) {
+          const message = e instanceof Error ? e.message : "Failed to load profile";
+          Sentry.captureException(e, { tags: { context: "fetchProfile" } });
+          set({ isLoading: false, profileLoaded: true, error: message });
         }
       },
 
@@ -129,7 +134,7 @@ export const useProfileStore = create<ProfileState>()(
       partialize: (state) => ({ targets: state.targets }),
       onRehydrateStorage: () => (_state, error) => {
         if (error) {
-          console.error("[profileStore] Failed to rehydrate:", error);
+          Sentry.captureException(error, { tags: { context: "profileStore_rehydrate" } });
         }
       },
     }

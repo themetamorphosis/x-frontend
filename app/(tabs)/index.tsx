@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, RefreshControl, Alert, StyleSheet } from "react-native";
+import { View, Text, ScrollView, FlatList, TouchableOpacity, RefreshControl, Alert, StyleSheet } from "react-native";
 import { useFocusEffect } from "expo-router";
 import { ScreenWrapper } from "../../components/ui/ScreenWrapper";
 import { Card } from "../../components/ui/Card";
@@ -7,19 +7,43 @@ import { SkeletonMacroRings, SkeletonCard } from "../../components/ui/Skeleton";
 import { Toast } from "../../components/ui/Toast";
 import { MacroRing } from "../../components/MacroRing";
 import { WaterTracker } from "../../components/WaterTracker";
+import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { useDailyStore } from "../../stores/dailyStore";
+import { MEAL_ORDER, MEAL_LABELS } from "../../constants/meals";
 import type { LoggedFood } from "../../types/food";
 import { api } from "../../services/api";
 import { haptic } from "../../utils/haptics";
 import { Colors } from "../../utils/colors";
 
-const MEAL_ORDER = ["breakfast", "lunch", "dinner", "snack"] as const;
-const MEAL_LABELS: Record<string, string> = {
-  breakfast: "Breakfast",
-  lunch: "Lunch",
-  dinner: "Dinner",
-  snack: "Snack",
-};
+function FoodRow({ food, idx, onDelete, deletingId }: { food: LoggedFood; idx: number; onDelete: (id: string) => void; deletingId: string | null }) {
+  return (
+    <View
+      accessible
+      accessibilityLabel={`${food.food_name}, ${food.calories} calories`}
+      style={[styles.foodRow, idx > 0 && styles.foodRowBorder, deletingId === food.id && styles.foodRowDeleting]}
+    >
+      <View style={{ flex: 1 }}>
+        <Text style={styles.foodName}>{food.food_name}</Text>
+        {food.portion && <Text style={styles.foodPortion}>{food.portion}</Text>}
+      </View>
+      <View style={styles.foodRight}>
+        <Text style={styles.foodMacros}>
+          P{Math.round(food.protein_g)} C{Math.round(food.carbs_g)} F{Math.round(food.fat_g)}
+        </Text>
+        <Text style={styles.foodCal}>{food.calories}</Text>
+        <TouchableOpacity
+          onPress={() => onDelete(food.id)}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          accessibilityRole="button"
+          accessibilityLabel={`Delete ${food.food_name}`}
+          accessibilityHint="Removes this food entry from your log"
+        >
+          <Text style={styles.deleteBtn}>×</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
 
 function MealSection({
   title,
@@ -40,43 +64,25 @@ function MealSection({
         <Text accessibilityRole="header" style={styles.mealTitle}>{title}</Text>
         <Text style={styles.mealKcal}>{totalCals} kcal</Text>
       </View>
-      {foods.map((food, idx) => (
-        <View
-          key={food.id}
-          accessible
-          accessibilityLabel={`${food.food_name}, ${food.calories} calories`}
-          style={[styles.foodRow, idx > 0 && styles.foodRowBorder, deletingId === food.id && styles.foodRowDeleting]}
-        >
-          <View style={{ flex: 1 }}>
-            <Text style={styles.foodName}>{food.food_name}</Text>
-            {food.portion && <Text style={styles.foodPortion}>{food.portion}</Text>}
-          </View>
-          <View style={styles.foodRight}>
-            <Text style={styles.foodMacros}>
-              P{Math.round(food.protein_g)} C{Math.round(food.carbs_g)} F{Math.round(food.fat_g)}
-            </Text>
-            <Text style={styles.foodCal}>{food.calories}</Text>
-            <TouchableOpacity
-              onPress={() => onDelete(food.id)}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              accessibilityRole="button"
-              accessibilityLabel={`Delete ${food.food_name}`}
-              accessibilityHint="Removes this food entry from your log"
-            >
-              <Text style={styles.deleteBtn}>×</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      ))}
-      {foods.length === 0 && (
-        <Text style={styles.emptyMeal}>No items logged</Text>
-      )}
+      <FlatList
+        data={foods}
+        keyExtractor={(item) => item.id}
+        scrollEnabled={false}
+        renderItem={({ item, index }) => (
+          <FoodRow food={item} idx={index} onDelete={onDelete} deletingId={deletingId} />
+        )}
+        ListEmptyComponent={<Text style={styles.emptyMeal}>No items logged</Text>}
+      />
     </Card>
   );
 }
 
 export default function DashboardScreen() {
-  const { summary, loading, fetchDaily, removeFoodLog, rollbackSummary } = useDailyStore();
+  const summary = useDailyStore((s) => s.summary);
+  const loading = useDailyStore((s) => s.loading);
+  const fetchDaily = useDailyStore((s) => s.fetchDaily);
+  const removeFoodLog = useDailyStore((s) => s.removeFoodLog);
+  const rollbackSummary = useDailyStore((s) => s.rollbackSummary);
   const [toast, setToast] = useState({ visible: false, message: "", type: "success" as "success" | "error" });
   const [initialLoad, setInitialLoad] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -121,6 +127,7 @@ export default function DashboardScreen() {
   const byMeal = summary?.by_meal || { breakfast: [], lunch: [], dinner: [], snack: [] };
 
   return (
+    <ErrorBoundary>
     <ScreenWrapper>
       <Toast
         visible={toast.visible}
@@ -174,6 +181,7 @@ export default function DashboardScreen() {
         <View style={{ height: 40 }} />
       </ScrollView>
     </ScreenWrapper>
+    </ErrorBoundary>
   );
 }
 

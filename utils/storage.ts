@@ -7,11 +7,11 @@ export const secureStorage = {
     if (isWeb) {
       if (!__DEV__) {
         console.warn(
-          "⚠️ Web storage uses localStorage — tokens are vulnerable to XSS. " +
+          "⚠️ Web storage uses sessionStorage — tokens are cleared on tab close. " +
           "Consider httpOnly cookies for production."
         );
       }
-      return localStorage.getItem(key);
+      return sessionStorage.getItem(key);
     }
     const { getItemAsync } = await import("expo-secure-store");
     return getItemAsync(key);
@@ -19,7 +19,7 @@ export const secureStorage = {
 
   async setItem(key: string, value: string): Promise<void> {
     if (isWeb) {
-      localStorage.setItem(key, value);
+      sessionStorage.setItem(key, value);
       return;
     }
     const { setItemAsync } = await import("expo-secure-store");
@@ -28,7 +28,7 @@ export const secureStorage = {
 
   async removeItem(key: string): Promise<void> {
     if (isWeb) {
-      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
       return;
     }
     const { deleteItemAsync } = await import("expo-secure-store");

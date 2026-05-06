@@ -2,7 +2,8 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "../services/api";
-import type { LoggedFood, DailyTargets, MealFoods, DailySummary } from "../types/food";
+import { Sentry } from "../utils/sentry";
+import type { LoggedFood, DailyTargets, MealFoods, DailySummary, MealType } from "../types/food";
 
 interface PersistedDailyState {
   summary: DailySummary | null;
@@ -14,7 +15,7 @@ interface DailyState {
   loading: boolean;
   error: string | null;
   fetchDaily: (date?: string) => Promise<void>;
-  addFoodLog: (log: LoggedFood & { meal_type: string }) => void;
+  addFoodLog: (log: LoggedFood & { meal_type: MealType }) => void;
   removeFoodLog: (id: string) => void;
   setWater: (ml: number) => void;
   rollbackSummary: (prev: DailySummary) => void;
@@ -109,13 +110,17 @@ export const useDailyStore = create<DailyState>()(
     }),
     onRehydrateStorage: () => (state, error) => {
       if (error) {
-        console.error("[dailyStore] Failed to rehydrate:", error);
+        Sentry.captureException(error, { tags: { context: "dailyStore_rehydrate" } });
         return;
       }
-      // Clear stale data from previous day
+      // Clear stale data from previous day and refetch
       const today = new Date().toISOString().slice(0, 10);
-      if (state && (state as PersistedDailyState)._summaryDate !== today) {
+      if (state && (state as unknown as PersistedDailyState)._summaryDate !== today) {
         state.summary = null;
+        // Trigger refetch for today's data
+        setTimeout(() => {
+          useDailyStore.getState().fetchDaily();
+        }, 0);
       }
     },
   }

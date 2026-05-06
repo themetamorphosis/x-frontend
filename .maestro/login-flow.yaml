@@ -1,0 +1,12 @@
+# Maestro E2E Test Flows
+# Install: curl -Ls "https://get.maestro.mobile.dev" | bash
+# Run: maestro test .maestro/
+
+appId: com.nutrilog.app
+---
+- launchApp
+- tapOn: "Continue with Google"
+# In test environment, dev login is used instead
+- tapOn: "Dev Login"
+- waitForAnimationToEnd
+- assertVisible: "Today"

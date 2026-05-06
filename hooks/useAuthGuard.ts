@@ -1,45 +1,61 @@
 import { useEffect, useRef } from "react";
 import { useRouter, useSegments } from "expo-router";
+import type { Href } from "expo-router";
 import { useAuthStore } from "../stores/authStore";
 import { useProfileStore } from "../stores/profileStore";
 
-/**
- * Custom hook that encapsulates all authentication and onboarding navigation logic.
- * Extracts the complex navigation guard from _layout.tsx for better testability.
- */
-export function useAuthGuard() {
+type NavState = "loading" | "unauthenticated" | "needs_onboarding" | "authenticated";
+
+function deriveState(
+  isAuthenticated: boolean,
+  isLoading: boolean,
+  profileLoaded: boolean,
+  profile: unknown,
+  isOnboardingComplete: () => boolean,
+): NavState {
+  if (isLoading) return "loading";
+  if (!isAuthenticated) return "unauthenticated";
+  if (profileLoaded && profile && !isOnboardingComplete()) return "needs_onboarding";
+  if (isAuthenticated) return "authenticated";
+  return "loading";
+}
+
+const REDIRECTS: Record<NavState, Href | null> = {
+  loading: null,
+  unauthenticated: "/(auth)/login",
+  needs_onboarding: "/(onboarding)/goal",
+  authenticated: "/(tabs)",
+};
+
+export function useAuthGuard(): void {
   const { isAuthenticated, isLoading } = useAuthStore();
   const { profile, profileLoaded, isOnboardingComplete } = useProfileStore();
   const segments = useSegments();
   const router = useRouter();
-  const lastNavigation = useRef<string>("");
+  const lastNav = useRef<string>("");
 
   useEffect(() => {
-    if (isLoading) return;
+    const state = deriveState(isAuthenticated, isLoading, profileLoaded, profile, isOnboardingComplete);
+    if (state === "loading") return;
 
-    const inAuthGroup = segments[0] === "(auth)";
-    const inOnboardingGroup = segments[0] === "(onboarding)";
+    const inAuth = segments[0] === "(auth)";
+    const inOnboarding = segments[0] === "(onboarding)";
 
-    let target: string | null = null;
+    let target: Href | null = null;
 
-    if (!isAuthenticated && !inAuthGroup) {
-      target = "/(auth)/login";
-    } else if (isAuthenticated && inAuthGroup) {
-      if (profileLoaded && profile && !isOnboardingComplete()) {
-        target = "/(onboarding)/goal";
-      } else if (profileLoaded) {
-        target = "/(tabs)";
-      }
-    } else if (isAuthenticated && profileLoaded && profile && !isOnboardingComplete() && !inOnboardingGroup) {
-      target = "/(onboarding)/goal";
-    } else if (isAuthenticated && profileLoaded && profile && isOnboardingComplete() && inOnboardingGroup) {
-      target = "/(tabs)";
+    if (state === "unauthenticated" && !inAuth) {
+      target = REDIRECTS.unauthenticated;
+    } else if (state === "authenticated" && inAuth) {
+      target = REDIRECTS.authenticated;
+    } else if (state === "needs_onboarding" && !inOnboarding) {
+      target = REDIRECTS.needs_onboarding;
+    } else if (state === "authenticated" && inOnboarding) {
+      target = REDIRECTS.authenticated;
     }
 
-    // Avoid redundant navigations to the same target
-    if (target && target !== lastNavigation.current) {
-      lastNavigation.current = target;
-      router.replace(target as any);
+    if (target && target !== lastNav.current) {
+      lastNav.current = target as string;
+      router.replace(target);
     }
   }, [isAuthenticated, isLoading, profile, profileLoaded, segments, router, isOnboardingComplete]);
 }

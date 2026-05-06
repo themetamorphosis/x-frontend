@@ -1,5 +1,6 @@
 import NetInfo from "@react-native-community/netinfo";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Sentry } from "../utils/sentry";
 
 interface QueuedMutation {
   id: string;
@@ -42,7 +43,7 @@ class MutationQueue {
       this.queue.shift();
     }
     const mutation: QueuedMutation = {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      id: crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
       method,
       path,
       body,
@@ -102,7 +103,7 @@ class MutationQueue {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(this.queue));
     } catch (e) {
-      console.error("[mutationQueue] Failed to save queue:", e);
+      Sentry.captureException(e, { tags: { context: "mutationQueue_save" } });
     }
   }
 }

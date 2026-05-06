@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { ScreenWrapper } from "../../components/ui/ScreenWrapper";
 import { Card } from "../../components/ui/Card";
+import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { useFoodLogStore } from "../../stores/foodLogStore";
 import { haptic } from "../../utils/haptics";
 import { Colors } from "../../utils/colors";
@@ -38,6 +39,7 @@ export default function LogScreen() {
   };
 
   return (
+    <ErrorBoundary>
     <ScreenWrapper>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Log Food</Text>
@@ -74,6 +76,7 @@ export default function LogScreen() {
         onPress={() => goTo("/(log)/custom-foods")}
       />
     </ScreenWrapper>
+    </ErrorBoundary>
   );
 }
 

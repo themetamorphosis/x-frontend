@@ -5,6 +5,7 @@ import { ScreenWrapper } from "../../components/ui/ScreenWrapper";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { Toast } from "../../components/ui/Toast";
+import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { useAuthStore } from "../../stores/authStore";
 import { useProfileStore } from "../../stores/profileStore";
 import { Colors } from "../../utils/colors";
@@ -68,6 +69,7 @@ export default function ProfileScreen() {
   ];
 
   return (
+    <ErrorBoundary>
     <ScreenWrapper>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
@@ -159,6 +161,7 @@ export default function ProfileScreen() {
         onHide={() => setToast(null)}
       />
     </ScreenWrapper>
+    </ErrorBoundary>
   );
 }
 

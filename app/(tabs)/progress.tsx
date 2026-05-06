@@ -8,6 +8,7 @@ import { SkeletonCard } from "../../components/ui/Skeleton";
 import { Toast } from "../../components/ui/Toast";
 import { WeightChart } from "../../components/WeightChart";
 import { WeeklyTrend } from "../../components/WeeklyTrend";
+import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { Colors } from "../../utils/colors";
 import { haptic } from "../../utils/haptics";
 import { useProgressStore } from "../../stores/progressStore";
@@ -71,6 +72,7 @@ export default function ProgressScreen() {
   ];
 
   return (
+    <ErrorBoundary>
     <ScreenWrapper>
       <Toast
         visible={toast.visible}
@@ -201,6 +203,7 @@ export default function ProgressScreen() {
         )}
       </ScrollView>
     </ScreenWrapper>
+    </ErrorBoundary>
   );
 }
 

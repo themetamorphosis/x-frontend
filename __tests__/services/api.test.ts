@@ -1,6 +1,8 @@
 const mockFetch = jest.fn();
 Object.defineProperty(globalThis, "fetch", { value: mockFetch, writable: true });
 
+const jsonHeaders = { get: (key: string) => key === "content-type" ? "application/json" : null };
+
 import { api } from "../../services/api";
 
 describe("ApiClient", () => {
@@ -16,6 +18,7 @@ describe("ApiClient", () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
+        headers: jsonHeaders,
         json: () => Promise.resolve({ data: "ok" }),
       });
       await api.get("/test");
@@ -27,6 +30,7 @@ describe("ApiClient", () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
+        headers: jsonHeaders,
         json: () => Promise.resolve({}),
       });
       await api.get("/test");
@@ -39,6 +43,7 @@ describe("ApiClient", () => {
     it("sends GET request", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: jsonHeaders,
         json: () => Promise.resolve({ items: [] }),
       });
       const result = await api.get("/items");
@@ -52,6 +57,7 @@ describe("ApiClient", () => {
     it("sends POST request with body", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: jsonHeaders,
         json: () => Promise.resolve({ id: "1" }),
       });
       await api.post("/items", { name: "test" });
@@ -67,6 +73,7 @@ describe("ApiClient", () => {
     it("sends PUT request", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: jsonHeaders,
         json: () => Promise.resolve({}),
       });
       await api.put("/items/1", { name: "updated" });
@@ -79,6 +86,7 @@ describe("ApiClient", () => {
     it("sends DELETE request", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: jsonHeaders,
         json: () => Promise.resolve({}),
       });
       await api.delete("/items/1");
@@ -89,6 +97,28 @@ describe("ApiClient", () => {
     });
   });
 
+  describe("content-type validation", () => {
+    it("rejects non-JSON success responses", async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: { get: () => "text/html" },
+        json: () => Promise.resolve({}),
+      });
+      await expect(api.get("/test")).rejects.toThrow("Unexpected response format");
+    });
+
+    it("handles non-JSON error responses gracefully", async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 502,
+        headers: { get: () => "text/html" },
+        json: () => Promise.resolve({}),
+      });
+      await expect(api.get("/test")).rejects.toThrow("HTTP 502");
+    });
+  });
+
   describe("error handling", () => {
     it("calls onUnauthorized on 401", async () => {
       const handler = jest.fn();
@@ -96,6 +126,7 @@ describe("ApiClient", () => {
       mockFetch.mockResolvedValue({
         ok: false,
         status: 401,
+        headers: jsonHeaders,
         json: () => Promise.resolve({}),
       });
       await expect(api.get("/protected")).rejects.toThrow("Unauthorized");
@@ -106,6 +137,7 @@ describe("ApiClient", () => {
       mockFetch.mockResolvedValue({
         ok: false,
         status: 401,
+        headers: jsonHeaders,
         json: () => Promise.resolve({}),
       });
       await expect(api.get("/protected")).rejects.toThrow();
@@ -120,6 +152,7 @@ describe("ApiClient", () => {
         .mockRejectedValueOnce(new Error("Network fail"))
         .mockResolvedValueOnce({
           ok: true,
+          headers: jsonHeaders,
           json: () => Promise.resolve({ success: true }),
         });
       const result = await api.get("/flaky");

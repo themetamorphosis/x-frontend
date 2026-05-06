@@ -1,3 +1,6 @@
+export type MealType = "breakfast" | "lunch" | "dinner" | "snack";
+export type FoodSource = "ai_text" | "ai_photo" | "barcode" | "search" | "custom";
+
 export interface ParsedFood {
   name: string;
   portion: string | null;
@@ -18,7 +21,7 @@ export interface AIParseResponse {
 export interface FoodLogEntry {
   id: string;
   user_id: string;
-  meal_type: string;
+  meal_type: MealType;
   food_name: string;
   portion: string | null;
   calories: number;
@@ -26,13 +29,13 @@ export interface FoodLogEntry {
   carbs_g: number;
   fat_g: number;
   fiber_g: number;
-  source: string;
+  source: FoodSource;
   logged_at: string;
   log_date: string;
 }
 
 export interface FoodLogCreate {
-  meal_type: string;
+  meal_type: MealType;
   food_name: string;
   portion?: string | null;
   calories: number;
@@ -40,7 +43,7 @@ export interface FoodLogCreate {
   carbs_g: number;
   fat_g: number;
   fiber_g: number;
-  source: string;
+  source: FoodSource;
 }
 
 export interface LoggedFood {
@@ -77,12 +80,7 @@ export interface DailyTargets {
   fiber_g: number;
 }
 
-export interface MealFoods {
-  breakfast: LoggedFood[];
-  lunch: LoggedFood[];
-  dinner: LoggedFood[];
-  snack: LoggedFood[];
-}
+export type MealFoods = Record<MealType, LoggedFood[]>;
 
 export interface DailySummary {
   date: string;

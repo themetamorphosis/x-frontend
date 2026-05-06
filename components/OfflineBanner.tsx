@@ -1,6 +1,10 @@
 import { View, Text } from "react-native";
 import { Colors } from "../utils/colors";
 
+/**
+ * Banner displayed at the top of the screen when the device is offline.
+ * Renders nothing when connected. Used in root layout alongside useNetworkStatus.
+ */
 export function OfflineBanner() {
   return (
     <View

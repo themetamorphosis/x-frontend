@@ -3,6 +3,13 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Sentry } from "../utils/sentry";
 import { Colors } from "../utils/colors";
 
+/**
+ * Global error boundary component that catches React rendering errors.
+ *
+ * Displays a user-friendly error screen with a "Try Again" button.
+ * Reports errors to Sentry with component stack trace.
+ * Uses a resetKey to force remount of children on retry.
+ */
 interface Props {
   children: ReactNode;
 }

@@ -16,6 +16,17 @@ const STROKE_WIDTH = 6;
 const RADIUS = (SIZE - STROKE_WIDTH) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
+/**
+ * Animated circular progress ring for displaying macro nutrient progress.
+ *
+ * Uses react-native-reanimated for smooth 800ms animation with cubic easing.
+ * Automatically clamps progress to 100% when current exceeds target.
+ *
+ * @param label - Display label (e.g., "Calories", "Protein")
+ * @param current - Current consumed value
+ * @param target - Target value
+ * @param unit - Optional unit suffix (e.g., "g")
+ */
 interface MacroRingProps {
   label: string;
   current: number;

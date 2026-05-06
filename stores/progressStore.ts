@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { api } from "../services/api";
+import { Sentry } from "../utils/sentry";
 
 export interface WeightEntry {
   id: string;
@@ -69,7 +70,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
       const data = await api.get<WeightEntry[]>(`/logs/weight?range=${r}&limit=500`);
       set({ weightLogs: data });
     } catch (e) {
-      console.error("Failed to fetch weight logs:", e);
+      Sentry.captureException(e, { tags: { context: "fetchWeightLogs" } });
       set({ weightLogs: [] });
     }
   },
@@ -85,7 +86,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
       const data = await api.get<WeeklyData>(`/dashboard/weekly${params}`);
       set({ weekly: data });
     } catch (e) {
-      console.error("Failed to fetch weekly data:", e);
+      Sentry.captureException(e, { tags: { context: "fetchWeekly" } });
       // Keep previous data on transient errors — don't clear
     }
   },
@@ -95,7 +96,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
       const data = await api.get<StreakInfo>("/dashboard/streaks");
       set({ streaks: data });
     } catch (e) {
-      console.error("Failed to fetch streaks:", e);
+      Sentry.captureException(e, { tags: { context: "fetchStreaks" } });
       // Keep previous data on transient errors — don't clear
     }
   },
