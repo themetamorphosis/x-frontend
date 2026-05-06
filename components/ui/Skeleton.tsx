@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Animated, View, StyleSheet, ViewStyle } from "react-native";
+import { Colors } from "../../utils/colors";
 
 interface SkeletonProps {
   width?: number | string;
@@ -9,13 +10,13 @@ interface SkeletonProps {
 }
 
 export function Skeleton({ width = "100%", height = 16, borderRadius = 8, style }: SkeletonProps) {
-  const opacity = useRef(new Animated.Value(0.3)).current;
+  const opacity = useRef(new Animated.Value(0.4)).current;
 
   useEffect(() => {
     const animation = Animated.loop(
       Animated.sequence([
-        Animated.timing(opacity, { toValue: 0.7, duration: 800, useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 0.3, duration: 800, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0.7, duration: 900, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0.4, duration: 900, useNativeDriver: true }),
       ])
     );
     animation.start();
@@ -29,7 +30,7 @@ export function Skeleton({ width = "100%", height = 16, borderRadius = 8, style 
           width: width as any,
           height,
           borderRadius,
-          backgroundColor: "#1A1A1A",
+          backgroundColor: Colors.surfaceDark,
           opacity,
         },
         style,
@@ -69,12 +70,15 @@ export function SkeletonMacroRings() {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#111111",
-    borderRadius: 12,
+    backgroundColor: Colors.background,
+    borderRadius: 20,
     padding: 16,
-    borderWidth: 1,
-    borderColor: "#1A1A1A",
     marginBottom: 16,
+    // Neumorphic raised shadow
+    shadowColor: "#000",
+    shadowOffset: { width: -4, height: -4 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
   },
   ringsRow: {
     flexDirection: "row",

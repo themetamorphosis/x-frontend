@@ -1,57 +1,64 @@
-/** Theme colors for NutriLog. Supports dark and light modes. */
+/**
+ * Neumorphic color palette for NutriLog.
+ * Warm off-white (#E0E0E0) base with Slate Blue (#6C8EBF) accent.
+ */
 
 import { useColorScheme } from "react-native";
 
-const darkColors = {
-  black: "#000000",
+const neumorphicColors = {
+  // Base surfaces — background IS the surface in neumorphism
+  background: "#E0E0E0",
+  surface: "#E0E0E0",
+  surfaceDark: "#D6D6D6",
+
+  // Shadows
+  shadowLight: "#FFFFFF",
+  shadowDark: "#BEBEBE",
+  highlight: "#FFFFFF",
+  shadow: "#BEBEBE",
+
+  // Text
+  text: "#333333",
+  textSecondary: "#777777",
+  textTertiary: "#999999",
+
+  // Accent — Slate Blue, used sparingly
+  accent: "#6C8EBF",
+  accentLight: "#8BAAD4",
+  accentDark: "#5A7AA6",
+
+  // Semantic
+  error: "#E53935",
+  success: "#43A047",
+  warning: "#FB8C00",
+
+  // Utility
+  black: "#333333",
   white: "#FFFFFF",
-  gray100: "#111111",
-  gray200: "#1A1A1A",
-  gray300: "#222222",
-  gray400: "#707070",
-  gray500: "#8A8A8A",
-  gray600: "#888888",
-  gray700: "#AAAAAA",
-  background: "#000000",
-  surface: "#1A1A1A",
-  text: "#FFFFFF",
-  textSecondary: "#8A8A8A",
-  accent: "#4ADE80",
-  error: "#EF4444",
-  success: "#22C55E",
+  overlay: "rgba(0, 0, 0, 0.3)",
+
+  // Legacy compatibility (for gradual migration)
+  gray100: "#E0E0E0",
+  gray200: "#D6D6D6",
+  gray300: "#CCCCCC",
+  gray400: "#999999",
+  gray500: "#777777",
+  gray600: "#555555",
+  gray700: "#333333",
 };
 
-const lightColors = {
-  black: "#FFFFFF",
-  white: "#000000",
-  gray100: "#F5F5F5",
-  gray200: "#E5E5E5",
-  gray300: "#D4D4D4",
-  gray400: "#737373",
-  gray500: "#525252",
-  gray600: "#404040",
-  gray700: "#262626",
-  background: "#FFFFFF",
-  surface: "#F5F5F5",
-  text: "#000000",
-  textSecondary: "#525252",
-  accent: "#16A34A",
-  error: "#DC2626",
-  success: "#16A34A",
-};
+export type ThemeColors = typeof neumorphicColors;
 
-export type ThemeColors = typeof darkColors;
+/** Default export — neumorphic palette. */
+export const Colors = neumorphicColors;
 
-/** Default export for backward compatibility — dark theme. */
-export const Colors = darkColors;
-
-/** Hook to get theme-appropriate colors based on device color scheme. */
+/** Hook to get theme colors. Currently returns neumorphic for all schemes. */
 export function useThemeColors(): ThemeColors {
-  const scheme = useColorScheme();
-  return scheme === "light" ? lightColors : darkColors;
+  const _scheme = useColorScheme();
+  return neumorphicColors;
 }
 
-/** Get colors for a specific scheme without a hook. */
-export function getColors(scheme: "light" | "dark" | null | undefined): ThemeColors {
-  return scheme === "light" ? lightColors : darkColors;
+/** Get colors for a specific scheme. Currently always returns neumorphic. */
+export function getColors(_scheme?: "light" | "dark" | null | undefined): ThemeColors {
+  return neumorphicColors;
 }

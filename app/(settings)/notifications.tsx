@@ -1,10 +1,14 @@
-import { View, Text, Switch, TouchableOpacity, ScrollView, Alert, StyleSheet } from "react-native";
+import { View, Text, Switch, ScrollView, Alert, StyleSheet } from "react-native";
 import { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
+import { Shadow } from "react-native-shadow-2";
+import { MotiPressable } from "moti/interactions";
+import { ChevronLeft } from "lucide-react-native";
 import { ScreenWrapper } from "../../components/ui/ScreenWrapper";
-import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Colors } from "../../utils/colors";
+import { label, body, caption, buttonText, heading } from "../../utils/typography";
+import { raisedShadowProps, neuInset } from "../../utils/neumorphic";
 import {
   getNotificationSettings,
   updateNotificationSettings,
@@ -75,45 +79,52 @@ export default function NotificationSettingsScreen() {
     <ScreenWrapper>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <TouchableOpacity
+          <MotiPressable
             onPress={() => router.back()}
             accessibilityRole="button"
             accessibilityLabel="Go back"
+            animate={({ pressed }) => ({ scale: pressed ? 0.9 : 1 })}
             style={styles.backButton}
           >
-            <Text style={styles.backText}>Back</Text>
-          </TouchableOpacity>
+            <ChevronLeft size={24} color={Colors.text} />
+          </MotiPressable>
           <Text style={styles.headerTitle}>Notifications</Text>
         </View>
 
-        <Card style={styles.card}>
-          <Text style={styles.sectionLabel}>Reminders</Text>
-          {toggleItems.map((item, i) => (
-            <View key={item.key} style={[styles.toggleRow, i < toggleItems.length - 1 && styles.rowBorder]}>
-              <Text style={styles.rowLabel}>{item.label}</Text>
-              <Switch
-                value={settings[item.key] as boolean}
-                onValueChange={() => toggle(item.key)}
-                trackColor={{ false: Colors.gray100, true: Colors.white }}
-                thumbColor={settings[item.key] ? Colors.black : Colors.gray500}
-                accessibilityLabel={`${item.label} toggle`}
-              />
-            </View>
-          ))}
-        </Card>
+        {/* Reminders Card */}
+        <Shadow {...raisedShadowProps(5)} style={styles.card}>
+          <View style={styles.cardInner}>
+            <Text style={styles.sectionLabel}>Reminders</Text>
+            {toggleItems.map((item, i) => (
+              <View key={item.key} style={[styles.toggleRow, i < toggleItems.length - 1 && styles.rowBorder]}>
+                <Text style={styles.rowLabel}>{item.label}</Text>
+                <Switch
+                  value={settings[item.key] as boolean}
+                  onValueChange={() => toggle(item.key)}
+                  trackColor={{ false: Colors.surfaceDark, true: Colors.accent }}
+                  thumbColor={settings[item.key] ? Colors.white : Colors.textTertiary}
+                  accessibilityLabel={`${item.label} toggle`}
+                />
+              </View>
+            ))}
+          </View>
+        </Shadow>
 
-        <Card style={styles.card}>
-          <Text style={styles.sectionLabel}>Reminder Times</Text>
-          {timeItems.map((item, i) => (
-            <View key={item.key} style={[styles.toggleRow, i < timeItems.length - 1 && styles.rowBorder]}>
-              <Text style={styles.rowLabel}>{item.label}</Text>
-              <Text style={styles.timeValue}>{settings[item.key]}</Text>
-            </View>
-          ))}
-          <Text style={styles.comingSoon}>Time editing coming soon</Text>
-        </Card>
+        {/* Reminder Times Card */}
+        <Shadow {...raisedShadowProps(5)} style={styles.card}>
+          <View style={styles.cardInner}>
+            <Text style={styles.sectionLabel}>Reminder Times</Text>
+            {timeItems.map((item, i) => (
+              <View key={item.key} style={[styles.toggleRow, i < timeItems.length - 1 && styles.rowBorder]}>
+                <Text style={styles.rowLabel}>{item.label}</Text>
+                <Text style={styles.timeValue}>{settings[item.key]}</Text>
+              </View>
+            ))}
+            <Text style={styles.comingSoon}>Time editing coming soon</Text>
+          </View>
+        </Shadow>
 
-        <Button title="Save" onPress={handleSave} loading={saving} />
+        <Button title="Save" onPress={handleSave} loading={saving} variant="accent" />
       </ScrollView>
     </ScreenWrapper>
   );
@@ -121,21 +132,21 @@ export default function NotificationSettingsScreen() {
 
 const styles = StyleSheet.create({
   centered: { flex: 1, alignItems: "center", justifyContent: "center" },
-  loadingText: { color: Colors.gray500, fontSize: 13 },
-  header: { paddingTop: 16, paddingBottom: 24, flexDirection: "row", alignItems: "center" },
-  backButton: { marginRight: 16 },
-  backText: { color: Colors.white, fontSize: 15 },
-  headerTitle: { fontSize: 13, color: Colors.gray500, letterSpacing: 0.5, textTransform: "uppercase" },
-  card: { marginBottom: 16 },
-  sectionLabel: { color: Colors.gray500, fontSize: 11, letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 16 },
+  loadingText: { ...caption, color: Colors.textSecondary },
+  header: { paddingTop: 16, paddingBottom: 24, flexDirection: "row", alignItems: "center", gap: 12 },
+  backButton: { width: 36, height: 36, alignItems: "center", justifyContent: "center" },
+  headerTitle: { ...label, fontSize: 13 },
+  card: { marginBottom: 16, borderRadius: 20, backgroundColor: Colors.background },
+  cardInner: { padding: 16 },
+  sectionLabel: { ...label, marginBottom: 16 },
   toggleRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: 14,
   },
-  rowBorder: { borderBottomWidth: 1, borderBottomColor: Colors.gray100 },
-  rowLabel: { color: Colors.white, fontSize: 15 },
-  timeValue: { color: Colors.gray400, fontSize: 15 },
-  comingSoon: { color: Colors.gray500, fontSize: 11, marginTop: 12 },
+  rowBorder: { borderBottomWidth: 1, borderBottomColor: Colors.surfaceDark },
+  rowLabel: { ...body, fontSize: 15, color: Colors.text },
+  timeValue: { ...body, fontSize: 15, color: Colors.textSecondary },
+  comingSoon: { ...caption, fontSize: 11, marginTop: 12 },
 });

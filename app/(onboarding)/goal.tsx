@@ -1,9 +1,13 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import { Shadow } from "react-native-shadow-2";
+import { MotiPressable } from "moti/interactions";
 import { ScreenWrapper } from "../../components/ui/ScreenWrapper";
 import { Button } from "../../components/ui/Button";
 import { useProfileStore } from "../../stores/profileStore";
 import { Colors } from "../../utils/colors";
+import { label, heading, body, caption, buttonText } from "../../utils/typography";
+import { raisedShadowProps, neuInset } from "../../utils/neumorphic";
 
 const GOALS = [
   { key: "lose_fat", label: "LOSE FAT", desc: "Reduce body fat while keeping muscle" },
@@ -27,22 +31,26 @@ export default function GoalScreen() {
           {GOALS.map((g) => {
             const selected = onboarding.goal === g.key;
             return (
-              <TouchableOpacity
+              <MotiPressable
                 key={g.key}
                 onPress={() => setOnboarding({ goal: g.key })}
-                activeOpacity={0.7}
                 accessibilityRole="radio"
                 accessibilityLabel={`${g.label}: ${g.desc}`}
                 accessibilityState={{ selected }}
-                style={[styles.goalCard, selected ? styles.goalCardActive : styles.goalCardInactive]}
+                animate={({ pressed }) => ({ scale: pressed ? 0.98 : 1 })}
               >
-                <Text style={[styles.goalLabel, { color: selected ? Colors.black : Colors.white }]}>
-                  {g.label}
-                </Text>
-                <Text style={[styles.goalDesc, { color: selected ? Colors.gray300 : Colors.gray500 }]}>
-                  {g.desc}
-                </Text>
-              </TouchableOpacity>
+                <Shadow
+                  {...(selected ? raisedShadowProps(6) : raisedShadowProps(3))}
+                  style={[styles.goalCard, selected && styles.goalCardActive]}
+                >
+                  <Text style={[styles.goalLabel, selected && { color: Colors.white }]}>
+                    {g.label}
+                  </Text>
+                  <Text style={[styles.goalDesc, selected && { color: "rgba(255,255,255,0.7)" }]}>
+                    {g.desc}
+                  </Text>
+                </Shadow>
+              </MotiPressable>
             );
           })}
         </View>
@@ -53,6 +61,7 @@ export default function GoalScreen() {
           title="Continue"
           onPress={() => router.push("/(onboarding)/stats")}
           disabled={!onboarding.goal}
+          variant="accent"
           style={styles.continueButton}
         />
       </View>
@@ -62,15 +71,14 @@ export default function GoalScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, paddingTop: 60 },
-  stepLabel: { color: Colors.gray500, fontSize: 11, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 },
-  title: { color: Colors.white, fontSize: 28, fontWeight: "700", marginBottom: 8 },
-  subtitle: { color: Colors.gray500, fontSize: 14, marginBottom: 32 },
+  stepLabel: { ...label, fontSize: 11, marginBottom: 4 },
+  title: { ...heading, fontSize: 28, marginBottom: 8 },
+  subtitle: { ...caption, fontSize: 14, marginBottom: 32 },
   goalList: { gap: 12 },
-  goalCard: { borderWidth: 1, borderRadius: 12, padding: 20 },
-  goalCardActive: { backgroundColor: Colors.white, borderColor: Colors.white },
-  goalCardInactive: { backgroundColor: Colors.gray100, borderColor: Colors.gray100 },
-  goalLabel: { fontSize: 15, fontWeight: "600", letterSpacing: 0.5 },
-  goalDesc: { fontSize: 13, marginTop: 4 },
+  goalCard: { borderRadius: 16, padding: 20, backgroundColor: Colors.background },
+  goalCardActive: { backgroundColor: Colors.accent },
+  goalLabel: { ...buttonText, fontSize: 15, letterSpacing: 0.5, color: Colors.text },
+  goalDesc: { ...body, fontSize: 13, marginTop: 4, color: Colors.textSecondary },
   spacer: { flex: 1 },
   continueButton: { marginBottom: 40 },
 });

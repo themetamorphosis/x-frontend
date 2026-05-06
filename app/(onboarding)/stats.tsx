@@ -1,10 +1,14 @@
-import { View, Text, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import { View, Text, TextInput, ScrollView, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { useState } from "react";
+import { Shadow } from "react-native-shadow-2";
+import { MotiPressable } from "moti/interactions";
 import { ScreenWrapper } from "../../components/ui/ScreenWrapper";
 import { Button } from "../../components/ui/Button";
 import { useProfileStore } from "../../stores/profileStore";
 import { Colors } from "../../utils/colors";
+import { label, heading, caption, buttonText, body } from "../../utils/typography";
+import { raisedShadowProps, neuInset } from "../../utils/neumorphic";
 
 export default function StatsScreen() {
   const router = useRouter();
@@ -41,57 +45,70 @@ export default function StatsScreen() {
             { key: "male", label: "MALE" },
             { key: "female", label: "FEMALE" },
           ].map((s) => (
-            <TouchableOpacity
+            <MotiPressable
               key={s.key}
               onPress={() => setSex(s.key)}
               accessibilityRole="button"
               accessibilityLabel={`Sex: ${s.label}`}
-              style={[styles.sexButton, sex === s.key ? styles.sexButtonActive : styles.sexButtonInactive]}
+              animate={({ pressed }) => ({ scale: pressed ? 0.97 : 1 })}
+              style={{ flex: 1 }}
             >
-              <Text style={[styles.sexButtonText, { color: sex === s.key ? Colors.black : Colors.white }]}>
-                {s.label}
-              </Text>
-            </TouchableOpacity>
+              <Shadow
+                {...(sex === s.key ? raisedShadowProps(5) : raisedShadowProps(3))}
+                style={[styles.sexButton, sex === s.key && styles.sexButtonActive]}
+              >
+                <Text style={[styles.sexButtonText, sex === s.key && { color: Colors.white }]}>
+                  {s.label}
+                </Text>
+              </Shadow>
+            </MotiPressable>
           ))}
         </View>
 
         <Text style={styles.fieldLabel}>Age</Text>
-        <TextInput
-          value={age}
-          onChangeText={setAge}
-          placeholder="25"
-          placeholderTextColor={Colors.gray400}
-          keyboardType="number-pad"
-          accessibilityLabel="Age in years"
-          style={styles.textInput}
-        />
+        <View style={neuInset({ paddingHorizontal: 16, paddingVertical: 14, borderRadius: 14, marginBottom: 24 })}>
+          <TextInput
+            value={age}
+            onChangeText={setAge}
+            placeholder="25"
+            placeholderTextColor={Colors.textTertiary}
+            keyboardType="number-pad"
+            accessibilityLabel="Age in years"
+            style={styles.textInput}
+          />
+        </View>
 
         <Text style={styles.fieldLabel}>Height (cm)</Text>
-        <TextInput
-          value={height}
-          onChangeText={setHeight}
-          placeholder="175"
-          placeholderTextColor={Colors.gray400}
-          keyboardType="decimal-pad"
-          accessibilityLabel="Height in centimeters"
-          style={styles.textInput}
-        />
+        <View style={neuInset({ paddingHorizontal: 16, paddingVertical: 14, borderRadius: 14, marginBottom: 24 })}>
+          <TextInput
+            value={height}
+            onChangeText={setHeight}
+            placeholder="175"
+            placeholderTextColor={Colors.textTertiary}
+            keyboardType="decimal-pad"
+            accessibilityLabel="Height in centimeters"
+            style={styles.textInput}
+          />
+        </View>
 
         <Text style={styles.fieldLabel}>Weight (kg)</Text>
-        <TextInput
-          value={weight}
-          onChangeText={setWeight}
-          placeholder="70"
-          placeholderTextColor={Colors.gray400}
-          keyboardType="decimal-pad"
-          accessibilityLabel="Weight in kilograms"
-          style={styles.textInput}
-        />
+        <View style={neuInset({ paddingHorizontal: 16, paddingVertical: 14, borderRadius: 14, marginBottom: 24 })}>
+          <TextInput
+            value={weight}
+            onChangeText={setWeight}
+            placeholder="70"
+            placeholderTextColor={Colors.textTertiary}
+            keyboardType="decimal-pad"
+            accessibilityLabel="Weight in kilograms"
+            style={styles.textInput}
+          />
+        </View>
 
         <Button
           title="Continue"
           onPress={handleContinue}
           disabled={!canContinue}
+          variant="accent"
         />
       </ScrollView>
       </KeyboardAvoidingView>
@@ -102,29 +119,24 @@ export default function StatsScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   scrollContent: { paddingTop: 60, paddingBottom: 40 },
-  stepLabel: { color: Colors.gray500, fontSize: 11, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 },
-  title: { color: Colors.white, fontSize: 28, fontWeight: "700", marginBottom: 8 },
-  subtitle: { color: Colors.gray500, fontSize: 14, marginBottom: 32 },
-  fieldLabel: { color: Colors.gray500, fontSize: 11, letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 8 },
+  stepLabel: { ...label, fontSize: 11, marginBottom: 4 },
+  title: { ...heading, fontSize: 28, marginBottom: 8 },
+  subtitle: { ...caption, fontSize: 14, marginBottom: 32 },
+  fieldLabel: { ...label, marginBottom: 8 },
   sexRow: { flexDirection: "row", gap: 12, marginBottom: 24 },
   sexButton: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 14,
     paddingVertical: 16,
     alignItems: "center",
+    backgroundColor: Colors.background,
   },
-  sexButtonActive: { backgroundColor: Colors.white, borderColor: Colors.white },
-  sexButtonInactive: { backgroundColor: Colors.gray100, borderColor: Colors.gray200 },
-  sexButtonText: { fontWeight: "600", fontSize: 14 },
+  sexButtonActive: { backgroundColor: Colors.accent },
+  sexButtonText: { ...buttonText, fontSize: 14, color: Colors.text },
   textInput: {
-    backgroundColor: Colors.gray100,
-    borderWidth: 1,
-    borderColor: Colors.gray200,
-    borderRadius: 12,
-    padding: 16,
-    color: Colors.white,
+    color: Colors.text,
     fontSize: 16,
-    marginBottom: 24,
+    fontFamily: "Nunito_400Regular",
+    padding: 0,
+    margin: 0,
   },
 });

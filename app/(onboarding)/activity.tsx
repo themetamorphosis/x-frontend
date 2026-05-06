@@ -1,9 +1,13 @@
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import { Shadow } from "react-native-shadow-2";
+import { MotiPressable } from "moti/interactions";
 import { ScreenWrapper } from "../../components/ui/ScreenWrapper";
 import { Button } from "../../components/ui/Button";
 import { useProfileStore } from "../../stores/profileStore";
 import { Colors } from "../../utils/colors";
+import { label, heading, caption, buttonText, body } from "../../utils/typography";
+import { raisedShadowProps } from "../../utils/neumorphic";
 
 const LEVELS = [
   { key: "sedentary", label: "SEDENTARY", desc: "Desk job, little to no exercise" },
@@ -28,22 +32,26 @@ export default function ActivityScreen() {
           {LEVELS.map((l) => {
             const selected = onboarding.activity_level === l.key;
             return (
-              <TouchableOpacity
+              <MotiPressable
                 key={l.key}
                 onPress={() => setOnboarding({ activity_level: l.key })}
-                activeOpacity={0.7}
                 accessibilityRole="radio"
                 accessibilityLabel={`${l.label}: ${l.desc}`}
                 accessibilityState={{ selected }}
-                style={[styles.optionCard, selected ? styles.optionActive : styles.optionInactive]}
+                animate={({ pressed }) => ({ scale: pressed ? 0.98 : 1 })}
               >
-                <Text style={[styles.optionLabel, { color: selected ? Colors.black : Colors.white }]}>
-                  {l.label}
-                </Text>
-                <Text style={[styles.optionDesc, { color: selected ? Colors.gray300 : Colors.gray500 }]}>
-                  {l.desc}
-                </Text>
-              </TouchableOpacity>
+                <Shadow
+                  {...(selected ? raisedShadowProps(6) : raisedShadowProps(3))}
+                  style={[styles.optionCard, selected && styles.optionActive]}
+                >
+                  <Text style={[styles.optionLabel, selected && { color: Colors.white }]}>
+                    {l.label}
+                  </Text>
+                  <Text style={[styles.optionDesc, selected && { color: "rgba(255,255,255,0.7)" }]}>
+                    {l.desc}
+                  </Text>
+                </Shadow>
+              </MotiPressable>
             );
           })}
         </View>
@@ -54,6 +62,7 @@ export default function ActivityScreen() {
           title="Continue"
           onPress={() => router.push("/(onboarding)/pace")}
           disabled={!onboarding.activity_level}
+          variant="accent"
         />
       </ScrollView>
     </ScreenWrapper>
@@ -62,14 +71,13 @@ export default function ActivityScreen() {
 
 const styles = StyleSheet.create({
   scrollContent: { paddingTop: 60, paddingBottom: 40 },
-  stepLabel: { color: Colors.gray500, fontSize: 11, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 },
-  title: { color: Colors.white, fontSize: 28, fontWeight: "700", marginBottom: 8 },
-  subtitle: { color: Colors.gray500, fontSize: 14, marginBottom: 32 },
+  stepLabel: { ...label, fontSize: 11, marginBottom: 4 },
+  title: { ...heading, fontSize: 28, marginBottom: 8 },
+  subtitle: { ...caption, fontSize: 14, marginBottom: 32 },
   optionList: { gap: 12 },
-  optionCard: { borderWidth: 1, borderRadius: 12, padding: 20 },
-  optionActive: { backgroundColor: Colors.white, borderColor: Colors.white },
-  optionInactive: { backgroundColor: Colors.gray100, borderColor: Colors.gray100 },
-  optionLabel: { fontSize: 15, fontWeight: "600", letterSpacing: 0.5 },
-  optionDesc: { fontSize: 13, marginTop: 4 },
+  optionCard: { borderRadius: 16, padding: 20, backgroundColor: Colors.background },
+  optionActive: { backgroundColor: Colors.accent },
+  optionLabel: { ...buttonText, fontSize: 15, letterSpacing: 0.5, color: Colors.text },
+  optionDesc: { ...body, fontSize: 13, marginTop: 4, color: Colors.textSecondary },
   spacer: { height: 40 },
 });

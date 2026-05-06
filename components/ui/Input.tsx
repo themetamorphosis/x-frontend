@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { TextInput, Text, View, ViewStyle } from "react-native";
 import { Colors } from "../../utils/colors";
+import { label, body } from "../../utils/typography";
+import { neuInset } from "../../utils/neumorphic";
 
 interface InputProps {
   label?: string;
@@ -8,13 +10,13 @@ interface InputProps {
   onChangeText: (text: string) => void;
   placeholder?: string;
   secureTextEntry?: boolean;
-  keyboardType?: "default" | "numeric" | "email-address";
+  keyboardType?: "default" | "numeric" | "email-address" | "decimal-pad" | "number-pad";
   multiline?: boolean;
   style?: ViewStyle;
 }
 
 export const Input = React.memo(function Input({
-  label,
+  label: labelText,
   value,
   onChangeText,
   placeholder,
@@ -23,44 +25,51 @@ export const Input = React.memo(function Input({
   multiline = false,
   style,
 }: InputProps) {
+  const [focused, setFocused] = useState(false);
+
   return (
     <View style={[{ marginBottom: 16 }, style]}>
-      {label && (
-        <Text
-          style={{
-            color: Colors.gray500,
-            fontSize: 11,
-            fontWeight: "500",
-            letterSpacing: 0.5,
-            textTransform: "uppercase",
-            marginBottom: 8,
-          }}
-        >
-          {label}
+      {labelText && (
+        <Text style={[label, { marginBottom: 8 }]}>
+          {labelText}
         </Text>
       )}
-      <TextInput
-        style={{
-          backgroundColor: Colors.gray100,
-          borderWidth: 1,
-          borderColor: Colors.gray300,
-          borderRadius: 12,
-          paddingHorizontal: 16,
-          paddingVertical: 14,
-          color: Colors.white,
-          fontSize: 16,
-          minHeight: multiline ? 100 : undefined,
-        }}
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={Colors.gray400}
-        secureTextEntry={secureTextEntry}
-        keyboardType={keyboardType}
-        multiline={multiline}
-        textAlignVertical={multiline ? "top" : undefined}
-        accessibilityLabel={label || placeholder}
-      />
+      <View
+        style={[
+          neuInset({
+            paddingHorizontal: 16,
+            paddingVertical: 14,
+            minHeight: multiline ? 100 : undefined,
+          }),
+          focused && {
+            borderWidth: 1.5,
+            borderColor: Colors.accent,
+          },
+        ]}
+      >
+        <TextInput
+          style={[
+            body,
+            {
+              color: Colors.text,
+              fontSize: 16,
+              padding: 0,
+              margin: 0,
+            },
+          ]}
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor={Colors.textTertiary}
+          secureTextEntry={secureTextEntry}
+          keyboardType={keyboardType}
+          multiline={multiline}
+          textAlignVertical={multiline ? "top" : undefined}
+          accessibilityLabel={labelText || placeholder}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+        />
+      </View>
     </View>
   );
 });

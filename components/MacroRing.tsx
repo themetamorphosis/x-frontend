@@ -2,6 +2,7 @@ import { useEffect, memo } from "react";
 import { View, Text } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import { Colors } from "../utils/colors";
+import { caption, buttonTextSmall } from "../utils/typography";
 import Animated, {
   useSharedValue,
   useAnimatedProps,
@@ -11,21 +12,17 @@ import Animated, {
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
-const SIZE = 80;
+const SIZE = 90;
 const STROKE_WIDTH = 6;
 const RADIUS = (SIZE - STROKE_WIDTH) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 /**
  * Animated circular progress ring for displaying macro nutrient progress.
+ * Neumorphic style with Slate Blue (#6C8EBF) accent rings.
  *
  * Uses react-native-reanimated for smooth 800ms animation with cubic easing.
  * Automatically clamps progress to 100% when current exceeds target.
- *
- * @param label - Display label (e.g., "Calories", "Protein")
- * @param current - Current consumed value
- * @param target - Target value
- * @param unit - Optional unit suffix (e.g., "g")
  */
 interface MacroRingProps {
   label: string;
@@ -62,7 +59,7 @@ export const MacroRing = memo(function MacroRing({ label, current, target, unit 
             cx={SIZE / 2}
             cy={SIZE / 2}
             r={RADIUS}
-            stroke={Colors.gray200}
+            stroke={Colors.surfaceDark}
             strokeWidth={STROKE_WIDTH}
             fill="none"
           />
@@ -70,7 +67,7 @@ export const MacroRing = memo(function MacroRing({ label, current, target, unit 
             cx={SIZE / 2}
             cy={SIZE / 2}
             r={RADIUS}
-            stroke={Colors.white}
+            stroke={Colors.accent}
             strokeWidth={STROKE_WIDTH}
             fill="none"
             strokeDasharray={CIRCUMFERENCE}
@@ -89,25 +86,24 @@ export const MacroRing = memo(function MacroRing({ label, current, target, unit 
             alignItems: "center",
           }}
         >
-          <Text style={{ color: Colors.white, fontSize: 16, fontWeight: "700" }}>
+          <Text style={{ color: Colors.text, fontSize: 18, fontWeight: "700" }}>
             {Math.round(current)}
           </Text>
         </View>
       </View>
       <Text
         style={{
-          color: Colors.gray500,
+          ...caption,
           fontSize: 10,
-          fontWeight: "500",
-          letterSpacing: 0.5,
           textTransform: "uppercase",
+          letterSpacing: 0.5,
+          color: Colors.textTertiary,
         }}
       >
         {label}
       </Text>
-      <Text style={{ color: Colors.gray400, fontSize: 10, marginTop: 2 }}>
-        / {target}
-        {unit}
+      <Text style={{ ...buttonTextSmall, fontSize: 10, color: Colors.textSecondary, marginTop: 2 }}>
+        / {target}{unit}
       </Text>
     </View>
   );

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import { useEffect } from "react";
+import { Shadow } from "react-native-shadow-2";
 import { ScreenWrapper } from "../../components/ui/ScreenWrapper";
 import { Button } from "../../components/ui/Button";
 import { Toast } from "../../components/ui/Toast";
@@ -10,6 +11,8 @@ import { useAuthStore } from "../../stores/authStore";
 import { useProfileStore } from "../../stores/profileStore";
 import { api } from "../../services/api";
 import { Colors } from "../../utils/colors";
+import { heading, caption, label } from "../../utils/typography";
+import { raisedShadowProps } from "../../utils/neumorphic";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -110,23 +113,33 @@ export default function LoginScreen() {
   return (
     <ScreenWrapper>
       <View style={styles.container}>
-        <Text style={styles.appName}>NutriLog</Text>
-        <Text style={styles.tagline}>AI-powered nutrition tracking</Text>
+        {/* Logo area with neumorphic raised style */}
+        <Shadow {...raisedShadowProps(8)} style={styles.logoCard}>
+          <View style={styles.logoInner}>
+            <Text style={styles.appName}>NutriLog</Text>
+            <Text style={styles.tagline}>AI-powered nutrition tracking</Text>
+          </View>
+        </Shadow>
+
+        {/* Google Sign In — accent CTA */}
         <Button
           title="Continue with Google"
           onPress={() => promptAsync()}
           disabled={!request || loading}
+          variant="accent"
           style={styles.fullWidth}
         />
+
         {__DEV__ && (
           <Button
             title="Dev Login"
             onPress={devLogin}
             disabled={loading}
-            variant="secondary"
+            variant="primary"
             style={styles.devButton}
           />
         )}
+
         {toast && (
           <Toast message={toast.message} type={toast.type} visible={true} onHide={() => setToast(null)} />
         )}
@@ -136,9 +149,29 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center" },
-  appName: { fontSize: 36, fontWeight: "700", color: Colors.white, letterSpacing: -1, marginBottom: 8 },
-  tagline: { fontSize: 14, color: Colors.gray500, letterSpacing: 0.5, marginBottom: 64 },
+  container: { flex: 1, justifyContent: "center", alignItems: "center", gap: 16 },
+  logoCard: {
+    borderRadius: 28,
+    backgroundColor: Colors.background,
+    width: "100%",
+    marginBottom: 32,
+  },
+  logoInner: {
+    padding: 32,
+    alignItems: "center",
+  },
+  appName: {
+    ...heading,
+    fontSize: 36,
+    letterSpacing: -1,
+    color: Colors.text,
+    marginBottom: 8,
+  },
+  tagline: {
+    ...caption,
+    letterSpacing: 0.5,
+    color: Colors.textSecondary,
+  },
   fullWidth: { width: "100%" },
-  devButton: { width: "100%", marginTop: 12 },
+  devButton: { width: "100%", marginTop: 0 },
 });

@@ -1,9 +1,11 @@
 import { View, Text } from "react-native";
+import { WifiOff } from "lucide-react-native";
 import { Colors } from "../utils/colors";
+import { label } from "../utils/typography";
 
 /**
  * Banner displayed at the top of the screen when the device is offline.
- * Renders nothing when connected. Used in root layout alongside useNetworkStatus.
+ * Neumorphic inset style with Slate Blue accent.
  */
 export function OfflineBanner() {
   return (
@@ -11,12 +13,23 @@ export function OfflineBanner() {
       accessible
       accessibilityLabel="You are offline"
       style={{
-        backgroundColor: Colors.gray700,
-        paddingVertical: 6,
+        backgroundColor: Colors.surfaceDark,
+        paddingVertical: 8,
+        paddingHorizontal: 16,
         alignItems: "center",
+        flexDirection: "row",
+        justifyContent: "center",
+        gap: 8,
+        // Inset neumorphic
+        shadowColor: Colors.shadowDark,
+        shadowOffset: { width: 2, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 2,
       }}
     >
-      <Text style={{ color: Colors.white, fontSize: 11, fontWeight: "600", letterSpacing: 0.5, textTransform: "uppercase" }}>
+      <WifiOff size={14} color={Colors.accent} />
+      <Text style={{ ...label, fontSize: 10, marginBottom: 0, color: Colors.accent }}>
         Offline
       </Text>
     </View>

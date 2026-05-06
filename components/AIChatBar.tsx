@@ -1,0 +1,266 @@
+import { useState, useCallback, useRef } from "react";
+import { View, TextInput, StyleSheet, Keyboard, Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Shadow } from "react-native-shadow-2";
+import { MotiPressable } from "moti/interactions";
+import { Camera, Image as ImageIcon, Send } from "lucide-react-native";
+import * as ImagePicker from "expo-image-picker";
+import { Colors } from "../utils/colors";
+import { buttonTextSmall } from "../utils/typography";
+import { neuInset, raisedShadowProps, neuCircle } from "../utils/neumorphic";
+import { parseText, parsePhoto, saveFoodLog } from "../services/food";
+import { useDailyStore } from "../stores/dailyStore";
+import { haptic } from "../utils/haptics";
+import { imageToBase64 } from "../utils/imageCompression";
+import { AIReplyBubble } from "./AIReplyBubble";
+import type { MealType } from "../types/food";
+import { getMealType } from "../utils/mealType";
+
+export function AIChatBar() {
+  const [text, setText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [reply, setReply] = useState<string | null>(null);
+  const inputRef = useRef<TextInput>(null);
+  const insets = useSafeAreaInsets();
+  const addFoodLog = useDailyStore((s) => s.addFoodLog);
+
+  const handleSubmit = useCallback(async () => {
+    const trimmed = text.trim();
+    if (!trimmed || loading) return;
+
+    haptic.light();
+    Keyboard.dismiss();
+    setLoading(true);
+    setText("");
+
+    try {
+      const response = await parseText(trimmed);
+      const mealType: MealType = getMealType();
+
+      let totalCalories = 0;
+      for (const food of response.foods) {
+        const saved = await saveFoodLog({
+          meal_type: mealType,
+          food_name: food.name,
+          portion: food.portion,
+          calories: food.calories,
+          protein_g: food.protein_g,
+          carbs_g: food.carbs_g,
+          fat_g: food.fat_g,
+          fiber_g: food.fiber_g || 0,
+          source: "ai_text",
+        });
+        addFoodLog({ ...saved, meal_type: mealType });
+        totalCalories += food.calories;
+      }
+
+      const foodNames = response.foods.map((f) => f.name).join(" + ");
+      setReply(`Logged: ${foodNames} — ${totalCalories} cal`);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to parse food";
+      setReply(`Error: ${message}`);
+    } finally {
+      setLoading(false);
+    }
+  }, [text, loading, addFoodLog]);
+
+  const handleCamera = useCallback(async () => {
+    haptic.light();
+    try {
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ["images"],
+        quality: 0.8,
+        base64: false,
+      });
+
+      if (result.canceled || !result.assets?.[0]) return;
+
+      setLoading(true);
+      const base64 = await imageToBase64(result.assets[0].uri);
+      const response = await parsePhoto(base64);
+      const mealType: MealType = getMealType();
+
+      let totalCalories = 0;
+      for (const food of response.foods) {
+        const saved = await saveFoodLog({
+          meal_type: mealType,
+          food_name: food.name,
+          portion: food.portion,
+          calories: food.calories,
+          protein_g: food.protein_g,
+          carbs_g: food.carbs_g,
+          fat_g: food.fat_g,
+          fiber_g: food.fiber_g || 0,
+          source: "ai_photo",
+        });
+        addFoodLog({ ...saved, meal_type: mealType });
+        totalCalories += food.calories;
+      }
+
+      const foodNames = response.foods.map((f) => f.name).join(" + ");
+      setReply(`Photo logged: ${foodNames} — ${totalCalories} cal`);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to process photo";
+      setReply(`Error: ${message}`);
+    } finally {
+      setLoading(false);
+    }
+  }, [addFoodLog]);
+
+  const handleImagePicker = useCallback(async () => {
+    haptic.light();
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        quality: 0.8,
+        base64: false,
+      });
+
+      if (result.canceled || !result.assets?.[0]) return;
+
+      setLoading(true);
+      const base64 = await imageToBase64(result.assets[0].uri);
+      const response = await parsePhoto(base64);
+      const mealType: MealType = getMealType();
+
+      let totalCalories = 0;
+      for (const food of response.foods) {
+        const saved = await saveFoodLog({
+          meal_type: mealType,
+          food_name: food.name,
+          portion: food.portion,
+          calories: food.calories,
+          protein_g: food.protein_g,
+          carbs_g: food.carbs_g,
+          fat_g: food.fat_g,
+          fiber_g: food.fiber_g || 0,
+          source: "ai_photo",
+        });
+        addFoodLog({ ...saved, meal_type: mealType });
+        totalCalories += food.calories;
+      }
+
+      const foodNames = response.foods.map((f) => f.name).join(" + ");
+      setReply(`Logged: ${foodNames} — ${totalCalories} cal`);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to process image";
+      setReply(`Error: ${message}`);
+    } finally {
+      setLoading(false);
+    }
+  }, [addFoodLog]);
+
+  return (
+    <>
+      {/* AI Reply Bubble */}
+      <AIReplyBubble message={reply} onDismiss={() => setReply(null)} />
+
+      {/* Chat bar */}
+      <View style={[styles.container, { paddingBottom: insets.bottom + 8 }]}>
+        <Shadow {...raisedShadowProps(4)} style={styles.barShadow}>
+          <View style={styles.bar}>
+            <View style={[neuInset({ flex: 1, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 20, minHeight: 42 })]}>
+              <TextInput
+                ref={inputRef}
+                value={text}
+                onChangeText={setText}
+                placeholder="Log food... e.g. '2 eggs and toast'"
+                placeholderTextColor={Colors.textTertiary}
+                style={styles.input}
+                editable={!loading}
+                returnKeyType="send"
+                onSubmitEditing={handleSubmit}
+                accessibilityLabel="Food logging input"
+                accessibilityHint="Type what you ate and press send"
+              />
+            </View>
+
+            <MotiPressable
+              onPress={handleCamera}
+              disabled={loading}
+              accessibilityRole="button"
+              accessibilityLabel="Take photo of food"
+              animate={({ pressed }) => ({ scale: pressed ? 0.9 : 1 })}
+              style={styles.iconButton}
+            >
+              <Camera size={20} color={loading ? Colors.textTertiary : Colors.textSecondary} />
+            </MotiPressable>
+
+            <MotiPressable
+              onPress={handleImagePicker}
+              disabled={loading}
+              accessibilityRole="button"
+              accessibilityLabel="Pick food image from gallery"
+              animate={({ pressed }) => ({ scale: pressed ? 0.9 : 1 })}
+              style={styles.iconButton}
+            >
+              <ImageIcon size={20} color={loading ? Colors.textTertiary : Colors.textSecondary} />
+            </MotiPressable>
+
+            <MotiPressable
+              onPress={handleSubmit}
+              disabled={!text.trim() || loading}
+              accessibilityRole="button"
+              accessibilityLabel="Send food log"
+              animate={({ pressed }) => ({ scale: pressed ? 0.9 : 1 })}
+              style={styles.sendButton}
+            >
+              <Shadow
+                {...raisedShadowProps(2)}
+                style={[
+                  neuCircle(38),
+                  { backgroundColor: text.trim() ? Colors.accent : Colors.surfaceDark },
+                ]}
+              >
+                <Send size={16} color={text.trim() ? Colors.white : Colors.textTertiary} />
+              </Shadow>
+            </MotiPressable>
+          </View>
+        </Shadow>
+      </View>
+    </>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    backgroundColor: "transparent",
+  },
+  barShadow: {
+    borderRadius: 24,
+    backgroundColor: Colors.background,
+    width: "100%",
+  },
+  bar: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    padding: 8,
+  },
+  input: {
+    fontSize: 14,
+    fontFamily: "Nunito_400Regular",
+    color: Colors.text,
+    padding: 0,
+    margin: 0,
+    flex: 1,
+  },
+  iconButton: {
+    width: 38,
+    height: 38,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sendButton: {
+    width: 42,
+    height: 42,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});

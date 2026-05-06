@@ -1,20 +1,31 @@
 import { memo, useCallback } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { Card } from "./ui/Card";
+import { View, Text, StyleSheet } from "react-native";
+import { Shadow } from "react-native-shadow-2";
+import { MotiPressable } from "moti/interactions";
+import { Minus, Plus, Droplets } from "lucide-react-native";
 import { api } from "../services/api";
 import { useDailyStore } from "../stores/dailyStore";
 import { Colors } from "../utils/colors";
+import { label, caption, buttonTextSmall, statMedium } from "../utils/typography";
+import { raisedShadowProps, neuCircle } from "../utils/neumorphic";
+import { haptic } from "../utils/haptics";
 
 interface WaterTrackerProps {
   current_ml: number;
   target_ml?: number;
 }
 
-export const WaterTracker = memo(function WaterTracker({ current_ml, target_ml = 2000 }: WaterTrackerProps) {
+const CUP_ML = 240; // 1 cup = 240ml
+
+export const WaterTracker = memo(function WaterTracker({ current_ml, target_ml = 2400 }: WaterTrackerProps) {
   const setWater = useDailyStore((s) => s.setWater);
   const percent = Math.min(current_ml / target_ml, 1);
+  const cupsCurrent = Math.round(current_ml / CUP_ML * 10) / 10;
+  const cupsTarget = Math.round(target_ml / CUP_ML);
+  const cupsRemaining = Math.max(Math.round((target_ml - current_ml) / CUP_ML), 0);
 
   const addWater = useCallback(async (amount: number) => {
+    haptic.light();
     const newTotal = current_ml + amount;
     setWater(newTotal);
     try {
@@ -24,83 +35,147 @@ export const WaterTracker = memo(function WaterTracker({ current_ml, target_ml =
     }
   }, [current_ml, setWater]);
 
+  const removeWater = useCallback(async () => {
+    if (current_ml <= 0) return;
+    haptic.light();
+    const amount = CUP_ML;
+    const newTotal = Math.max(current_ml - amount, 0);
+    setWater(newTotal);
+    try {
+      await api.post("/logs/water", { amount_ml: -amount });
+    } catch {
+      setWater(current_ml);
+    }
+  }, [current_ml, setWater]);
+
   return (
-    <Card
-      style={styles.card}
-      accessible
-      accessibilityLabel={`Water: ${current_ml} of ${target_ml} milliliters`}
-    >
-      <View style={styles.header}>
-        <Text style={styles.label}>Water</Text>
-        <Text style={styles.value}>
-          {current_ml} / {target_ml} ml
-        </Text>
-      </View>
+    <Shadow {...raisedShadowProps(5)} style={styles.card}>
+      <View style={styles.inner}>
+        <View style={styles.header}>
+          <View style={styles.titleRow}>
+            <Droplets size={14} color={Colors.accent} />
+            <Text style={styles.title}>Water</Text>
+          </View>
+          <Text style={styles.cupsText}>
+            {cupsCurrent} / {cupsTarget} cups
+          </Text>
+        </View>
 
-      <View style={styles.progressTrack}>
-        <View
-          style={[styles.progressFill, { width: `${percent * 100}%` }]}
-        />
-      </View>
+        <View style={styles.progressTrack}>
+          <View
+            style={[styles.progressFill, { width: `${percent * 100}%` }]}
+          />
+        </View>
 
-      <View style={styles.buttonsRow}>
-        <TouchableOpacity
-          onPress={() => addWater(250)}
-          activeOpacity={0.7}
-          accessibilityRole="button"
-          accessibilityLabel="Add 250 milliliters of water"
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>+250 ml</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => addWater(500)}
-          activeOpacity={0.7}
-          accessibilityRole="button"
-          accessibilityLabel="Add 500 milliliters of water"
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>+500 ml</Text>
-        </TouchableOpacity>
+        <View style={styles.controls}>
+          <MotiPressable
+            onPress={removeWater}
+            accessibilityRole="button"
+            accessibilityLabel="Remove one cup of water"
+            animate={({ pressed }) => ({
+              scale: pressed ? 0.92 : 1,
+            })}
+            style={styles.circleButton}
+          >
+            <Shadow {...raisedShadowProps(3)} style={neuCircle(40)}>
+              <Minus size={18} color={Colors.textSecondary} />
+            </Shadow>
+          </MotiPressable>
+
+          <View style={styles.remainingContainer}>
+            <Text style={styles.remainingNumber}>{cupsRemaining}</Text>
+            <Text style={styles.remainingLabel}>cups remaining</Text>
+          </View>
+
+          <MotiPressable
+            onPress={useCallback(() => addWater(CUP_ML), [addWater])}
+            accessibilityRole="button"
+            accessibilityLabel="Add one cup of water"
+            animate={({ pressed }) => ({
+              scale: pressed ? 0.92 : 1,
+            })}
+            style={styles.circleButton}
+          >
+            <Shadow {...raisedShadowProps(3)} style={neuCircle(40)}>
+              <Plus size={18} color={Colors.accent} />
+            </Shadow>
+          </MotiPressable>
+        </View>
       </View>
-    </Card>
+    </Shadow>
   );
 });
 
 const styles = StyleSheet.create({
-  card: { marginBottom: 16 },
+  card: {
+    borderRadius: 20,
+    backgroundColor: Colors.background,
+    marginBottom: 16,
+  },
+  inner: {
+    padding: 16,
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 12,
   },
-  label: {
-    color: Colors.gray500,
-    fontSize: 11,
-    fontWeight: "500",
-    letterSpacing: 0.5,
-    textTransform: "uppercase",
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
   },
-  value: { color: Colors.white, fontSize: 14, fontWeight: "600" },
+  title: {
+    ...label,
+    fontSize: 10,
+    marginBottom: 0,
+  },
+  cupsText: {
+    ...caption,
+    fontSize: 12,
+    color: Colors.textSecondary,
+  },
   progressTrack: {
-    height: 6,
-    backgroundColor: Colors.gray200,
-    borderRadius: 3,
-    marginBottom: 12,
+    height: 8,
+    backgroundColor: Colors.surfaceDark,
+    borderRadius: 4,
+    marginBottom: 16,
+    overflow: "hidden",
+    // Inset shadow effect
+    shadowColor: Colors.shadowDark,
+    shadowOffset: { width: 1, height: 1 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 1,
   },
   progressFill: {
-    height: 6,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 3,
+    height: 8,
+    backgroundColor: Colors.accent,
+    borderRadius: 4,
   },
-  buttonsRow: { flexDirection: "row", gap: 8 },
-  button: {
-    flex: 1,
-    backgroundColor: Colors.gray200,
-    paddingVertical: 10,
-    borderRadius: 6,
+  controls: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  circleButton: {
+    width: 44,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  remainingContainer: {
     alignItems: "center",
   },
-  buttonText: { color: Colors.white, fontSize: 13, fontWeight: "600" },
+  remainingNumber: {
+    ...statMedium,
+    fontSize: 22,
+    color: Colors.text,
+  },
+  remainingLabel: {
+    ...caption,
+    fontSize: 10,
+    color: Colors.textTertiary,
+  },
 });
