@@ -1,18 +1,21 @@
 import { useState, useCallback } from "react";
-import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, StyleSheet } from "react-native";
+import { View, TouchableOpacity, FlatList, ActivityIndicator, Alert, StyleSheet } from "react-native";
 import { useRouter, useFocusEffect } from "expo-router";
-import { ScreenWrapper } from "../../components/ui/ScreenWrapper";
+import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
+import { Button } from "../../components/ui/v2/Button";
+import { Text } from "../../components/ui/v2/Text";
 import { Toast } from "../../components/ui/Toast";
 import { FoodListItem } from "../../components/log/FoodListItem";
 import { QuickLogModal } from "../../components/log/QuickLogModal";
 import { AddFoodModal } from "../../components/log/AddFoodModal";
 import { getCustomFoods, createCustomFood, deleteCustomFood, type FoodDbItem } from "../../services/foodDb";
 import { useSaveFoodLog } from "../../hooks/useSaveFoodLog";
-import { Colors } from "../../utils/colors";
+import { useTheme } from "../../utils/theme";
 import { detectMealType } from "../../utils/mealType";
 
 export default function CustomFoodsScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const { saving: hookSaving, save } = useSaveFoodLog();
 
   const [foods, setFoods] = useState<FoodDbItem[]>([]);
@@ -118,21 +121,16 @@ export default function CustomFoodsScreen() {
     <ScreenWrapper>
       <Toast visible={toast.visible} message={toast.message} type={toast.type} onHide={() => setToast({ ...toast, visible: false })} />
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backArrow}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>My Foods</Text>
-        <TouchableOpacity onPress={() => setShowAdd(true)} accessibilityRole="button" accessibilityLabel="Add custom food">
-          <Text style={styles.addButtonText}>+ Add</Text>
-        </TouchableOpacity>
+        <Text preset="overline" style={{ flex: 1 }}>My Foods</Text>
+        <Button title="+ Add" onPress={() => setShowAdd(true)} size="sm" variant="ghost" />
       </View>
 
       {loading ? (
-        <ActivityIndicator color={Colors.white} style={styles.loader} />
+        <ActivityIndicator color={colors.text} style={styles.loader} />
       ) : foods.length === 0 ? (
         <View style={styles.empty}>
-          <Text style={styles.emptyTitle}>No saved foods</Text>
-          <Text style={styles.emptyDesc}>Add foods you eat frequently for quick logging</Text>
+          <Text preset="overline" color="textTertiary">No saved foods</Text>
+          <Text preset="caption" style={{ marginTop: 8 }}>Add foods you eat frequently for quick logging</Text>
         </View>
       ) : (
         <FlatList
@@ -156,13 +154,7 @@ export default function CustomFoodsScreen() {
 
 const styles = StyleSheet.create({
   header: { paddingTop: 16, paddingBottom: 16, flexDirection: "row", alignItems: "center" },
-  backButton: { marginRight: 16 },
-  backArrow: { color: Colors.white, fontSize: 16 },
-  headerTitle: { fontSize: 13, color: Colors.gray500, letterSpacing: 0.5, textTransform: "uppercase", flex: 1 },
-  addButtonText: { color: Colors.white, fontSize: 13 },
   loader: { marginTop: 48 },
   listContent: { paddingBottom: 16 },
   empty: { alignItems: "center", paddingTop: 64 },
-  emptyTitle: { color: Colors.gray400, fontSize: 13, textTransform: "uppercase", letterSpacing: 0.5 },
-  emptyDesc: { color: Colors.gray300, fontSize: 12, marginTop: 8 },
 });

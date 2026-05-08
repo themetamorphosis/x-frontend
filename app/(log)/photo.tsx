@@ -1,16 +1,19 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, Image, ActivityIndicator, Alert, StyleSheet } from "react-native";
+import { View, TouchableOpacity, Image, ActivityIndicator, Alert, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
-import { ScreenWrapper } from "../../components/ui/ScreenWrapper";
-import { Card } from "../../components/ui/Card";
+import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
+import { Card } from "../../components/ui/v2/Card";
+import { Button } from "../../components/ui/v2/Button";
+import { Text } from "../../components/ui/v2/Text";
 import { parsePhoto } from "../../services/food";
 import { useFoodLogStore } from "../../stores/foodLogStore";
-import { Colors } from "../../utils/colors";
+import { useTheme } from "../../utils/theme";
 import { compressImage } from "../../utils/imageCompression";
 
 export default function PhotoLogScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -60,71 +63,50 @@ export default function PhotoLogScreen() {
   return (
     <ScreenWrapper>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backArrow}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Photo</Text>
+        <Text preset="overline">Photo</Text>
       </View>
 
       {imageUri ? (
-        <Card style={styles.imageCard}>
+        <Card noPadding style={styles.imageCard}>
           <Image source={{ uri: imageUri }} style={styles.image} />
         </Card>
       ) : (
         <Card style={styles.placeholderCard}>
-          <Text style={styles.placeholderText}>No image selected</Text>
+          <Text preset="caption" color="textTertiary">No image selected</Text>
         </Card>
       )}
 
       <View style={styles.buttonRow}>
-        <TouchableOpacity
-          activeOpacity={0.7}
+        <Button
+          title="Camera"
           onPress={() => pickImage(true)}
           disabled={loading}
-          style={styles.cameraButton}
-        >
-          <Text style={styles.cameraButtonText}>Camera</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          activeOpacity={0.7}
+          style={{ flex: 1 }}
+        />
+        <Button
+          title="Gallery"
           onPress={() => pickImage(false)}
           disabled={loading}
-          style={styles.galleryButton}
-        >
-          <Text style={styles.galleryButtonText}>Gallery</Text>
-        </TouchableOpacity>
+          variant="secondary"
+          style={{ flex: 1 }}
+        />
       </View>
 
-      <TouchableOpacity
-        activeOpacity={0.7}
+      <Button
+        title="Analyze"
         onPress={handleSubmit}
         disabled={!imageUri || loading}
-        style={[styles.analyzeButton, { backgroundColor: imageUri && !loading ? Colors.white : Colors.gray100 }]}
-      >
-        {loading ? (
-          <ActivityIndicator color={Colors.black} />
-        ) : (
-          <Text style={styles.analyzeButtonText}>Analyze</Text>
-        )}
-      </TouchableOpacity>
+        loading={loading}
+        style={{ marginTop: 16 }}
+      />
     </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { paddingTop: 16, paddingBottom: 24, flexDirection: "row", alignItems: "center" },
-  backButton: { marginRight: 16 },
-  backArrow: { color: Colors.white, fontSize: 16 },
-  headerTitle: { fontSize: 13, color: Colors.gray500, letterSpacing: 0.5, textTransform: "uppercase" },
-  imageCard: { padding: 0, overflow: "hidden", marginBottom: 16 },
+  header: { paddingTop: 16, paddingBottom: 24 },
+  imageCard: { overflow: "hidden", marginBottom: 16 },
   image: { width: "100%", height: 240, resizeMode: "cover" },
   placeholderCard: { marginBottom: 16, minHeight: 200, justifyContent: "center", alignItems: "center" },
-  placeholderText: { color: Colors.gray300, fontSize: 13 },
   buttonRow: { flexDirection: "row", gap: 8, marginBottom: 16 },
-  cameraButton: { flex: 1, backgroundColor: Colors.white, paddingVertical: 14, alignItems: "center" },
-  cameraButtonText: { color: Colors.black, fontSize: 13, fontWeight: "600", letterSpacing: 0.5, textTransform: "uppercase" },
-  galleryButton: { flex: 1, backgroundColor: Colors.gray100, borderWidth: 1, borderColor: Colors.gray300, paddingVertical: 14, alignItems: "center" },
-  galleryButtonText: { color: Colors.white, fontSize: 13, fontWeight: "600", letterSpacing: 0.5, textTransform: "uppercase" },
-  analyzeButton: { paddingVertical: 16, alignItems: "center" },
-  analyzeButtonText: { color: Colors.black, fontSize: 14, fontWeight: "600", letterSpacing: 0.5, textTransform: "uppercase" },
 });

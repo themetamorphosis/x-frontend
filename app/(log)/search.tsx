@@ -1,7 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import {
   View,
-  Text,
   TextInput,
   FlatList,
   TouchableOpacity,
@@ -11,19 +10,21 @@ import {
   StyleSheet,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { ScreenWrapper } from "../../components/ui/ScreenWrapper";
-import { Card } from "../../components/ui/Card";
-import { Button } from "../../components/ui/Button";
+import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
+import { Card } from "../../components/ui/v2/Card";
+import { Button } from "../../components/ui/v2/Button";
+import { Text } from "../../components/ui/v2/Text";
 import { Toast } from "../../components/ui/Toast";
 import { searchFoods, FoodDbItem } from "../../services/foodDb";
 import { useFoodLogStore } from "../../stores/foodLogStore";
 import { useSaveFoodLog } from "../../hooks/useSaveFoodLog";
-import { Colors } from "../../utils/colors";
+import { useTheme } from "../../utils/theme";
 
 const DEBOUNCE_MS = 300;
 
 export default function SearchScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<FoodDbItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -112,17 +113,17 @@ export default function SearchScreen() {
       <ScreenWrapper>
         <View style={styles.container}>
           <TouchableOpacity onPress={() => { setSelected(null); setQuantity(1); }} style={styles.backLink}>
-            <Text style={styles.backLinkText}>← Back to results</Text>
+            <Text preset="body" color="textSecondary">Back to results</Text>
           </TouchableOpacity>
 
-          <Text style={styles.sectionLabel}>Selected Food</Text>
+          <Text preset="overline">Selected Food</Text>
           <Card>
-            <Text style={styles.selectedName}>{selected.name}</Text>
-            {selected.brand ? <Text style={styles.selectedBrand}>{selected.brand}</Text> : null}
-            <Text style={styles.servingLabel}>Per {selected.serving_size}</Text>
+            <Text preset="h2">{selected.name}</Text>
+            {selected.brand ? <Text preset="caption">{selected.brand}</Text> : null}
+            <Text preset="overline">Per {selected.serving_size}</Text>
             <View style={styles.nutritionRow}>
-              <Text style={styles.nutritionCal}>{selected.calories} kcal</Text>
-              <Text style={styles.nutritionMacros}>P{selected.protein_g} C{selected.carbs_g} F{selected.fat_g}</Text>
+              <Text preset="body">{selected.calories} kcal</Text>
+              <Text preset="caption">P{selected.protein_g} C{selected.carbs_g} F{selected.fat_g}</Text>
             </View>
           </Card>
 
@@ -131,25 +132,25 @@ export default function SearchScreen() {
               onPress={() => setQuantity(Math.max(0.5, quantity - 0.5))}
               accessibilityRole="button"
               accessibilityLabel="Decrease quantity"
-              style={styles.qtyBtn}
+              style={[styles.qtyBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
             >
-              <Text style={styles.qtyBtnText}>−</Text>
+              <Text preset="h2">-</Text>
             </TouchableOpacity>
-            <Text accessible accessibilityLabel={`Quantity: ${quantity}`} style={styles.qtyValue}>{quantity}</Text>
+            <Text accessible accessibilityLabel={`Quantity: ${quantity}`} preset="h2" style={{ minWidth: 50, textAlign: "center" }}>{quantity}</Text>
             <TouchableOpacity
               onPress={() => setQuantity(quantity + 0.5)}
               accessibilityRole="button"
               accessibilityLabel="Increase quantity"
-              style={styles.qtyBtn}
+              style={[styles.qtyBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
             >
-              <Text style={styles.qtyBtnText}>+</Text>
+              <Text preset="h2">+</Text>
             </TouchableOpacity>
           </View>
 
           <Card>
-            <Text style={styles.totalLabel}>Total</Text>
-            <Text style={styles.totalCal}>{Math.round(selected.calories * quantity)} kcal</Text>
-            <Text style={styles.totalMacros}>
+            <Text preset="overline">Total</Text>
+            <Text preset="display" style={{ fontSize: 28 }}>{Math.round(selected.calories * quantity)} kcal</Text>
+            <Text preset="caption">
               P{+(selected.protein_g * quantity).toFixed(1)} C{+(selected.carbs_g * quantity).toFixed(1)} F{+(selected.fat_g * quantity).toFixed(1)}
             </Text>
           </Card>
@@ -168,12 +169,12 @@ export default function SearchScreen() {
     <ScreenWrapper>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <View style={styles.container}>
-          <Text style={styles.sectionLabel}>Search Foods</Text>
-          <View style={styles.searchBox}>
+          <Text preset="overline">Search Foods</Text>
+          <View style={[styles.searchBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <TextInput
-              style={styles.searchInput}
+              style={[styles.searchInput, { color: colors.text }]}
               placeholder="Search by name..."
-              placeholderTextColor={Colors.gray400}
+              placeholderTextColor={colors.textTertiary}
               value={query}
               onChangeText={handleQueryChange}
               autoFocus
@@ -184,7 +185,7 @@ export default function SearchScreen() {
 
           {loading && (
             <View style={styles.loadingBox}>
-              <ActivityIndicator color={Colors.white} />
+              <ActivityIndicator color={colors.text} />
             </View>
           )}
 
@@ -201,12 +202,12 @@ export default function SearchScreen() {
                 <Card style={styles.resultCard}>
                   <View style={styles.resultRow}>
                     <View style={styles.resultInfo}>
-                      <Text style={styles.resultName} numberOfLines={1}>{item.name}</Text>
-                      <Text style={styles.resultMeta}>{item.brand ? `${item.brand} · ` : ""}{item.serving_size}</Text>
+                      <Text preset="body" numberOfLines={1} style={{ fontWeight: "500" }}>{item.name}</Text>
+                      <Text preset="caption">{item.brand ? `${item.brand} · ` : ""}{item.serving_size}</Text>
                     </View>
                     <View style={styles.resultNumbers}>
-                      <Text style={styles.resultCal}>{item.calories}</Text>
-                      <Text style={styles.resultMacros}>P{item.protein_g} C{item.carbs_g} F{item.fat_g}</Text>
+                      <Text preset="body" style={{ fontWeight: "600" }}>{item.calories}</Text>
+                      <Text preset="caption">P{item.protein_g} C{item.carbs_g} F{item.fat_g}</Text>
                     </View>
                   </View>
                 </Card>
@@ -217,13 +218,13 @@ export default function SearchScreen() {
             ListFooterComponent={
               loadingMore ? (
                 <View style={styles.footerLoader}>
-                  <ActivityIndicator color={Colors.gray500} size="small" />
+                  <ActivityIndicator color={colors.textSecondary} size="small" />
                 </View>
               ) : null
             }
             ListEmptyComponent={
               !loading && query.length >= 2 ? (
-                <Text style={styles.emptyText}>No results found</Text>
+                <Text preset="caption" style={{ textAlign: "center", marginTop: 20 }}>No results found</Text>
               ) : null
             }
           />
@@ -237,34 +238,17 @@ export default function SearchScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
-  sectionLabel: { color: Colors.gray500, fontSize: 11, letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 12 },
-  searchBox: { backgroundColor: Colors.gray200, borderRadius: 8, paddingHorizontal: 14, paddingVertical: 12, marginBottom: 16 },
-  searchInput: { color: Colors.white, fontSize: 15 },
+  searchBox: { borderRadius: 8, paddingHorizontal: 14, paddingVertical: 12, marginBottom: 16, borderWidth: 1 },
+  searchInput: { fontSize: 15 },
   loadingBox: { paddingVertical: 20, alignItems: "center" },
   resultCard: { marginBottom: 8 },
   resultRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  resultName: { color: Colors.white, fontSize: 14, fontWeight: "500" },
-  resultMeta: { color: Colors.gray500, fontSize: 12, marginTop: 2 },
-  resultCal: { color: Colors.white, fontSize: 14, fontWeight: "600" },
-  resultMacros: { color: Colors.gray500, fontSize: 11 },
-  emptyText: { color: Colors.gray500, fontSize: 13, textAlign: "center", marginTop: 20 },
-  backLink: { marginBottom: 16 },
-  backLinkText: { color: Colors.gray500, fontSize: 14 },
   resultInfo: { flex: 1, marginRight: 12 },
   resultNumbers: { alignItems: "flex-end" },
-  footerLoader: { paddingVertical: 16, alignItems: "center" },
-  saveContainer: { marginTop: 20 },
-  selectedName: { color: Colors.white, fontSize: 18, fontWeight: "600", marginBottom: 4 },
-  selectedBrand: { color: Colors.gray500, fontSize: 13, marginBottom: 8 },
-  servingLabel: { color: Colors.gray500, fontSize: 11, letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 6 },
+  backLink: { marginBottom: 16 },
   nutritionRow: { flexDirection: "row", justifyContent: "space-between" },
-  nutritionCal: { color: Colors.white, fontSize: 14 },
-  nutritionMacros: { color: Colors.gray500, fontSize: 13 },
   quantityRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", marginVertical: 20, gap: 16 },
-  qtyBtn: { width: 40, height: 40, backgroundColor: Colors.gray200, borderRadius: 8, justifyContent: "center", alignItems: "center" },
-  qtyBtnText: { color: Colors.white, fontSize: 20 },
-  qtyValue: { color: Colors.white, fontSize: 20, fontWeight: "600", minWidth: 50, textAlign: "center" },
-  totalLabel: { color: Colors.gray500, fontSize: 11, letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 8 },
-  totalCal: { color: Colors.white, fontSize: 24, fontWeight: "700" },
-  totalMacros: { color: Colors.gray500, fontSize: 13, marginTop: 4 },
+  qtyBtn: { width: 40, height: 40, borderRadius: 8, justifyContent: "center", alignItems: "center", borderWidth: 1 },
+  saveContainer: { marginTop: 20 },
+  footerLoader: { paddingVertical: 16, alignItems: "center" },
 });

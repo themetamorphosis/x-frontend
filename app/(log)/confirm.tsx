@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import { View, TouchableOpacity, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import { ScreenWrapper } from "../../components/ui/ScreenWrapper";
+import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
+import { Button } from "../../components/ui/v2/Button";
+import { Text } from "../../components/ui/v2/Text";
 import { Toast } from "../../components/ui/Toast";
 import { MealTypeSelector } from "../../components/log/MealTypeSelector";
 import { FoodItemCard } from "../../components/log/FoodItemCard";
@@ -13,11 +15,12 @@ import type { ParsedFood } from "../../types/food";
 import { useDailyStore } from "../../stores/dailyStore";
 import { createCustomFood } from "../../services/foodDb";
 import { haptic } from "../../utils/haptics";
-import { Colors } from "../../utils/colors";
+import { useTheme } from "../../utils/theme";
 import type { MealType } from "../../utils/mealType";
 
 export default function ConfirmScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const {
     editedFoods,
     mealType,
@@ -134,12 +137,9 @@ export default function ConfirmScreen() {
       />
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Text style={styles.backArrow}>←</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Review</Text>
-          <TouchableOpacity onPress={reset} style={styles.clearButton}>
-            <Text style={styles.clearText}>Clear</Text>
+          <Text preset="overline" style={{ flex: 1 }}>Review</Text>
+          <TouchableOpacity onPress={reset}>
+            <Text preset="caption">Clear</Text>
           </TouchableOpacity>
         </View>
 
@@ -147,8 +147,8 @@ export default function ConfirmScreen() {
 
         {aiResult && (
           <View style={styles.aiInfo}>
-            <Text style={styles.confidence}>Confidence: {aiResult.confidence}</Text>
-            {aiResult.notes ? <Text style={styles.notes}>{aiResult.notes}</Text> : null}
+            <Text preset="overline">Confidence: {aiResult.confidence}</Text>
+            {aiResult.notes ? <Text preset="caption">{aiResult.notes}</Text> : null}
           </View>
         )}
 
@@ -169,33 +169,23 @@ export default function ConfirmScreen() {
               useFoodLogStore.getState().addFood(newFood);
               setEditIndex(editedFoods.length);
             }}
-            style={styles.addItemBtn}
+            style={[styles.addItemBtn, { borderColor: colors.border }]}
             accessibilityRole="button"
             accessibilityLabel="Add food item"
           >
-            <Text style={styles.addItemText}>+ Add item</Text>
+            <Text preset="caption">+ Add item</Text>
           </TouchableOpacity>
 
           <TotalCard totals={total} />
         </ScrollView>
 
-        <TouchableOpacity
-          activeOpacity={0.7}
+        <Button
+          title={`Save ${editedFoods.length} ${editedFoods.length === 1 ? "item" : "items"}`}
           onPress={handleSave}
           disabled={saving || editedFoods.length === 0}
-          accessibilityRole="button"
-          accessibilityLabel={`Save ${editedFoods.length} items`}
+          loading={saving}
           accessibilityHint="Saves all food items to your daily log"
-          style={[styles.saveBtn, editedFoods.length > 0 && !saving ? styles.saveBtnActive : styles.saveBtnInactive]}
-        >
-          {saving ? (
-            <ActivityIndicator color={Colors.black} />
-          ) : (
-            <Text style={styles.saveBtnText}>
-              Save {editedFoods.length} {editedFoods.length === 1 ? "item" : "items"}
-            </Text>
-          )}
-        </TouchableOpacity>
+        />
 
         <EditModal
           visible={editIndex !== null}
@@ -214,19 +204,7 @@ export default function ConfirmScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   header: { paddingTop: 16, paddingBottom: 16, flexDirection: "row", alignItems: "center" },
-  backButton: { marginRight: 16 },
-  backArrow: { color: Colors.white, fontSize: 16 },
-  headerTitle: { fontSize: 13, color: Colors.gray500, letterSpacing: 0.5, textTransform: "uppercase", flex: 1 },
-  clearButton: { marginLeft: 16 },
-  clearText: { color: Colors.gray500, fontSize: 13 },
   aiInfo: { marginBottom: 12 },
-  confidence: { color: Colors.gray500, fontSize: 11, textTransform: "uppercase", letterSpacing: 0.5 },
-  notes: { color: Colors.gray400, fontSize: 12, marginTop: 4 },
   scrollContent: { paddingBottom: 16 },
-  addItemBtn: { paddingVertical: 12, alignItems: "center", borderWidth: 1, borderColor: Colors.gray300, marginBottom: 16 },
-  addItemText: { color: Colors.gray500, fontSize: 13 },
-  saveBtn: { paddingVertical: 16, alignItems: "center" },
-  saveBtnActive: { backgroundColor: Colors.white },
-  saveBtnInactive: { backgroundColor: Colors.gray300 },
-  saveBtnText: { color: Colors.black, fontSize: 14, fontWeight: "600", letterSpacing: 0.5, textTransform: "uppercase" },
+  addItemBtn: { paddingVertical: 12, alignItems: "center", borderWidth: 1, marginBottom: 16 },
 });
