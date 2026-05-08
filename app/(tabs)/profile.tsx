@@ -1,22 +1,18 @@
-import { View, Text, ScrollView, TextInput, StyleSheet } from "react-native";
+import { View } from "react-native";
 import { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
-import { Shadow } from "react-native-shadow-2";
-import { MotiPressable } from "moti/interactions";
-import { ChevronRight } from "lucide-react-native";
-import { ScreenWrapper } from "../../components/ui/ScreenWrapper";
-import { Button } from "../../components/ui/Button";
-import { Toast } from "../../components/ui/Toast";
+import { Bell } from "lucide-react-native";
+import { ScreenWrapper, Card, Button, Text, Input, Toast, MenuItem } from "../../components/ui/v2";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { useAuthStore } from "../../stores/authStore";
 import { useProfileStore } from "../../stores/profileStore";
-import { Colors } from "../../utils/colors";
-import { label, heading, subheading, caption, buttonText, body } from "../../utils/typography";
-import { raisedShadowProps, neuCircle, neuInset } from "../../utils/neumorphic";
+import { useTheme } from "../../utils/theme";
+import { spacing } from "../../utils/theme";
 
 export default function ProfileScreen() {
   const { email, name, clearAuth } = useAuthStore();
   const { profile, targets, fetchProfile, saveProfile, calculateTargets } = useProfileStore();
+  const { colors } = useTheme();
   const router = useRouter();
 
   const [editing, setEditing] = useState(false);
@@ -75,104 +71,101 @@ export default function ProfileScreen() {
   return (
     <ErrorBoundary>
     <ScreenWrapper>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Profile</Text>
+      <View style={{ paddingTop: spacing.lg, paddingBottom: spacing["2xl"] }}>
+        <Text preset="overline">Profile</Text>
+      </View>
+
+      {/* Avatar Card */}
+      <Card style={{ marginBottom: spacing.lg, paddingVertical: spacing["2xl"], alignItems: "center" }}>
+        <View style={{
+          width: 64, height: 64, borderRadius: 32, backgroundColor: colors.border,
+          alignItems: "center", justifyContent: "center", marginBottom: spacing.lg,
+        }}>
+          <Text preset="h2" color="textSecondary">
+            {(name || "U").charAt(0).toUpperCase()}
+          </Text>
+        </View>
+        <Text preset="h2">{name || "User"}</Text>
+        <Text preset="caption" style={{ marginTop: spacing.xs }}>{email}</Text>
+      </Card>
+
+      {/* Body Stats Card */}
+      <Card style={{ marginBottom: spacing.lg }}>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: spacing.lg }}>
+          <Text preset="overline">Body Stats</Text>
+          <Text
+            preset="overline"
+            color="textSecondary"
+            onPress={() => setEditing(!editing)}
+            style={{ letterSpacing: 0, textTransform: "none", color: colors.textSecondary }}
+          >
+            {editing ? "Cancel" : "Edit"}
+          </Text>
         </View>
 
-        {/* Avatar Card */}
-        <Shadow {...raisedShadowProps(5)} style={styles.avatarCard}>
-          <View style={styles.avatarInner}>
-            <Shadow {...raisedShadowProps(3)} style={neuCircle(64)}>
-              <Text style={styles.avatarText}>
-                {(name || "U").charAt(0).toUpperCase()}
-              </Text>
-            </Shadow>
-            <Text style={styles.userName}>{name || "User"}</Text>
-            <Text style={styles.userEmail}>{email}</Text>
-          </View>
-        </Shadow>
-
-        {/* Body Stats Card */}
-        <Shadow {...raisedShadowProps(5)} style={styles.card}>
-          <View style={styles.cardInner}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.sectionLabel}>Body Stats</Text>
-              <MotiPressable
-                onPress={() => setEditing(!editing)}
-                accessibilityRole="button"
-                accessibilityLabel={editing ? "Cancel editing" : "Edit body stats"}
-                animate={({ pressed }) => ({ scale: pressed ? 0.95 : 1 })}
-              >
-                <Text style={styles.editButton}>{editing ? "Cancel" : "Edit"}</Text>
-              </MotiPressable>
-            </View>
-
-            {editing ? (
-              <>
-                {[
-                  { label: "Weight (kg)", value: editWeight, set: setEditWeight, kb: "decimal-pad" as const },
-                  { label: "Height (cm)", value: editHeight, set: setEditHeight, kb: "decimal-pad" as const },
-                  { label: "Age", value: editAge, set: setEditAge, kb: "number-pad" as const },
-                ].map((field) => (
-                  <View key={field.label} style={styles.fieldContainer}>
-                    <Text style={styles.fieldLabel}>{field.label}</Text>
-                    <View style={neuInset({ paddingHorizontal: 14, paddingVertical: 12, borderRadius: 14 })}>
-                      <TextInput
-                        value={field.value}
-                        onChangeText={field.set}
-                        keyboardType={field.kb}
-                        accessibilityLabel={field.label}
-                        style={styles.textInput}
-                      />
-                    </View>
-                  </View>
-                ))}
-                <Button title="Save & Recalculate" onPress={handleSave} loading={saving} style={styles.saveButton} />
-              </>
-            ) : (
-              statsItems.map((item, i) => (
-                <View key={item.label} style={[styles.row, i < statsItems.length - 1 && styles.rowBorder]}>
-                  <Text style={styles.rowLabel}>{item.label}</Text>
-                  <Text style={styles.rowValue}>{item.value}</Text>
-                </View>
-              ))
-            )}
-          </View>
-        </Shadow>
-
-        {/* Daily Targets Card */}
-        <Shadow {...raisedShadowProps(5)} style={styles.card}>
-          <View style={styles.cardInner}>
-            <Text style={styles.sectionLabel}>Daily Targets</Text>
-            {macroItems.map((item, i) => (
-              <View key={item.label} style={[styles.row, i < macroItems.length - 1 && styles.rowBorder]}>
-                <Text style={styles.rowLabel}>{item.label}</Text>
-                <Text style={styles.rowValue}>{item.value} {item.unit}</Text>
-              </View>
+        {editing ? (
+          <>
+            {[
+              { label: "Weight (kg)", value: editWeight, set: setEditWeight, kb: "decimal-pad" as const },
+              { label: "Height (cm)", value: editHeight, set: setEditHeight, kb: "decimal-pad" as const },
+              { label: "Age", value: editAge, set: setEditAge, kb: "number-pad" as const },
+            ].map((field) => (
+              <Input
+                key={field.label}
+                label={field.label}
+                value={field.value}
+                onChangeText={field.set}
+                keyboardType={field.kb}
+                accessibilityLabel={field.label}
+                containerStyle={{ marginBottom: spacing.md }}
+              />
             ))}
-          </View>
-        </Shadow>
-
-        {/* Notifications Nav */}
-        <Shadow {...raisedShadowProps(5)} style={styles.card}>
-          <View style={styles.cardInner}>
-            <MotiPressable
-              onPress={() => router.push("/(settings)/notifications")}
-              accessibilityRole="button"
-              accessibilityLabel="Notification Settings"
-              animate={({ pressed }) => ({ scale: pressed ? 0.98 : 1 })}
-              style={styles.navRow}
+            <Button title="Save & Recalculate" onPress={handleSave} loading={saving} style={{ marginTop: spacing.sm }} />
+          </>
+        ) : (
+          statsItems.map((item, i) => (
+            <View
+              key={item.label}
+              style={{
+                flexDirection: "row", justifyContent: "space-between", paddingVertical: spacing.md,
+                borderBottomWidth: i < statsItems.length - 1 ? 1 : 0, borderBottomColor: colors.border,
+              }}
             >
-              <Text style={styles.navLabel}>Notification Settings</Text>
-              <ChevronRight size={18} color={Colors.textTertiary} />
-            </MotiPressable>
-          </View>
-        </Shadow>
+              <Text preset="body" color="textSecondary" style={{ textTransform: "capitalize" }}>{item.label}</Text>
+              <Text preset="body" style={{ fontWeight: "500", textTransform: "capitalize" }}>{item.value}</Text>
+            </View>
+          ))
+        )}
+      </Card>
 
-        {/* Sign Out */}
-        <Button title="Sign Out" onPress={clearAuth} variant="ghost" style={{ marginTop: 8 }} />
-      </ScrollView>
+      {/* Daily Targets Card */}
+      <Card style={{ marginBottom: spacing.lg }}>
+        <Text preset="overline" style={{ marginBottom: spacing.sm }}>Daily Targets</Text>
+        {macroItems.map((item, i) => (
+          <View
+            key={item.label}
+            style={{
+              flexDirection: "row", justifyContent: "space-between", paddingVertical: spacing.md,
+              borderBottomWidth: i < macroItems.length - 1 ? 1 : 0, borderBottomColor: colors.border,
+            }}
+          >
+            <Text preset="body" color="textSecondary" style={{ textTransform: "capitalize" }}>{item.label}</Text>
+            <Text preset="body" style={{ fontWeight: "500" }}>{item.value} {item.unit}</Text>
+          </View>
+        ))}
+      </Card>
+
+      {/* Notifications Nav */}
+      <Card style={{ marginBottom: spacing.lg, padding: 0 }}>
+        <MenuItem
+          icon={Bell}
+          label="Notification Settings"
+          onPress={() => router.push("/(settings)/notifications")}
+        />
+      </Card>
+
+      {/* Sign Out */}
+      <Button title="Sign Out" onPress={clearAuth} variant="ghost" style={{ marginTop: spacing.sm }} />
 
       <Toast
         message={toast?.message || ""}
@@ -184,38 +177,3 @@ export default function ProfileScreen() {
     </ErrorBoundary>
   );
 }
-
-const styles = StyleSheet.create({
-  header: { paddingTop: 16, paddingBottom: 24 },
-  headerTitle: { ...label, fontSize: 13 },
-  card: { marginBottom: 16, borderRadius: 20, backgroundColor: Colors.background },
-  cardInner: { padding: 16 },
-  avatarCard: { marginBottom: 16, borderRadius: 20, backgroundColor: Colors.background },
-  avatarInner: { padding: 24, alignItems: "center" },
-  avatarText: { ...heading, fontSize: 24, color: Colors.textSecondary },
-  userName: { ...subheading, marginTop: 16 },
-  userEmail: { ...caption, marginTop: 4 },
-  cardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 },
-  sectionLabel: { ...label, marginBottom: 8 },
-  editButton: { ...buttonText, fontSize: 13, color: Colors.accent },
-  fieldContainer: { marginBottom: 12 },
-  fieldLabel: { ...label, marginBottom: 6 },
-  textInput: {
-    color: Colors.text,
-    fontSize: 15,
-    fontFamily: "Nunito_400Regular",
-    padding: 0,
-    margin: 0,
-  },
-  saveButton: { marginTop: 8 },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 12,
-  },
-  rowBorder: { borderBottomWidth: 1, borderBottomColor: Colors.surfaceDark },
-  rowLabel: { ...body, color: Colors.textSecondary, textTransform: "capitalize" },
-  rowValue: { ...body, fontWeight: "500", textTransform: "capitalize" },
-  navRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 4 },
-  navLabel: { ...buttonText, fontSize: 15, fontWeight: "400" },
-});
