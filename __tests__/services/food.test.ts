@@ -16,7 +16,7 @@ describe("food service", () => {
         confidence: "high",
         notes: null,
       };
-      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(response) });
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200, headers: { get: (k: string) => k === "content-type" ? "application/json" : null }, json: () => Promise.resolve(response) });
       const result = await parseText("150g grilled chicken");
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining("/api/v1/ai/parse-text"),
@@ -37,7 +37,7 @@ describe("food service", () => {
         confidence: "low",
         notes: null,
       };
-      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(response) });
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200, headers: { get: (k: string) => k === "content-type" ? "application/json" : null }, json: () => Promise.resolve(response) });
       await parsePhoto("base64data");
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining("/api/v1/ai/parse-photo"),
@@ -52,7 +52,7 @@ describe("food service", () => {
   describe("saveFoodLog", () => {
     it("POSTs food log entry", async () => {
       const entry = {
-        meal_type: "lunch",
+        meal_type: "lunch" as const,
         food_name: "Chicken",
         portion: "150g",
         calories: 248,
@@ -60,10 +60,10 @@ describe("food service", () => {
         carbs_g: 0,
         fat_g: 5.4,
         fiber_g: 0,
-        source: "ai_text",
+        source: "ai_text" as const,
       };
       const response = { ...entry, id: "log-1", user_id: "u1", logged_at: "", log_date: "" };
-      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(response) });
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200, headers: { get: (k: string) => k === "content-type" ? "application/json" : null }, json: () => Promise.resolve(response) });
       const result = await saveFoodLog(entry);
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining("/api/v1/logs/food"),
@@ -75,7 +75,7 @@ describe("food service", () => {
 
   describe("getFoodLogs", () => {
     it("GETs food logs without date", async () => {
-      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) });
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200, headers: { get: (k: string) => k === "content-type" ? "application/json" : null }, json: () => Promise.resolve([]) });
       await getFoodLogs();
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining("/api/v1/logs/food"),
@@ -84,7 +84,7 @@ describe("food service", () => {
     });
 
     it("GETs food logs with date", async () => {
-      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) });
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200, headers: { get: (k: string) => k === "content-type" ? "application/json" : null }, json: () => Promise.resolve([]) });
       await getFoodLogs("2025-01-15");
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining("/api/v1/logs/food?date=2025-01-15"),
@@ -95,7 +95,7 @@ describe("food service", () => {
 
   describe("deleteFoodLog", () => {
     it("DELETEs food log", async () => {
-      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({}) });
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200, headers: { get: (k: string) => k === "content-type" ? "application/json" : null }, json: () => Promise.resolve({}) });
       await deleteFoodLog("log-1");
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining("/api/v1/logs/food/log-1"),

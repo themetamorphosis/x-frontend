@@ -4,6 +4,28 @@ import { OfflineBanner } from "../../components/OfflineBanner";
 import { TotalCard } from "../../components/log/TotalCard";
 import { MealTypeSelector } from "../../components/log/MealTypeSelector";
 
+jest.mock("../../utils/theme", () => ({
+  useTheme: () => ({
+    mode: "light",
+    colors: {
+      bg: "#F5F5F5",
+      surface: "#FFFFFF",
+      border: "#EBEBEB",
+      text: "#111111",
+      textSecondary: "#888888",
+      textTertiary: "#AAAAAA",
+      primary: "#111111",
+      primaryText: "#FFFFFF",
+      error: "#E53935",
+      overlay: "rgba(0, 0, 0, 0.3)",
+    },
+    isDark: false,
+    toggleTheme: jest.fn(),
+  }),
+  lightShadow: {},
+  darkShadow: {},
+}));
+
 describe("OfflineBanner", () => {
   it("renders Offline text", () => {
     render(<OfflineBanner />);

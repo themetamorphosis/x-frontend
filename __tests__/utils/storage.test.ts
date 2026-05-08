@@ -30,11 +30,14 @@ describe("secureStorage", () => {
         // Simulate cookie set behavior
         const [nameValue] = val.split(";");
         const [name] = nameValue.split("=");
+        const value = nameValue.slice(name.length + 1);
         // Remove existing cookie with same name
         cookieStore = cookieStore
           .split("; ")
           .filter((c) => !c.startsWith(name + "="))
           .join("; ");
+        // If value is empty (delete operation with Max-Age=0), don't add back
+        if (value === "") return;
         if (cookieStore && !cookieStore.endsWith("; ")) {
           cookieStore += "; ";
         }

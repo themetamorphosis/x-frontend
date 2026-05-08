@@ -3,8 +3,12 @@ import * as SecureStore from "expo-secure-store";
 
 const mockSecureStore = SecureStore as jest.Mocked<typeof SecureStore>;
 
+/** Flush microtask queue so async secureStorage calls complete */
+const flush = () => new Promise<void>((r) => setTimeout(r, 0));
+
 describe("authStore — full auth flow", () => {
   beforeEach(() => {
+    jest.clearAllMocks();
     useAuthStore.setState({
       token: null,
       userId: null,
@@ -27,17 +31,20 @@ describe("authStore — full auth flow", () => {
       expect(s.email).toBe("a@b.com");
     });
 
-    it("persists tokens to SecureStore", () => {
+    it("persists tokens to SecureStore", async () => {
       useAuthStore.getState().setAuth("tok", "rtok", "uid", "e@e.com");
+      await flush();
       expect(mockSecureStore.setItemAsync).toHaveBeenCalledWith("nutrilog_jwt", "tok");
       expect(mockSecureStore.setItemAsync).toHaveBeenCalledWith("nutrilog_refresh", "rtok");
     });
   });
 
   describe("logout flow", () => {
-    it("clearAuth resets all fields and removes tokens", () => {
+    it("clearAuth resets all fields and removes tokens", async () => {
       useAuthStore.getState().setAuth("tok", "rtok", "uid", "e@e.com", "Name");
+      await flush();
       useAuthStore.getState().clearAuth();
+      await flush();
       const s = useAuthStore.getState();
       expect(s.token).toBeNull();
       expect(s.userId).toBeNull();

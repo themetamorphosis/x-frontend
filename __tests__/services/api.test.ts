@@ -43,6 +43,7 @@ describe("ApiClient", () => {
     it("sends GET request", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        status: 200,
         headers: jsonHeaders,
         json: () => Promise.resolve({ items: [] }),
       });
@@ -57,6 +58,7 @@ describe("ApiClient", () => {
     it("sends POST request with body", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        status: 200,
         headers: jsonHeaders,
         json: () => Promise.resolve({ id: "1" }),
       });
@@ -73,6 +75,7 @@ describe("ApiClient", () => {
     it("sends PUT request", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        status: 200,
         headers: jsonHeaders,
         json: () => Promise.resolve({}),
       });
@@ -86,6 +89,7 @@ describe("ApiClient", () => {
     it("sends DELETE request", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        status: 200,
         headers: jsonHeaders,
         json: () => Promise.resolve({}),
       });
@@ -152,6 +156,7 @@ describe("ApiClient", () => {
         .mockRejectedValueOnce(new Error("Network fail"))
         .mockResolvedValueOnce({
           ok: true,
+          status: 200,
           headers: jsonHeaders,
           json: () => Promise.resolve({ success: true }),
         });

@@ -79,7 +79,12 @@
     "preset": "jest-expo",
     "testEnvironment": "jsdom",
     "roots": [
-      "<rootDir>/__tests__"
+      "<rootDir>"
+    ],
+    "setupFiles": [
+      "<rootDir>/jest.globals.ts",
+      "react-native/jest/setup.js",
+      "jest-expo/src/preset/setup.js"
     ],
     "coverageThreshold": {
       "global": {
@@ -114,7 +119,10 @@
       "^react-native$": "<rootDir>/__mocks__/react-native.ts",
       "^react-native-safe-area-context$": "<rootDir>/__mocks__/react-native-safe-area-context.ts",
       "^react-native-svg$": "<rootDir>/__mocks__/react-native-svg.ts",
-      "^react-native-reanimated$": "<rootDir>/__mocks__/react-native-reanimated.ts"
+      "^react-native-reanimated$": "<rootDir>/__mocks__/react-native-reanimated.ts",
+      "^@sentry/react-native$": "<rootDir>/__mocks__/@sentry/react-native.ts",
+      "^expo/src/winter$": "<rootDir>/__mocks__/expo-winter.ts",
+      "^lucide-react-native$": "<rootDir>/__mocks__/lucide-react-native.ts"
     }
   },
   "lint-staged": {

@@ -37,7 +37,7 @@ describe("ErrorBoundary", () => {
         <ThrowingComponent />
       </ErrorBoundary>
     );
-    expect(screen.getByText("SOMETHING WENT WRONG")).toBeTruthy();
+    expect(screen.getByText("Something went wrong")).toBeTruthy();
     expect(screen.getByText("Test error")).toBeTruthy();
   });
 
@@ -47,15 +47,15 @@ describe("ErrorBoundary", () => {
         <ThrowingComponent />
       </ErrorBoundary>
     );
-    expect(screen.getByText("TRY AGAIN")).toBeTruthy();
+    expect(screen.getByText("Try Again")).toBeTruthy();
   });
 
-  it("TRY AGAIN button is pressable", () => {
+  it("Try Again button is pressable", () => {
     render(
       <ErrorBoundary>
         <ThrowingComponent />
       </ErrorBoundary>
     );
-    fireEvent.press(screen.getByText("TRY AGAIN"));
+    fireEvent.press(screen.getByText("Try Again"));
   });
 });

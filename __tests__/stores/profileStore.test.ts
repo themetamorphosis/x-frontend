@@ -76,10 +76,10 @@ describe("profileStore", () => {
       expect(useProfileStore.getState().isLoading).toBe(false);
     });
 
-    it("sets profileLoaded on failure", async () => {
+    it("sets profileLoaded to false on failure", async () => {
       jest.spyOn(api, "get").mockRejectedValueOnce(new Error("fail"));
       await useProfileStore.getState().fetchProfile();
-      expect(useProfileStore.getState().profileLoaded).toBe(true);
+      expect(useProfileStore.getState().profileLoaded).toBe(false);
       expect(useProfileStore.getState().isLoading).toBe(false);
     });
   });

@@ -27,7 +27,7 @@ describe("dailyStore", () => {
   describe("addFoodLog", () => {
     it("adds food to the correct meal", () => {
       useDailyStore.setState({ summary: { ...mockSummary } });
-      const newFood: LoggedFood & { meal_type: string } = {
+      const newFood: LoggedFood & { meal_type: import("../../types/food").MealType } = {
         id: "f3", food_name: "Rice", portion: "150g", calories: 200, protein_g: 5, carbs_g: 40, fat_g: 2, fiber_g: 1, meal_type: "dinner",
       };
       useDailyStore.getState().addFoodLog(newFood);
@@ -37,7 +37,7 @@ describe("dailyStore", () => {
 
     it("updates consumed totals", () => {
       useDailyStore.setState({ summary: { ...mockSummary } });
-      const newFood: LoggedFood & { meal_type: string } = {
+      const newFood: LoggedFood & { meal_type: import("../../types/food").MealType } = {
         id: "f3", food_name: "Rice", portion: "150g", calories: 200, protein_g: 5, carbs_g: 40, fat_g: 2, fiber_g: 1, meal_type: "dinner",
       };
       useDailyStore.getState().addFoodLog(newFood);
@@ -47,7 +47,7 @@ describe("dailyStore", () => {
 
     it("updates remaining totals", () => {
       useDailyStore.setState({ summary: { ...mockSummary } });
-      const newFood: LoggedFood & { meal_type: string } = {
+      const newFood: LoggedFood & { meal_type: import("../../types/food").MealType } = {
         id: "f3", food_name: "Rice", portion: "150g", calories: 200, protein_g: 5, carbs_g: 40, fat_g: 2, fiber_g: 1, meal_type: "dinner",
       };
       useDailyStore.getState().addFoodLog(newFood);
@@ -55,7 +55,7 @@ describe("dailyStore", () => {
     });
 
     it("does nothing when summary is null", () => {
-      useDailyStore.getState().addFoodLog({ id: "f3", food_name: "X", portion: null, calories: 100, protein_g: 0, carbs_g: 0, fat_g: 0, fiber_g: 0, meal_type: "dinner" } as LoggedFood & { meal_type: string });
+      useDailyStore.getState().addFoodLog({ id: "f3", food_name: "X", portion: null, calories: 100, protein_g: 0, carbs_g: 0, fat_g: 0, fiber_g: 0, meal_type: "dinner" } as LoggedFood & { meal_type: import("../../types/food").MealType });
       expect(useDailyStore.getState().summary).toBeNull();
     });
   });

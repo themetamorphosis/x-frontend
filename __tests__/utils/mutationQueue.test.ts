@@ -16,10 +16,11 @@ jest.mock("@react-native-community/netinfo", () => ({
 describe("MutationQueue", () => {
   let mockExecute: jest.Mock;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.clearAllMocks();
     mockExecute = jest.fn().mockResolvedValue(undefined);
     mutationQueue.init(mockExecute);
+    await mutationQueue.clear();
   });
 
   afterEach(() => {

@@ -17,7 +17,7 @@ describe("foodDb service", () => {
         query: "chicken",
         total: 1,
       };
-      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(data) });
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200, headers: { get: (k: string) => k === "content-type" ? "application/json" : null }, json: () => Promise.resolve(data) });
       const result = await searchFoods("chicken");
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining("/api/v1/food/search?q=chicken"),
@@ -28,7 +28,7 @@ describe("foodDb service", () => {
     });
 
     it("encodes query parameter", async () => {
-      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ results: [], query: "", total: 0 }) });
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200, headers: { get: (k: string) => k === "content-type" ? "application/json" : null }, json: () => Promise.resolve({ results: [], query: "", total: 0 }) });
       await searchFoods("chicken breast");
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining("chicken%20breast"),
@@ -40,7 +40,7 @@ describe("foodDb service", () => {
   describe("getBarcodeProduct", () => {
     it("GETs barcode product", async () => {
       const product = { source: "openfoodfacts", source_id: "123", name: "Milk", brand: "Farm", image_url: "", serving_size: "250ml", calories: 42, protein_g: 3.4, carbs_g: 5, fat_g: 1, fiber_g: 0 };
-      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(product) });
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200, headers: { get: (k: string) => k === "content-type" ? "application/json" : null }, json: () => Promise.resolve(product) });
       const result = await getBarcodeProduct("123");
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining("/api/v1/food/barcode/123"),
@@ -52,7 +52,7 @@ describe("foodDb service", () => {
 
   describe("getCustomFoods", () => {
     it("GETs custom foods list", async () => {
-      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) });
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200, headers: { get: (k: string) => k === "content-type" ? "application/json" : null }, json: () => Promise.resolve([]) });
       await getCustomFoods();
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining("/api/v1/food/custom"),
@@ -65,7 +65,7 @@ describe("foodDb service", () => {
     it("POSTs custom food", async () => {
       const food = { name: "My Recipe", calories: 300, protein_g: 20, carbs_g: 30, fat_g: 10 };
       const response = { ...food, source: "custom", source_id: "", image_url: "", serving_size: "", fiber_g: 0 };
-      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(response) });
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200, headers: { get: (k: string) => k === "content-type" ? "application/json" : null }, json: () => Promise.resolve(response) });
       const result = await createCustomFood(food);
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining("/api/v1/food/custom"),
@@ -77,7 +77,7 @@ describe("foodDb service", () => {
 
   describe("deleteCustomFood", () => {
     it("DELETEs custom food", async () => {
-      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({}) });
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200, headers: { get: (k: string) => k === "content-type" ? "application/json" : null }, json: () => Promise.resolve({}) });
       await deleteCustomFood("cf-1");
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining("/api/v1/food/custom/cf-1"),
