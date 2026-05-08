@@ -36,7 +36,7 @@ export default function PhotoLogScreen() {
       try {
         const compressed = await compressImage(asset.uri);
         setImageBase64(compressed || null);
-      } catch {
+      } catch (e: unknown) {
         setImageBase64(asset.base64 || null);
       }
     }

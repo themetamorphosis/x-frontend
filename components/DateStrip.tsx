@@ -1,4 +1,4 @@
-import { memo, useRef, useEffect, useCallback } from "react";
+import { memo, useRef, useEffect, useCallback, useMemo } from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { MotiPressable } from "moti/interactions";
 import { Colors } from "../utils/colors";
@@ -32,9 +32,36 @@ function getWeekDates(referenceDate: Date): { date: string; day: number; dayName
   });
 }
 
+function DatePill({ item, isSelected, onSelect }: { item: { date: string; day: number; dayName: string; isToday: boolean }; isSelected: boolean; onSelect: (date: string) => void }) {
+  const handlePress = useCallback(() => onSelect(item.date), [item.date, onSelect]);
+  return (
+    <MotiPressable
+      onPress={handlePress}
+      accessibilityRole="button"
+      accessibilityLabel={`${item.dayName} ${item.day}`}
+      accessibilityState={{ selected: isSelected }}
+      animate={({ pressed }) => ({
+        scale: pressed ? 0.95 : 1,
+      })}
+      style={[
+        styles.pill,
+        isSelected ? styles.pillSelected : styles.pillDefault,
+      ]}
+    >
+      <Text style={[styles.dayName, isSelected && styles.dayNameSelected]}>
+        {item.dayName}
+      </Text>
+      <Text style={[styles.dayNumber, isSelected && styles.dayNumberSelected]}>
+        {item.day}
+      </Text>
+      {item.isToday && !isSelected && <View style={styles.todayDot} />}
+    </MotiPressable>
+  );
+}
+
 export const DateStrip = memo(function DateStrip({ selectedDate, onSelectDate }: DateStripProps) {
   const scrollRef = useRef<ScrollView>(null);
-  const weekDates = getWeekDates(new Date(selectedDate));
+  const weekDates = useMemo(() => getWeekDates(new Date(selectedDate)), [selectedDate]);
 
   useEffect(() => {
     // Auto-scroll to selected day
@@ -52,33 +79,14 @@ export const DateStrip = memo(function DateStrip({ selectedDate, onSelectDate }:
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {weekDates.map((item) => {
-          const isSelected = item.date === selectedDate;
-          return (
-            <MotiPressable
-              key={item.date}
-              onPress={useCallback(() => onSelectDate(item.date), [item.date, onSelectDate])}
-              accessibilityRole="button"
-              accessibilityLabel={`${item.dayName} ${item.day}`}
-              accessibilityState={{ selected: isSelected }}
-              animate={({ pressed }) => ({
-                scale: pressed ? 0.95 : 1,
-              })}
-              style={[
-                styles.pill,
-                isSelected ? styles.pillSelected : styles.pillDefault,
-              ]}
-            >
-              <Text style={[styles.dayName, isSelected && styles.dayNameSelected]}>
-                {item.dayName}
-              </Text>
-              <Text style={[styles.dayNumber, isSelected && styles.dayNumberSelected]}>
-                {item.day}
-              </Text>
-              {item.isToday && !isSelected && <View style={styles.todayDot} />}
-            </MotiPressable>
-          );
-        })}
+        {weekDates.map((item) => (
+          <DatePill
+            key={item.date}
+            item={item}
+            isSelected={item.date === selectedDate}
+            onSelect={onSelectDate}
+          />
+        ))}
       </ScrollView>
     </View>
   );

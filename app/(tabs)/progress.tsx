@@ -54,7 +54,7 @@ export default function ProgressScreen() {
       setWeightValue("");
       setShowWeightInput(false);
       setToast({ visible: true, message: "Weight logged", type: "success" });
-    } catch {
+    } catch (e: unknown) {
       haptic.error();
       setToast({ visible: true, message: "Failed to log weight", type: "error" });
     }

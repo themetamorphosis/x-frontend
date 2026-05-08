@@ -13,8 +13,8 @@ import { useDailyStore } from "../stores/dailyStore";
 import { haptic } from "../utils/haptics";
 import { imageToBase64 } from "../utils/imageCompression";
 import { AIReplyBubble } from "./AIReplyBubble";
-import type { MealType } from "../types/food";
-import { getMealType } from "../utils/mealType";
+import type { AIParseResponse, MealType } from "../types/food";
+import { detectMealType } from "../utils/mealType";
 
 export function AIChatBar() {
   const [text, setText] = useState("");
@@ -23,6 +23,31 @@ export function AIChatBar() {
   const inputRef = useRef<TextInput>(null);
   const insets = useSafeAreaInsets();
   const addFoodLog = useDailyStore((s) => s.addFoodLog);
+
+  const _saveFoods = useCallback(async (response: AIParseResponse, source: "ai_text" | "ai_photo") => {
+    const mealType: MealType = detectMealType();
+    const savedFoods = await Promise.all(
+      response.foods.map((food) =>
+        saveFoodLog({
+          meal_type: mealType,
+          food_name: food.name,
+          portion: food.portion,
+          calories: food.calories,
+          protein_g: food.protein_g,
+          carbs_g: food.carbs_g,
+          fat_g: food.fat_g,
+          fiber_g: food.fiber_g || 0,
+          source,
+        })
+      )
+    );
+    for (const saved of savedFoods) {
+      addFoodLog({ ...saved, meal_type: mealType });
+    }
+    const totalCalories = response.foods.reduce((sum, f) => sum + f.calories, 0);
+    const foodNames = response.foods.map((f) => f.name).join(" + ");
+    return { foodNames, totalCalories };
+  }, [addFoodLog]);
 
   const handleSubmit = useCallback(async () => {
     const trimmed = text.trim();
@@ -35,26 +60,7 @@ export function AIChatBar() {
 
     try {
       const response = await parseText(trimmed);
-      const mealType: MealType = getMealType();
-
-      let totalCalories = 0;
-      for (const food of response.foods) {
-        const saved = await saveFoodLog({
-          meal_type: mealType,
-          food_name: food.name,
-          portion: food.portion,
-          calories: food.calories,
-          protein_g: food.protein_g,
-          carbs_g: food.carbs_g,
-          fat_g: food.fat_g,
-          fiber_g: food.fiber_g || 0,
-          source: "ai_text",
-        });
-        addFoodLog({ ...saved, meal_type: mealType });
-        totalCalories += food.calories;
-      }
-
-      const foodNames = response.foods.map((f) => f.name).join(" + ");
+      const { foodNames, totalCalories } = await _saveFoods(response, "ai_text");
       setReply(`Logged: ${foodNames} — ${totalCalories} cal`);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to parse food";
@@ -62,7 +68,7 @@ export function AIChatBar() {
     } finally {
       setLoading(false);
     }
-  }, [text, loading, addFoodLog]);
+  }, [text, loading, _saveFoods]);
 
   const handleCamera = useCallback(async () => {
     haptic.light();
@@ -78,26 +84,7 @@ export function AIChatBar() {
       setLoading(true);
       const base64 = await imageToBase64(result.assets[0].uri);
       const response = await parsePhoto(base64);
-      const mealType: MealType = getMealType();
-
-      let totalCalories = 0;
-      for (const food of response.foods) {
-        const saved = await saveFoodLog({
-          meal_type: mealType,
-          food_name: food.name,
-          portion: food.portion,
-          calories: food.calories,
-          protein_g: food.protein_g,
-          carbs_g: food.carbs_g,
-          fat_g: food.fat_g,
-          fiber_g: food.fiber_g || 0,
-          source: "ai_photo",
-        });
-        addFoodLog({ ...saved, meal_type: mealType });
-        totalCalories += food.calories;
-      }
-
-      const foodNames = response.foods.map((f) => f.name).join(" + ");
+      const { foodNames, totalCalories } = await _saveFoods(response, "ai_photo");
       setReply(`Photo logged: ${foodNames} — ${totalCalories} cal`);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to process photo";
@@ -105,7 +92,7 @@ export function AIChatBar() {
     } finally {
       setLoading(false);
     }
-  }, [addFoodLog]);
+  }, [_saveFoods]);
 
   const handleImagePicker = useCallback(async () => {
     haptic.light();
@@ -121,26 +108,7 @@ export function AIChatBar() {
       setLoading(true);
       const base64 = await imageToBase64(result.assets[0].uri);
       const response = await parsePhoto(base64);
-      const mealType: MealType = getMealType();
-
-      let totalCalories = 0;
-      for (const food of response.foods) {
-        const saved = await saveFoodLog({
-          meal_type: mealType,
-          food_name: food.name,
-          portion: food.portion,
-          calories: food.calories,
-          protein_g: food.protein_g,
-          carbs_g: food.carbs_g,
-          fat_g: food.fat_g,
-          fiber_g: food.fiber_g || 0,
-          source: "ai_photo",
-        });
-        addFoodLog({ ...saved, meal_type: mealType });
-        totalCalories += food.calories;
-      }
-
-      const foodNames = response.foods.map((f) => f.name).join(" + ");
+      const { foodNames, totalCalories } = await _saveFoods(response, "ai_photo");
       setReply(`Logged: ${foodNames} — ${totalCalories} cal`);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to process image";
@@ -148,7 +116,7 @@ export function AIChatBar() {
     } finally {
       setLoading(false);
     }
-  }, [addFoodLog]);
+  }, [_saveFoods]);
 
   return (
     <>

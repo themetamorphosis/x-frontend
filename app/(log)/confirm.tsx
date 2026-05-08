@@ -46,7 +46,7 @@ export default function ConfirmScreen() {
         fiber_g: food.fiber_g || 0,
       });
       setToast({ visible: true, message: `"${food.name}" saved to library`, type: "success" });
-    } catch {
+    } catch (e: unknown) {
       setToast({ visible: true, message: "Failed to save custom food", type: "error" });
     }
   };

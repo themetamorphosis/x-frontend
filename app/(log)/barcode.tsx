@@ -34,7 +34,7 @@ export default function BarcodeScreen() {
     try {
       const result = await getBarcodeProduct(data);
       setProduct(result);
-    } catch {
+    } catch (e: unknown) {
       setToast({ message: "Product not found in database", type: "error" });
       setScanned(false);
     } finally {

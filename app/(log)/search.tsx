@@ -34,7 +34,6 @@ export default function SearchScreen() {
   const [quantity, setQuantity] = useState(1);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const { mealType } = useFoodLogStore();
-  const addFoodLog = useDailyStore((s) => s.addFoodLog);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentQuery = useRef("");
 

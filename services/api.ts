@@ -6,7 +6,6 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL || (() => {
   if (!__DEV__) {
     throw new Error("EXPO_PUBLIC_API_URL must be set in production");
   }
-  console.warn("EXPO_PUBLIC_API_URL not set, defaulting to http://localhost:8000");
   return "http://localhost:8000";
 })();
 const API_PREFIX = "/api/v1";

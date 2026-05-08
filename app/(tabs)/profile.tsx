@@ -49,7 +49,7 @@ export default function ProfileScreen() {
       await calculateTargets();
       setEditing(false);
       setToast({ message: "Profile updated", type: "success" });
-    } catch {
+    } catch (e: unknown) {
       setToast({ message: "Failed to update profile", type: "error" });
     }
     setSaving(false);

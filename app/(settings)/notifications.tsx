@@ -26,7 +26,7 @@ export default function NotificationSettingsScreen() {
       try {
         const data = await getNotificationSettings();
         setSettings(data);
-      } catch {
+      } catch (e: unknown) {
         Alert.alert("Error", "Failed to load notification settings");
       }
       setLoading(false);
@@ -40,7 +40,7 @@ export default function NotificationSettingsScreen() {
     try {
       await updateNotificationSettings(settings);
       router.back();
-    } catch {
+    } catch (e: unknown) {
       Alert.alert("Error", "Failed to save settings");
     }
     setSaving(false);

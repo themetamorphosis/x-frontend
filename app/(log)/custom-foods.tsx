@@ -30,7 +30,7 @@ export default function CustomFoodsScreen() {
         try {
           const data = await getCustomFoods();
           if (!cancelled) setFoods(data);
-        } catch {
+        } catch (e: unknown) {
           if (!cancelled) setToast({ visible: true, message: "Failed to load foods", type: "error" });
         }
         if (!cancelled) setLoading(false);
@@ -50,7 +50,7 @@ export default function CustomFoodsScreen() {
           try {
             await deleteCustomFood(food.source_id);
             setFoods((prev) => prev.filter((f) => f.source_id !== food.source_id));
-          } catch {
+          } catch (e: unknown) {
             setToast({ visible: true, message: "Failed to delete", type: "error" });
           }
         },
@@ -75,7 +75,7 @@ export default function CustomFoodsScreen() {
       });
       setFoods((prev) => [...prev, created]);
       setShowAdd(false);
-    } catch {
+    } catch (e: unknown) {
       setToast({ visible: true, message: "Failed to create custom food", type: "error" });
     }
     setSaving(false);
@@ -97,7 +97,7 @@ export default function CustomFoodsScreen() {
         source: "custom",
       });
       setQuickLogFood(null);
-    } catch {
+    } catch (e: unknown) {
       setToast({ visible: true, message: "Failed to log food", type: "error" });
     }
     setSaving(false);
@@ -108,7 +108,7 @@ export default function CustomFoodsScreen() {
     try {
       const data = await getCustomFoods();
       setFoods(data);
-    } catch {
+    } catch (e: unknown) {
       setToast({ visible: true, message: "Failed to refresh", type: "error" });
     }
     setRefreshing(false);

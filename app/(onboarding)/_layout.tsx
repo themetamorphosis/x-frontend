@@ -1,5 +1,6 @@
 import { Stack } from "expo-router";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
+import { Colors } from "../../utils/colors";
 
 export default function OnboardingLayout() {
   return (
@@ -7,7 +8,7 @@ export default function OnboardingLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: "#000000" },
+        contentStyle: { backgroundColor: Colors.background },
         animation: "slide_from_right",
       }}
     />

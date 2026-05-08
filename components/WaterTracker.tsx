@@ -25,12 +25,13 @@ export const WaterTracker = memo(function WaterTracker({ current_ml, target_ml =
   const cupsRemaining = Math.max(Math.round((target_ml - current_ml) / CUP_ML), 0);
 
   const addWater = useCallback(async (amount: number) => {
+    if (amount <= 0) return;
     haptic.light();
     const newTotal = current_ml + amount;
     setWater(newTotal);
     try {
       await api.post("/logs/water", { amount_ml: amount });
-    } catch {
+    } catch (e: unknown) {
       setWater(current_ml);
     }
   }, [current_ml, setWater]);
@@ -43,7 +44,7 @@ export const WaterTracker = memo(function WaterTracker({ current_ml, target_ml =
     setWater(newTotal);
     try {
       await api.post("/logs/water", { amount_ml: -amount });
-    } catch {
+    } catch (e: unknown) {
       setWater(current_ml);
     }
   }, [current_ml, setWater]);
@@ -88,7 +89,7 @@ export const WaterTracker = memo(function WaterTracker({ current_ml, target_ml =
           </View>
 
           <MotiPressable
-            onPress={useCallback(() => addWater(CUP_ML), [addWater])}
+            onPress={() => addWater(CUP_ML)}
             accessibilityRole="button"
             accessibilityLabel="Add one cup of water"
             animate={({ pressed }) => ({

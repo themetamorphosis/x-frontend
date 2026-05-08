@@ -53,7 +53,7 @@ export function AddFoodModal({ visible, saving, onClose, onSave }: Props) {
   };
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={handleClose}>
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={handleClose} accessibilityViewIsModal={true}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
         <View style={styles.backdrop}>
           <Card>

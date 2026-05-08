@@ -32,6 +32,33 @@ let _unauthorizedHandlerSet = false;
 let _refreshTimer: ReturnType<typeof setTimeout> | null = null;
 
 /**
+ * Decode a base64url string. Works on all platforms including Hermes (no atob).
+ */
+function base64UrlDecode(str: string): string {
+  // Replace URL-safe chars and pad
+  let base64 = str.replace(/-/g, "+").replace(/_/g, "/");
+  const pad = base64.length % 4;
+  if (pad) base64 += "=".repeat(4 - pad);
+  // Use global atob if available (web), otherwise manual decode
+  if (typeof atob !== "undefined") {
+    return atob(base64);
+  }
+  // Manual base64 decode for React Native / Hermes
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+  let output = "";
+  for (let i = 0; i < base64.length; i += 4) {
+    const a = chars.indexOf(base64[i]);
+    const b = chars.indexOf(base64[i + 1]);
+    const c = chars.indexOf(base64[i + 2]);
+    const d = chars.indexOf(base64[i + 3]);
+    output += String.fromCharCode((a << 2) | (b >> 4));
+    if (base64[i + 2] !== "=") output += String.fromCharCode(((b & 15) << 4) | (c >> 2));
+    if (base64[i + 3] !== "=") output += String.fromCharCode(((c & 3) << 6) | d);
+  }
+  return output;
+}
+
+/**
  * Decode a JWT payload without verification (client-side only).
  * The token is already verified by the server; we just need the expiry.
  */
@@ -39,9 +66,9 @@ function decodeJWTPayload(token: string): { exp?: number } | null {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
-    const payload = JSON.parse(atob(parts[1]));
+    const payload = JSON.parse(base64UrlDecode(parts[1]));
     return payload;
-  } catch {
+  } catch (e: unknown) {
     return null;
   }
 }
@@ -156,7 +183,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         data.user.avatar_url
       );
       return true;
-    } catch {
+    } catch (e: unknown) {
       get().clearAuth();
       return false;
     }

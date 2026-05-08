@@ -44,7 +44,7 @@ export default function PaceScreen() {
     try {
       await saveOnboarding();
       router.replace("/(onboarding)/targets");
-    } catch {
+    } catch (e: unknown) {
       setLoading(false);
     }
   };

@@ -22,11 +22,9 @@
     "@react-native-community/netinfo": "11.4.1",
     "@sentry/react-native": "^8.10.0",
     "@shopify/react-native-skia": "^2.2.12",
-    "@tanstack/react-query": "^5.100.8",
     "expo": "~54.0.33",
     "expo-auth-session": "~7.0.11",
     "expo-barcode-scanner": "^13.0.1",
-    "expo-camera": "~17.0.10",
     "expo-constants": "~18.0.13",
     "expo-crypto": "~15.0.9",
     "expo-device": "~8.0.10",
@@ -35,7 +33,6 @@
     "expo-image": "~3.0.11",
     "expo-image-manipulator": "~14.0.8",
     "expo-image-picker": "~17.0.11",
-    "expo-linear-gradient": "~15.0.8",
     "expo-linking": "~8.0.12",
     "expo-notifications": "~0.32.17",
     "expo-router": "~6.0.23",
@@ -84,6 +81,14 @@
     "roots": [
       "<rootDir>/__tests__"
     ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 50,
+        "functions": 50,
+        "lines": 50,
+        "statements": 50
+      }
+    },
     "transform": {
       "^.+\\.tsx$": [
         "ts-jest",

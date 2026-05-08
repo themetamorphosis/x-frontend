@@ -65,7 +65,7 @@ class MutationQueue {
       try {
         await this.executeFn(mutation.method, mutation.path, mutation.body);
         this.queue = this.queue.filter((m) => m.id !== mutation.id);
-      } catch {
+      } catch (e: unknown) {
         mutation.retryCount++;
         if (mutation.retryCount < MAX_RETRIES) {
           failed.push(mutation);
@@ -94,7 +94,7 @@ class MutationQueue {
       if (raw) {
         this.queue = JSON.parse(raw);
       }
-    } catch {
+    } catch (e: unknown) {
       this.queue = [];
     }
   }

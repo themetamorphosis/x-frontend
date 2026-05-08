@@ -23,7 +23,7 @@ async function ensureNativeModules() {
         shouldShowList: true,
       }),
     });
-  } catch {
+  } catch (e: unknown) {
     // modules not available
   }
 }
@@ -65,7 +65,7 @@ export async function savePushToken(token: string) {
       ...settings,
       push_token: token,
     });
-  } catch {
+  } catch (e: unknown) {
     // silently fail
   }
 }

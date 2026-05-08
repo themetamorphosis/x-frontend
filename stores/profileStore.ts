@@ -92,11 +92,11 @@ export const useProfileStore = create<ProfileState>()(
         set({ isLoading: true, error: null });
         try {
           const profile = await api.get<Profile>("/user/profile");
-          set({ profile, isLoading: false, profileLoaded: true });
+          set({ profile, isLoading: false, profileLoaded: true, error: null });
         } catch (e) {
           const message = e instanceof Error ? e.message : "Failed to load profile";
           Sentry.captureException(e, { tags: { context: "fetchProfile" } });
-          set({ isLoading: false, profileLoaded: true, error: message });
+          set({ isLoading: false, profileLoaded: false, error: message });
         }
       },
 

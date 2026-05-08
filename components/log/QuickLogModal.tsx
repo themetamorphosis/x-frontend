@@ -23,7 +23,7 @@ export function QuickLogModal({ visible, food, saving, onClose, onLog }: Props) 
   const q = parseFloat(quantity) || 1;
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={handleClose}>
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={handleClose} accessibilityViewIsModal={true}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
         <View style={styles.backdrop}>
           <Card>

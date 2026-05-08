@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Text, ActivityIndicator, ViewStyle, StyleSheet } from "react-native";
 import { MotiPressable } from "moti/interactions";
 import { Shadow } from "react-native-shadow-2";
@@ -32,8 +32,6 @@ export const Button = React.memo(function Button({
   iconSize = 20,
   small = false,
 }: ButtonProps) {
-  const isPressed = useCallback(() => false, []);
-
   const getContainerStyle = (pressed: boolean): ViewStyle => {
     const base: ViewStyle = {
       borderRadius: 16,
@@ -87,6 +85,13 @@ export const Button = React.memo(function Button({
 
   const textStyles = small ? buttonTextSmall : buttonText;
 
+  const animateStyle = useCallback(
+    ({ pressed }: { pressed: boolean }) => ({
+      scale: pressed && !disabled ? 0.97 : 1,
+    }),
+    [disabled]
+  );
+
   return (
     <MotiPressable
       onPress={onPress}
@@ -95,12 +100,7 @@ export const Button = React.memo(function Button({
       accessibilityLabel={title || "Button"}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: disabled || loading, busy: loading }}
-      animate={useCallback(
-        ({ pressed }: { pressed: boolean }) => ({
-          scale: pressed && !disabled ? 0.97 : 1,
-        }),
-        [disabled]
-      )}
+      animate={animateStyle}
       style={[getContainerStyle(false), style]}
     >
       {({ pressed }) => {

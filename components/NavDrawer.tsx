@@ -1,4 +1,4 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useEffect } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
 import Animated, { useAnimatedStyle, withTiming, useSharedValue, runOnJS } from "react-native-reanimated";
 import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
@@ -54,9 +54,11 @@ export const NavDrawer = memo(function NavDrawer({
   }, [translateX, onClose]);
 
   // Trigger open/close animations
-  if (open && translateX.value === -DRAWER_WIDTH) {
-    animateOpen();
-  }
+  useEffect(() => {
+    if (open && translateX.value === -DRAWER_WIDTH) {
+      animateOpen();
+    }
+  }, [open, translateX, animateOpen]);
 
   const drawerStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],

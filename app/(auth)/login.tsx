@@ -74,7 +74,7 @@ export default function LoginScreen() {
         data.user.avatar_url
       );
       fetchProfile();
-    } catch {
+    } catch (e: unknown) {
       setToast({ message: "Sign in failed. Please try again.", type: "error" });
     } finally {
       setLoading(false);
@@ -90,7 +90,7 @@ export default function LoginScreen() {
     }
   }, [response, exchangeToken]);
 
-  async function devLogin() {
+  const devLogin = useCallback(async () => {
     setLoading(true);
     try {
       const data = await api.post<LoginResponse>("/auth/dev-login");
@@ -103,12 +103,12 @@ export default function LoginScreen() {
         data.user.avatar_url
       );
       fetchProfile();
-    } catch {
+    } catch (e: unknown) {
       setToast({ message: "Dev login failed. Is DEV_MODE enabled on the backend?", type: "error" });
     } finally {
       setLoading(false);
     }
-  }
+  }, [setAuth, fetchProfile]);
 
   return (
     <ScreenWrapper>

@@ -1,9 +1,19 @@
 import { useMemo } from "react";
-import { View, Text, Platform } from "react-native";
+import { View, Text, Platform, StyleSheet } from "react-native";
 import { Colors } from "../utils/colors";
 import type { WeightEntry } from "../stores/progressStore";
 
 const isWeb = Platform.OS === "web";
+
+// Conditional import for victory-native (native only)
+let VictoryNative: { CartesianChart: React.ComponentType<any>; Line: React.ComponentType<any>; Scatter: React.ComponentType<any> } | null = null;
+if (!isWeb) {
+  try {
+    VictoryNative = require("victory-native");
+  } catch {
+    // victory-native not available
+  }
+}
 
 interface WeightChartProps {
   data: WeightEntry[];
@@ -18,28 +28,29 @@ function WeightChartWeb({ data, goalWeight, sorted }: { data: WeightEntry[]; goa
   const isLoss = parseFloat(change) <= 0;
 
   return (
-    <View style={{ height: 180, justifyContent: "center", alignItems: "center", gap: 8 }}>
-      <Text style={{ color: Colors.white, fontSize: 28, fontWeight: "700" }}>
+    <View style={styles.centeredContainer}>
+      <Text style={styles.currentWeight}>
         {latest?.weight_kg} kg
       </Text>
-      <Text style={{ color: isLoss ? "#4ade80" : "#f87171", fontSize: 14 }}>
+      <Text style={{ color: isLoss ? Colors.success : Colors.error, fontSize: 14 }}>
         {isLoss ? "" : "+"}{change} kg
       </Text>
       {goalWeight && (
-        <Text style={{ color: Colors.gray500, fontSize: 12 }}>
+        <Text style={styles.labelText}>
           Goal: {goalWeight} kg
         </Text>
       )}
-      <View style={{ flexDirection: "row", justifyContent: "space-between", width: "100%", paddingHorizontal: 12, marginTop: 4 }}>
-        <Text style={{ color: Colors.gray500, fontSize: 11 }}>{earliest?.log_date?.slice(5)}</Text>
-        <Text style={{ color: Colors.gray500, fontSize: 11 }}>{latest?.log_date?.slice(5)}</Text>
+      <View style={styles.dateRow}>
+        <Text style={styles.labelText}>{earliest?.log_date?.slice(5)}</Text>
+        <Text style={styles.labelText}>{latest?.log_date?.slice(5)}</Text>
       </View>
     </View>
   );
 }
 
 function WeightChartNative({ data, goalWeight, sorted }: { data: WeightEntry[]; goalWeight?: number | null; sorted: WeightEntry[] }) {
-  const { CartesianChart, Line, Scatter } = require("victory-native");
+  if (!VictoryNative) return null;
+  const { CartesianChart, Line, Scatter } = VictoryNative;
   const chartData = sorted.map((entry: WeightEntry, i: number) => ({ x: i + 1, y: entry.weight_kg }));
   const weights = sorted.map((e: WeightEntry) => e.weight_kg);
   const minW = Math.min(...weights);
@@ -47,7 +58,7 @@ function WeightChartNative({ data, goalWeight, sorted }: { data: WeightEntry[]; 
 
   return (
     <View>
-      <View style={{ height: 180 }}>
+      <View style={styles.chartContainer}>
         <CartesianChart
           data={chartData}
           xKey="x"
@@ -62,10 +73,10 @@ function WeightChartNative({ data, goalWeight, sorted }: { data: WeightEntry[]; 
           )}
         </CartesianChart>
       </View>
-      <View style={{ flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 12, marginTop: 4 }}>
-        <Text style={{ color: Colors.gray500, fontSize: 11 }}>{sorted[0]?.log_date?.slice(5)}</Text>
-        {goalWeight && <Text style={{ color: Colors.gray500, fontSize: 11 }}>GOAL: {goalWeight} KG</Text>}
-        <Text style={{ color: Colors.gray500, fontSize: 11 }}>{sorted[sorted.length - 1]?.log_date?.slice(5)}</Text>
+      <View style={styles.dateRow}>
+        <Text style={styles.labelText}>{sorted[0]?.log_date?.slice(5)}</Text>
+        {goalWeight && <Text style={styles.labelText}>GOAL: {goalWeight} KG</Text>}
+        <Text style={styles.labelText}>{sorted[sorted.length - 1]?.log_date?.slice(5)}</Text>
       </View>
     </View>
   );
@@ -80,8 +91,8 @@ export function WeightChart({ data, goalWeight }: WeightChartProps) {
 
   if (data.length === 0) {
     return (
-      <View style={{ height: 180, alignItems: "center", justifyContent: "center" }}>
-        <Text style={{ color: Colors.gray500, fontSize: 13 }}>No weight data</Text>
+      <View style={styles.centeredContainer}>
+        <Text style={styles.labelText}>No weight data</Text>
       </View>
     );
   }
@@ -91,3 +102,30 @@ export function WeightChart({ data, goalWeight }: WeightChartProps) {
   }
   return <WeightChartNative data={data} goalWeight={goalWeight} sorted={sorted} />;
 }
+
+const styles = StyleSheet.create({
+  centeredContainer: {
+    height: 180,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
+  },
+  chartContainer: {
+    height: 180,
+  },
+  currentWeight: {
+    color: Colors.white,
+    fontSize: 28,
+    fontWeight: "700",
+  },
+  labelText: {
+    color: Colors.gray500,
+    fontSize: 11,
+  },
+  dateRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 12,
+    marginTop: 4,
+  },
+});

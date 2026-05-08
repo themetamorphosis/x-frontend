@@ -52,12 +52,3 @@ global.fetch = jest.fn(() =>
     json: () => Promise.resolve({}),
   } as Response)
 );
-
-// Global fetch mock
-global.fetch = jest.fn(() =>
-  Promise.resolve({
-    ok: true,
-    status: 200,
-    json: () => Promise.resolve({}),
-  } as Response)
-);

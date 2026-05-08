@@ -5,11 +5,11 @@ import { Colors } from "../utils/colors";
 import { caption, label } from "../utils/typography";
 
 export const DayProgressBar = memo(function DayProgressBar() {
-  const [now, setNow] = useState(new Date());
+  const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
-    // Update every 5 minutes
-    const interval = setInterval(() => setNow(new Date()), 5 * 60 * 1000);
+    // Update every 60 seconds for more accurate progress
+    const interval = setInterval(() => setNow(new Date()), 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
