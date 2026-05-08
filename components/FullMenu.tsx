@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect } from "react";
 import { View, Dimensions, StyleSheet } from "react-native";
-import Animated, { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from "react-native-reanimated";
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring, runOnJS } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { Home, Plus, TrendingUp, Droplets, Bell, Settings, LogOut, X, User } from "lucide-react-native";
 import { MotiPressable } from "moti/interactions";
@@ -25,7 +25,7 @@ export const FullMenu = memo(function FullMenu({ open, onClose, onNavigate, onLo
   const { colors } = useTheme();
   const translateX = useSharedValue(-SCREEN_WIDTH);
 
-  const animateOpen = useCallback(() => { translateX.value = withTiming(0, { duration: 300 }); }, [translateX]);
+  const animateOpen = useCallback(() => { translateX.value = withSpring(0, { damping: 20, stiffness: 200 }); }, [translateX]);
   const animateClose = useCallback(() => {
     translateX.value = withTiming(-SCREEN_WIDTH, { duration: 250 }, (finished) => { if (finished) runOnJS(onClose)(); });
   }, [translateX, onClose]);
