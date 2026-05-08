@@ -6,6 +6,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import * as Sentry from "@sentry/react-native";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts, Nunito_300Light, Nunito_400Regular, Nunito_600SemiBold, Nunito_700Bold } from "@expo-google-fonts/nunito";
+import {
+  Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold,
+} from "@expo-google-fonts/inter";
+import { ThemeProvider } from "../utils/theme";
 import { useAuthStore } from "../stores/authStore";
 import { useProfileStore } from "../stores/profileStore";
 import { registerForPushNotifications, savePushToken } from "../services/notifications";
@@ -35,6 +39,7 @@ export default function RootLayout() {
     Nunito_400Regular,
     Nunito_600SemiBold,
     Nunito_700Bold,
+    Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold,
   });
 
   const onLayoutRootView = useCallback(async () => {
@@ -95,7 +100,7 @@ export default function RootLayout() {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, backgroundColor: Colors.background, alignItems: "center", justifyContent: "center" }}>
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
         <ActivityIndicator color={Colors.accent} size="small" />
       </View>
     );
@@ -103,18 +108,20 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ErrorBoundary>
-        <StatusBar style="dark-content" />
-        {!isConnected && <OfflineBanner />}
-        <View style={{ flex: 1, backgroundColor: Colors.background }} onLayout={onLayoutRootView}>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: Colors.background },
-            }}
-          />
-        </View>
-      </ErrorBoundary>
+      <ThemeProvider>
+        <ErrorBoundary>
+          <StatusBar style="dark-content" />
+          {!isConnected && <OfflineBanner />}
+          <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: "transparent" },
+              }}
+            />
+          </View>
+        </ErrorBoundary>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
