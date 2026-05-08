@@ -1,18 +1,19 @@
-import { View, Text, TextInput, ScrollView, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import { View, TextInput, ScrollView, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Shadow } from "react-native-shadow-2";
 import { MotiPressable } from "moti/interactions";
-import { ScreenWrapper } from "../../components/ui/ScreenWrapper";
-import { Button } from "../../components/ui/Button";
+import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
+import { Button } from "../../components/ui/v2/Button";
+import { Card } from "../../components/ui/v2/Card";
+import { Text } from "../../components/ui/v2/Text";
 import { useProfileStore } from "../../stores/profileStore";
-import { Colors } from "../../utils/colors";
-import { label, heading, caption, buttonText, body } from "../../utils/typography";
-import { raisedShadowProps, neuInset } from "../../utils/neumorphic";
+import { useTheme } from "../../utils/theme";
+import { fonts } from "../../utils/typography-v2";
 
 export default function StatsScreen() {
   const router = useRouter();
   const { onboarding, setOnboarding } = useProfileStore();
+  const { colors } = useTheme();
 
   const [age, setAge] = useState(onboarding.age?.toString() || "");
   const [height, setHeight] = useState(onboarding.height_cm?.toString() || "");
@@ -32,14 +33,14 @@ export default function StatsScreen() {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper noScroll>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.stepLabel}>Step 2 of 4</Text>
-        <Text style={styles.title}>Your body</Text>
-        <Text style={styles.subtitle}>Used to calculate your metabolic rate.</Text>
+        <Text preset="overline" style={styles.stepLabel}>Step 2 of 4</Text>
+        <Text preset="h1">Your body</Text>
+        <Text preset="caption" style={styles.subtitle}>Used to calculate your metabolic rate.</Text>
 
-        <Text style={styles.fieldLabel}>Sex</Text>
+        <Text preset="overline" style={styles.fieldLabel}>Sex</Text>
         <View style={styles.sexRow}>
           {[
             { key: "male", label: "MALE" },
@@ -53,54 +54,51 @@ export default function StatsScreen() {
               animate={({ pressed }) => ({ scale: pressed ? 0.97 : 1 })}
               style={{ flex: 1 }}
             >
-              <Shadow
-                {...(sex === s.key ? raisedShadowProps(5) : raisedShadowProps(3))}
-                style={[styles.sexButton, sex === s.key && styles.sexButtonActive]}
-              >
-                <Text style={[styles.sexButtonText, sex === s.key && { color: Colors.white }]}>
+              <Card style={StyleSheet.flatten([styles.sexButton, sex === s.key && { backgroundColor: colors.primary }])}>
+                <Text preset="overline" style={[styles.sexButtonText, sex === s.key && { color: colors.primaryText }]}>
                   {s.label}
                 </Text>
-              </Shadow>
+              </Card>
             </MotiPressable>
           ))}
         </View>
 
-        <Text style={styles.fieldLabel}>Age</Text>
-        <View style={neuInset({ paddingHorizontal: 16, paddingVertical: 14, borderRadius: 14, marginBottom: 24 })}>
+        <Text preset="overline" style={styles.fieldLabel}>Age</Text>
+        <View style={[styles.inputWrapper, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <TextInput
             value={age}
             onChangeText={setAge}
             placeholder="25"
-            placeholderTextColor={Colors.textTertiary}
+            placeholderTextColor={colors.textTertiary}
             keyboardType="number-pad"
             accessibilityLabel="Age in years"
-            style={styles.textInput}
+            style={[styles.textInput, { color: colors.text }]}
           />
         </View>
 
-        <Text style={styles.fieldLabel}>Height (cm)</Text>
-        <View style={neuInset({ paddingHorizontal: 16, paddingVertical: 14, borderRadius: 14, marginBottom: 24 })}>
+        <Text preset="overline" style={styles.fieldLabel}>Height (cm)</Text>
+        <View style={[styles.inputWrapper, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <TextInput
             value={height}
             onChangeText={setHeight}
             placeholder="175"
-            placeholderTextColor={Colors.textTertiary}
+            placeholderTextColor={colors.textTertiary}
             keyboardType="decimal-pad"
             accessibilityLabel="Height in centimeters"
-            style={styles.textInput}
+            style={[styles.textInput, { color: colors.text }]}
           />
         </View>
 
-        <Text style={styles.fieldLabel}>Weight (kg)</Text>
-        <View style={neuInset({ paddingHorizontal: 16, paddingVertical: 14, borderRadius: 14, marginBottom: 24 })}>
+        <Text preset="overline" style={styles.fieldLabel}>Weight (kg)</Text>
+        <View style={[styles.inputWrapper, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <TextInput
             value={weight}
             onChangeText={setWeight}
             placeholder="70"
-            placeholderTextColor={Colors.textTertiary}
+            placeholderTextColor={colors.textTertiary}
             keyboardType="decimal-pad"
             accessibilityLabel="Weight in kilograms"
-            style={styles.textInput}
+            style={[styles.textInput, { color: colors.text }]}
           />
         </View>
 
@@ -108,7 +106,7 @@ export default function StatsScreen() {
           title="Continue"
           onPress={handleContinue}
           disabled={!canContinue}
-          variant="accent"
+          variant="primary"
         />
       </ScrollView>
       </KeyboardAvoidingView>
@@ -119,23 +117,26 @@ export default function StatsScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   scrollContent: { paddingTop: 60, paddingBottom: 40 },
-  stepLabel: { ...label, fontSize: 11, marginBottom: 4 },
-  title: { ...heading, fontSize: 28, marginBottom: 8 },
-  subtitle: { ...caption, fontSize: 14, marginBottom: 32 },
-  fieldLabel: { ...label, marginBottom: 8 },
+  stepLabel: { fontSize: 11, marginBottom: 4 },
+  subtitle: { fontSize: 14, marginBottom: 32 },
+  fieldLabel: { marginBottom: 8 },
   sexRow: { flexDirection: "row", gap: 12, marginBottom: 24 },
   sexButton: {
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: "center",
-    backgroundColor: Colors.background,
   },
-  sexButtonActive: { backgroundColor: Colors.accent },
-  sexButtonText: { ...buttonText, fontSize: 14, color: Colors.text },
+  sexButtonText: { fontSize: 14 },
+  inputWrapper: {
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 14,
+    marginBottom: 24,
+    borderWidth: 1,
+  },
   textInput: {
-    color: Colors.text,
     fontSize: 16,
-    fontFamily: "Nunito_400Regular",
+    fontFamily: fonts.regular,
     padding: 0,
     margin: 0,
   },

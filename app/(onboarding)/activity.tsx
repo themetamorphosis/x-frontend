@@ -1,13 +1,12 @@
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { View, ScrollView, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import { Shadow } from "react-native-shadow-2";
 import { MotiPressable } from "moti/interactions";
-import { ScreenWrapper } from "../../components/ui/ScreenWrapper";
-import { Button } from "../../components/ui/Button";
+import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
+import { Button } from "../../components/ui/v2/Button";
+import { Card } from "../../components/ui/v2/Card";
+import { Text } from "../../components/ui/v2/Text";
 import { useProfileStore } from "../../stores/profileStore";
-import { Colors } from "../../utils/colors";
-import { label, heading, caption, buttonText, body } from "../../utils/typography";
-import { raisedShadowProps } from "../../utils/neumorphic";
+import { useTheme } from "../../utils/theme";
 
 const LEVELS = [
   { key: "sedentary", label: "SEDENTARY", desc: "Desk job, little to no exercise" },
@@ -20,13 +19,14 @@ const LEVELS = [
 export default function ActivityScreen() {
   const router = useRouter();
   const { onboarding, setOnboarding } = useProfileStore();
+  const { colors } = useTheme();
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper noScroll>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.stepLabel}>Step 3 of 4</Text>
-        <Text style={styles.title}>Activity level</Text>
-        <Text style={styles.subtitle}>Be honest — this affects your calorie targets.</Text>
+        <Text preset="overline" style={styles.stepLabel}>Step 3 of 4</Text>
+        <Text preset="h1">Activity level</Text>
+        <Text preset="caption" style={styles.subtitle}>Be honest — this affects your calorie targets.</Text>
 
         <View style={styles.optionList}>
           {LEVELS.map((l) => {
@@ -40,17 +40,14 @@ export default function ActivityScreen() {
                 accessibilityState={{ selected }}
                 animate={({ pressed }) => ({ scale: pressed ? 0.98 : 1 })}
               >
-                <Shadow
-                  {...(selected ? raisedShadowProps(6) : raisedShadowProps(3))}
-                  style={[styles.optionCard, selected && styles.optionActive]}
-                >
-                  <Text style={[styles.optionLabel, selected && { color: Colors.white }]}>
+                <Card style={StyleSheet.flatten([styles.optionCard, selected && { backgroundColor: colors.primary }])}>
+                  <Text preset="overline" style={[styles.optionLabel, selected && { color: colors.primaryText }]}>
                     {l.label}
                   </Text>
-                  <Text style={[styles.optionDesc, selected && { color: "rgba(255,255,255,0.7)" }]}>
+                  <Text preset="body" style={[styles.optionDesc, selected && { color: "rgba(255,255,255,0.7)" }]}>
                     {l.desc}
                   </Text>
-                </Shadow>
+                </Card>
               </MotiPressable>
             );
           })}
@@ -62,7 +59,7 @@ export default function ActivityScreen() {
           title="Continue"
           onPress={() => router.push("/(onboarding)/pace")}
           disabled={!onboarding.activity_level}
-          variant="accent"
+          variant="primary"
         />
       </ScrollView>
     </ScreenWrapper>
@@ -71,13 +68,11 @@ export default function ActivityScreen() {
 
 const styles = StyleSheet.create({
   scrollContent: { paddingTop: 60, paddingBottom: 40 },
-  stepLabel: { ...label, fontSize: 11, marginBottom: 4 },
-  title: { ...heading, fontSize: 28, marginBottom: 8 },
-  subtitle: { ...caption, fontSize: 14, marginBottom: 32 },
+  stepLabel: { fontSize: 11, marginBottom: 4 },
+  subtitle: { fontSize: 14, marginBottom: 32 },
   optionList: { gap: 12 },
-  optionCard: { borderRadius: 16, padding: 20, backgroundColor: Colors.background },
-  optionActive: { backgroundColor: Colors.accent },
-  optionLabel: { ...buttonText, fontSize: 15, letterSpacing: 0.5, color: Colors.text },
-  optionDesc: { ...body, fontSize: 13, marginTop: 4, color: Colors.textSecondary },
+  optionCard: { borderRadius: 16, padding: 20 },
+  optionLabel: { fontSize: 15, letterSpacing: 0.5 },
+  optionDesc: { fontSize: 13, marginTop: 4 },
   spacer: { height: 40 },
 });
