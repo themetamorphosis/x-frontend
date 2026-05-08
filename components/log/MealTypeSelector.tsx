@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { haptic } from "../../utils/haptics";
-import { Colors } from "../../utils/colors";
+import { useTheme, ColorPalette } from "../../utils/theme";
 import type { MealType } from "../../utils/mealType";
 
 const MEAL_TYPES: { key: MealType; label: string }[] = [
@@ -16,6 +16,9 @@ interface Props {
 }
 
 export function MealTypeSelector({ value, onChange }: Props) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
   return (
     <View style={styles.row}>
       {MEAL_TYPES.map((m) => (
@@ -38,28 +41,30 @@ export function MealTypeSelector({ value, onChange }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  row: { flexDirection: "row", gap: 6, marginBottom: 16 },
-  chip: {
-    flex: 1,
-    paddingVertical: 10,
-    alignItems: "center",
-    borderWidth: 1,
-  },
-  chipActive: {
-    backgroundColor: Colors.white,
-    borderColor: Colors.white,
-  },
-  chipInactive: {
-    backgroundColor: Colors.gray100,
-    borderColor: Colors.gray300,
-  },
-  chipText: {
-    fontSize: 11,
-    fontWeight: "600",
-    letterSpacing: 0.3,
-    textTransform: "uppercase",
-  },
-  chipTextActive: { color: Colors.black },
-  chipTextInactive: { color: Colors.gray500 },
-});
+function createStyles(c: ColorPalette) {
+  return StyleSheet.create({
+    row: { flexDirection: "row", gap: 6, marginBottom: 16 },
+    chip: {
+      flex: 1,
+      paddingVertical: 10,
+      alignItems: "center",
+      borderWidth: 1,
+    },
+    chipActive: {
+      backgroundColor: c.primary,
+      borderColor: c.primary,
+    },
+    chipInactive: {
+      backgroundColor: c.surface,
+      borderColor: c.border,
+    },
+    chipText: {
+      fontSize: 11,
+      fontWeight: "600",
+      letterSpacing: 0.3,
+      textTransform: "uppercase",
+    },
+    chipTextActive: { color: c.primaryText },
+    chipTextInactive: { color: c.textSecondary },
+  });
+}

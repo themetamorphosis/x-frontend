@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, Modal, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
-import { Card } from "../ui/Card";
-import { Colors } from "../../utils/colors";
+import { Card } from "../ui/v2/Card";
+import { useTheme, ColorPalette } from "../../utils/theme";
 import type { ParsedFood } from "../../types/food";
 
 interface Props {
@@ -12,6 +12,8 @@ interface Props {
 }
 
 export function EditModal({ visible, food, onClose, onSave }: Props) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [name, setName] = useState("");
   const [portion, setPortion] = useState("");
   const [calories, setCalories] = useState("");
@@ -105,17 +107,19 @@ export function EditModal({ visible, food, onClose, onSave }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  overlay: { flex: 1 },
-  backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.85)", justifyContent: "center", padding: 24 },
-  title: { color: Colors.white, fontSize: 15, fontWeight: "600", marginBottom: 16, textTransform: "uppercase", letterSpacing: 0.5 },
-  label: { color: Colors.gray500, fontSize: 11, marginBottom: 4, textTransform: "uppercase" },
-  input: { color: Colors.white, fontSize: 14, borderBottomWidth: 1, borderBottomColor: Colors.gray300, paddingVertical: 8, marginBottom: 12 },
-  row: { flexDirection: "row", gap: 12 },
-  field: { flex: 1 },
-  buttonRow: { flexDirection: "row", gap: 8, marginTop: 20 },
-  cancelBtn: { flex: 1, paddingVertical: 12, borderWidth: 1, borderColor: Colors.gray400, alignItems: "center" },
-  cancelText: { color: Colors.gray500, fontSize: 13 },
-  saveBtn: { flex: 1, paddingVertical: 12, backgroundColor: Colors.white, alignItems: "center" },
-  saveText: { color: Colors.black, fontSize: 13, fontWeight: "600" },
-});
+function createStyles(c: ColorPalette) {
+  return StyleSheet.create({
+    overlay: { flex: 1 },
+    backdrop: { flex: 1, backgroundColor: c.overlay, justifyContent: "center", padding: 24 },
+    title: { color: c.text, fontSize: 15, fontWeight: "600", marginBottom: 16, textTransform: "uppercase", letterSpacing: 0.5 },
+    label: { color: c.textSecondary, fontSize: 11, marginBottom: 4, textTransform: "uppercase" },
+    input: { color: c.text, fontSize: 14, borderBottomWidth: 1, borderBottomColor: c.border, paddingVertical: 8, marginBottom: 12 },
+    row: { flexDirection: "row", gap: 12 },
+    field: { flex: 1 },
+    buttonRow: { flexDirection: "row", gap: 8, marginTop: 20 },
+    cancelBtn: { flex: 1, paddingVertical: 12, borderWidth: 1, borderColor: c.border, alignItems: "center" },
+    cancelText: { color: c.textSecondary, fontSize: 13 },
+    saveBtn: { flex: 1, paddingVertical: 12, backgroundColor: c.primary, alignItems: "center" },
+    saveText: { color: c.primaryText, fontSize: 13, fontWeight: "600" },
+  });
+}

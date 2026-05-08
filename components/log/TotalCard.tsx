@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
-import { Card } from "../ui/Card";
-import { Colors } from "../../utils/colors";
+import { Card } from "../ui/v2/Card";
+import { useTheme, ColorPalette } from "../../utils/theme";
 
 interface MacroTotals {
   calories: number;
@@ -14,6 +14,9 @@ interface Props {
 }
 
 export function TotalCard({ totals }: Props) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
   return (
     <Card>
       <View style={styles.header}>
@@ -29,9 +32,11 @@ export function TotalCard({ totals }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  title: { color: Colors.white, fontSize: 15, fontWeight: "600" },
-  macros: { flexDirection: "row", marginTop: 6, gap: 16 },
-  macro: { color: Colors.gray500, fontSize: 12 },
-});
+function createStyles(c: ColorPalette) {
+  return StyleSheet.create({
+    header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+    title: { color: c.text, fontSize: 15, fontWeight: "600" },
+    macros: { flexDirection: "row", marginTop: 6, gap: 16 },
+    macro: { color: c.textSecondary, fontSize: 12 },
+  });
+}

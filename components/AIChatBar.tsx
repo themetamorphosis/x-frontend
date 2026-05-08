@@ -1,13 +1,11 @@
 import { useState, useCallback, useRef } from "react";
 import { View, TextInput, StyleSheet, Keyboard, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Shadow } from "react-native-shadow-2";
 import { MotiPressable } from "moti/interactions";
 import { Camera, Image as ImageIcon, Send } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
-import { Colors } from "../utils/colors";
+import { useTheme, ColorPalette } from "../utils/theme";
 import { buttonTextSmall } from "../utils/typography";
-import { neuInset, raisedShadowProps, neuCircle } from "../utils/neumorphic";
 import { parseText, parsePhoto, saveFoodLog } from "../services/food";
 import { useDailyStore } from "../stores/dailyStore";
 import { haptic } from "../utils/haptics";
@@ -17,6 +15,8 @@ import type { AIParseResponse, MealType } from "../types/food";
 import { detectMealType } from "../utils/mealType";
 
 export function AIChatBar() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [reply, setReply] = useState<string | null>(null);
@@ -125,110 +125,120 @@ export function AIChatBar() {
 
       {/* Chat bar */}
       <View style={[styles.container, { paddingBottom: insets.bottom + 8 }]}>
-        <Shadow {...raisedShadowProps(4)} style={styles.barShadow}>
-          <View style={styles.bar}>
-            <View style={[neuInset({ flex: 1, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 20, minHeight: 42 })]}>
-              <TextInput
-                ref={inputRef}
-                value={text}
-                onChangeText={setText}
-                placeholder="Log food... e.g. '2 eggs and toast'"
-                placeholderTextColor={Colors.textTertiary}
-                style={styles.input}
-                editable={!loading}
-                returnKeyType="send"
-                onSubmitEditing={handleSubmit}
-                accessibilityLabel="Food logging input"
-                accessibilityHint="Type what you ate and press send"
-              />
-            </View>
-
-            <MotiPressable
-              onPress={handleCamera}
-              disabled={loading}
-              accessibilityRole="button"
-              accessibilityLabel="Take photo of food"
-              animate={({ pressed }) => ({ scale: pressed ? 0.9 : 1 })}
-              style={styles.iconButton}
-            >
-              <Camera size={20} color={loading ? Colors.textTertiary : Colors.textSecondary} />
-            </MotiPressable>
-
-            <MotiPressable
-              onPress={handleImagePicker}
-              disabled={loading}
-              accessibilityRole="button"
-              accessibilityLabel="Pick food image from gallery"
-              animate={({ pressed }) => ({ scale: pressed ? 0.9 : 1 })}
-              style={styles.iconButton}
-            >
-              <ImageIcon size={20} color={loading ? Colors.textTertiary : Colors.textSecondary} />
-            </MotiPressable>
-
-            <MotiPressable
-              onPress={handleSubmit}
-              disabled={!text.trim() || loading}
-              accessibilityRole="button"
-              accessibilityLabel="Send food log"
-              animate={({ pressed }) => ({ scale: pressed ? 0.9 : 1 })}
-              style={styles.sendButton}
-            >
-              <Shadow
-                {...raisedShadowProps(2)}
-                style={[
-                  neuCircle(38),
-                  { backgroundColor: text.trim() ? Colors.accent : Colors.surfaceDark },
-                ]}
-              >
-                <Send size={16} color={text.trim() ? Colors.white : Colors.textTertiary} />
-              </Shadow>
-            </MotiPressable>
+        <View style={styles.bar}>
+          <View style={styles.inputContainer}>
+            <TextInput
+              ref={inputRef}
+              value={text}
+              onChangeText={setText}
+              placeholder="Log food... e.g. '2 eggs and toast'"
+              placeholderTextColor={colors.textTertiary}
+              style={styles.input}
+              editable={!loading}
+              returnKeyType="send"
+              onSubmitEditing={handleSubmit}
+              accessibilityLabel="Food logging input"
+              accessibilityHint="Type what you ate and press send"
+            />
           </View>
-        </Shadow>
+
+          <MotiPressable
+            onPress={handleCamera}
+            disabled={loading}
+            accessibilityRole="button"
+            accessibilityLabel="Take photo of food"
+            animate={({ pressed }) => ({ scale: pressed ? 0.9 : 1 })}
+            style={styles.iconButton}
+          >
+            <Camera size={20} color={loading ? colors.textTertiary : colors.textSecondary} />
+          </MotiPressable>
+
+          <MotiPressable
+            onPress={handleImagePicker}
+            disabled={loading}
+            accessibilityRole="button"
+            accessibilityLabel="Pick food image from gallery"
+            animate={({ pressed }) => ({ scale: pressed ? 0.9 : 1 })}
+            style={styles.iconButton}
+          >
+            <ImageIcon size={20} color={loading ? colors.textTertiary : colors.textSecondary} />
+          </MotiPressable>
+
+          <MotiPressable
+            onPress={handleSubmit}
+            disabled={!text.trim() || loading}
+            accessibilityRole="button"
+            accessibilityLabel="Send food log"
+            animate={({ pressed }) => ({ scale: pressed ? 0.9 : 1 })}
+            style={styles.sendButton}
+          >
+            <View style={[styles.sendCircle, { backgroundColor: text.trim() ? colors.primary : colors.border }]}>
+              <Send size={16} color={text.trim() ? colors.primaryText : colors.textTertiary} />
+            </View>
+          </MotiPressable>
+        </View>
       </View>
     </>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    backgroundColor: "transparent",
-  },
-  barShadow: {
-    borderRadius: 24,
-    backgroundColor: Colors.background,
-    width: "100%",
-  },
-  bar: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    padding: 8,
-  },
-  input: {
-    fontSize: 14,
-    fontFamily: "Nunito_400Regular",
-    color: Colors.text,
-    padding: 0,
-    margin: 0,
-    flex: 1,
-  },
-  iconButton: {
-    width: 38,
-    height: 38,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  sendButton: {
-    width: 42,
-    height: 42,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+function createStyles(c: ColorPalette) {
+  return StyleSheet.create({
+    container: {
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      right: 0,
+      paddingHorizontal: 16,
+      paddingTop: 8,
+      backgroundColor: "transparent",
+    },
+    bar: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      padding: 8,
+      borderRadius: 24,
+      backgroundColor: c.surface,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    inputContainer: {
+      flex: 1,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      borderRadius: 20,
+      minHeight: 42,
+      backgroundColor: c.bg,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    input: {
+      fontSize: 14,
+      fontFamily: "Nunito_400Regular",
+      color: c.text,
+      padding: 0,
+      margin: 0,
+      flex: 1,
+    },
+    iconButton: {
+      width: 38,
+      height: 38,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    sendButton: {
+      width: 42,
+      height: 42,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    sendCircle: {
+      width: 38,
+      height: 38,
+      borderRadius: 19,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+  });
+}

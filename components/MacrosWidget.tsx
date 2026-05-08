@@ -1,28 +1,19 @@
 import { memo, useEffect } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { Shadow } from "react-native-shadow-2";
 import Svg, { Circle } from "react-native-svg";
 import Animated, { useSharedValue, useAnimatedProps, withTiming, Easing } from "react-native-reanimated";
-import { Colors } from "../utils/colors";
+import { useTheme, ColorPalette } from "../utils/theme";
 import { label, caption, buttonTextSmall } from "../utils/typography";
-import { raisedShadowProps } from "../utils/neumorphic";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
-
-interface MacroRingProps {
-  label: string;
-  current: number;
-  target: number;
-  unit?: string;
-  color?: string;
-}
 
 const RING_SIZE = 44;
 const RING_STROKE = 4;
 const RING_RADIUS = (RING_SIZE - RING_STROKE) / 2;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
-function SmallMacroRing({ label: lbl, current, target, unit = "", color = Colors.accent }: MacroRingProps) {
+function SmallMacroRing({ label: lbl, current, target, unit = "" }: { label: string; current: number; target: number; unit?: string }) {
+  const { colors } = useTheme();
   const progress = useSharedValue(0);
   const percent = target > 0 ? Math.min(current / target, 1) : 0;
 
@@ -38,14 +29,14 @@ function SmallMacroRing({ label: lbl, current, target, unit = "", color = Colors
   }));
 
   return (
-    <View style={styles.ringRow}>
-      <View style={styles.ringContainer}>
+    <View style={ringStyles.ringRow}>
+      <View style={ringStyles.ringContainer}>
         <Svg width={RING_SIZE} height={RING_SIZE} style={{ transform: [{ rotate: "-90deg" }] }}>
           <Circle
             cx={RING_SIZE / 2}
             cy={RING_SIZE / 2}
             r={RING_RADIUS}
-            stroke={Colors.surfaceDark}
+            stroke={colors.border}
             strokeWidth={RING_STROKE}
             fill="none"
           />
@@ -53,7 +44,7 @@ function SmallMacroRing({ label: lbl, current, target, unit = "", color = Colors
             cx={RING_SIZE / 2}
             cy={RING_SIZE / 2}
             r={RING_RADIUS}
-            stroke={color}
+            stroke={colors.primary}
             strokeWidth={RING_STROKE}
             fill="none"
             strokeDasharray={RING_CIRCUMFERENCE}
@@ -61,14 +52,14 @@ function SmallMacroRing({ label: lbl, current, target, unit = "", color = Colors
             strokeLinecap="round"
           />
         </Svg>
-        <View style={styles.ringCenter}>
-          <Text style={styles.ringPercent}>{Math.round(percent * 100)}%</Text>
+        <View style={ringStyles.ringCenter}>
+          <Text style={[ringStyles.ringPercent, { color: colors.text }]}>{Math.round(percent * 100)}%</Text>
         </View>
       </View>
-      <View style={styles.ringInfo}>
-        <Text style={styles.ringLabel}>{lbl}</Text>
-        <Text style={styles.ringValue}>
-          {Math.round(current)}<Text style={styles.ringTarget}> / {Math.round(target)}{unit}</Text>
+      <View style={ringStyles.ringInfo}>
+        <Text style={[ringStyles.ringLabel, { color: colors.textTertiary }]}>{lbl}</Text>
+        <Text style={[ringStyles.ringValue, { color: colors.text }]}>
+          {Math.round(current)}<Text style={[ringStyles.ringTarget, { color: colors.textTertiary }]}> / {Math.round(target)}{unit}</Text>
         </Text>
       </View>
     </View>
@@ -82,32 +73,22 @@ interface MacrosWidgetProps {
 }
 
 export const MacrosWidget = memo(function MacrosWidget({ carbs, protein, fat }: MacrosWidgetProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
   return (
-    <Shadow {...raisedShadowProps(5)} style={styles.card}>
+    <View style={styles.card}>
       <View style={styles.inner}>
         <Text style={styles.title}>Macros</Text>
         <SmallMacroRing label="Carbs" current={carbs.current} target={carbs.target} unit="g" />
         <SmallMacroRing label="Protein" current={protein.current} target={protein.target} unit="g" />
         <SmallMacroRing label="Fat" current={fat.current} target={fat.target} unit="g" />
       </View>
-    </Shadow>
+    </View>
   );
 });
 
-const styles = StyleSheet.create({
-  card: {
-    flex: 1,
-    borderRadius: 20,
-    backgroundColor: Colors.background,
-  },
-  inner: {
-    padding: 16,
-  },
-  title: {
-    ...label,
-    fontSize: 10,
-    marginBottom: 14,
-  },
+const ringStyles = StyleSheet.create({
   ringRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -130,7 +111,6 @@ const styles = StyleSheet.create({
   ringPercent: {
     fontSize: 9,
     fontWeight: "700",
-    color: Colors.text,
   },
   ringInfo: {
     flex: 1,
@@ -138,18 +118,35 @@ const styles = StyleSheet.create({
   ringLabel: {
     ...caption,
     fontSize: 10,
-    color: Colors.textTertiary,
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
   ringValue: {
     ...buttonTextSmall,
     fontSize: 13,
-    color: Colors.text,
   },
   ringTarget: {
     fontSize: 11,
     fontWeight: "400",
-    color: Colors.textTertiary,
   },
 });
+
+function createStyles(c: ColorPalette) {
+  return StyleSheet.create({
+    card: {
+      flex: 1,
+      borderRadius: 16,
+      backgroundColor: c.surface,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    inner: {
+      padding: 16,
+    },
+    title: {
+      ...label,
+      fontSize: 10,
+      marginBottom: 14,
+    },
+  });
+}

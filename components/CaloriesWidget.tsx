@@ -1,10 +1,8 @@
 import { memo } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { Shadow } from "react-native-shadow-2";
 import { Flame } from "lucide-react-native";
-import { Colors } from "../utils/colors";
+import { useTheme, ColorPalette } from "../utils/theme";
 import { label, statNumber, caption } from "../utils/typography";
-import { raisedShadowProps } from "../utils/neumorphic";
 
 interface CaloriesWidgetProps {
   consumed: number;
@@ -12,14 +10,16 @@ interface CaloriesWidgetProps {
 }
 
 export const CaloriesWidget = memo(function CaloriesWidget({ consumed, target }: CaloriesWidgetProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const remaining = Math.max(target - consumed, 0);
   const exercise = 0; // Placeholder for future exercise tracking
 
   return (
-    <Shadow {...raisedShadowProps(5)} style={styles.card}>
+    <View style={styles.card}>
       <View style={styles.inner}>
         <View style={styles.header}>
-          <Flame size={14} color={Colors.accent} />
+          <Flame size={14} color={colors.primary} />
           <Text style={styles.title}>Calories</Text>
         </View>
 
@@ -51,83 +51,87 @@ export const CaloriesWidget = memo(function CaloriesWidget({ consumed, target }:
           <Text style={styles.targetText}>Target: {target} kcal</Text>
         </View>
       </View>
-    </Shadow>
+    </View>
   );
 });
 
-const styles = StyleSheet.create({
-  card: {
-    flex: 1,
-    borderRadius: 20,
-    backgroundColor: Colors.background,
-  },
-  inner: {
-    padding: 16,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginBottom: 12,
-  },
-  title: {
-    ...label,
-    fontSize: 10,
-    marginBottom: 0,
-  },
-  mainValue: {
-    ...statNumber,
-    fontSize: 36,
-    textAlign: "center",
-    color: Colors.text,
-  },
-  mainLabel: {
-    ...caption,
-    textAlign: "center",
-    marginBottom: 12,
-    color: Colors.textTertiary,
-    fontSize: 11,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: Colors.surfaceDark,
-    marginBottom: 12,
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  item: {
-    alignItems: "center",
-    flex: 1,
-  },
-  itemLabel: {
-    ...caption,
-    fontSize: 9,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-    color: Colors.textTertiary,
-    marginBottom: 4,
-  },
-  itemValue: {
-    ...caption,
-    fontSize: 14,
-    fontWeight: "600",
-    color: Colors.text,
-  },
-  remaining: {
-    color: Colors.accent,
-  },
-  over: {
-    color: Colors.error,
-  },
-  targetRow: {
-    marginTop: 10,
-    alignItems: "center",
-  },
-  targetText: {
-    ...caption,
-    fontSize: 10,
-    color: Colors.textTertiary,
-  },
-});
+function createStyles(c: ColorPalette) {
+  return StyleSheet.create({
+    card: {
+      flex: 1,
+      borderRadius: 16,
+      backgroundColor: c.surface,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    inner: {
+      padding: 16,
+    },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      marginBottom: 12,
+    },
+    title: {
+      ...label,
+      fontSize: 10,
+      marginBottom: 0,
+    },
+    mainValue: {
+      ...statNumber,
+      fontSize: 36,
+      textAlign: "center",
+      color: c.text,
+    },
+    mainLabel: {
+      ...caption,
+      textAlign: "center",
+      marginBottom: 12,
+      color: c.textTertiary,
+      fontSize: 11,
+    },
+    divider: {
+      height: 1,
+      backgroundColor: c.border,
+      marginBottom: 12,
+    },
+    row: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+    },
+    item: {
+      alignItems: "center",
+      flex: 1,
+    },
+    itemLabel: {
+      ...caption,
+      fontSize: 9,
+      textTransform: "uppercase",
+      letterSpacing: 0.5,
+      color: c.textTertiary,
+      marginBottom: 4,
+    },
+    itemValue: {
+      ...caption,
+      fontSize: 14,
+      fontWeight: "600",
+      color: c.text,
+    },
+    remaining: {
+      color: c.primary,
+    },
+    over: {
+      color: c.error,
+    },
+    targetRow: {
+      marginTop: 10,
+      alignItems: "center",
+    },
+    targetText: {
+      ...caption,
+      fontSize: 10,
+      color: c.textTertiary,
+    },
+  });
+}

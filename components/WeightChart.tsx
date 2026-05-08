@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { View, Text, Platform, StyleSheet } from "react-native";
-import { Colors } from "../utils/colors";
+import { useTheme, ColorPalette } from "../utils/theme";
 import type { WeightEntry } from "../stores/progressStore";
 
 const isWeb = Platform.OS === "web";
@@ -22,6 +22,8 @@ interface WeightChartProps {
 }
 
 function WeightChartWeb({ data, goalWeight, sorted }: { data: WeightEntry[]; goalWeight?: number | null; sorted: WeightEntry[] }) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const latest = sorted[sorted.length - 1];
   const earliest = sorted[0];
   const change = latest && earliest ? (latest.weight_kg - earliest.weight_kg).toFixed(1) : "0";
@@ -32,7 +34,7 @@ function WeightChartWeb({ data, goalWeight, sorted }: { data: WeightEntry[]; goa
       <Text style={styles.currentWeight}>
         {latest?.weight_kg} kg
       </Text>
-      <Text style={{ color: isLoss ? Colors.success : Colors.error, fontSize: 14 }}>
+      <Text style={{ color: isLoss ? colors.primary : colors.error, fontSize: 14 }}>
         {isLoss ? "" : "+"}{change} kg
       </Text>
       {goalWeight && (
@@ -49,6 +51,8 @@ function WeightChartWeb({ data, goalWeight, sorted }: { data: WeightEntry[]; goa
 }
 
 function WeightChartNative({ data, goalWeight, sorted }: { data: WeightEntry[]; goalWeight?: number | null; sorted: WeightEntry[] }) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   if (!VictoryNative) return null;
   const { CartesianChart, Line, Scatter } = VictoryNative;
   const chartData = sorted.map((entry: WeightEntry, i: number) => ({ x: i + 1, y: entry.weight_kg }));
@@ -67,8 +71,8 @@ function WeightChartNative({ data, goalWeight, sorted }: { data: WeightEntry[]; 
         >
           {({ points }: { points: { y: Array<{ x: number; y: number }> } }) => (
             <>
-              <Line points={points.y} color={Colors.white} strokeWidth={2} curveType="natural" />
-              <Scatter points={points.y} radius={3} color={Colors.white} />
+              <Line points={points.y} color={colors.primaryText} strokeWidth={2} curveType="natural" />
+              <Scatter points={points.y} radius={3} color={colors.primaryText} />
             </>
           )}
         </CartesianChart>
@@ -83,6 +87,9 @@ function WeightChartNative({ data, goalWeight, sorted }: { data: WeightEntry[]; 
 }
 
 export function WeightChart({ data, goalWeight }: WeightChartProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
   const sorted = useMemo(() => {
     return [...data].sort(
       (a, b) => new Date(a.log_date).getTime() - new Date(b.log_date).getTime()
@@ -103,29 +110,31 @@ export function WeightChart({ data, goalWeight }: WeightChartProps) {
   return <WeightChartNative data={data} goalWeight={goalWeight} sorted={sorted} />;
 }
 
-const styles = StyleSheet.create({
-  centeredContainer: {
-    height: 180,
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 8,
-  },
-  chartContainer: {
-    height: 180,
-  },
-  currentWeight: {
-    color: Colors.white,
-    fontSize: 28,
-    fontWeight: "700",
-  },
-  labelText: {
-    color: Colors.gray500,
-    fontSize: 11,
-  },
-  dateRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 12,
-    marginTop: 4,
-  },
-});
+function createStyles(c: ColorPalette) {
+  return StyleSheet.create({
+    centeredContainer: {
+      height: 180,
+      justifyContent: "center",
+      alignItems: "center",
+      gap: 8,
+    },
+    chartContainer: {
+      height: 180,
+    },
+    currentWeight: {
+      color: c.text,
+      fontSize: 28,
+      fontWeight: "700",
+    },
+    labelText: {
+      color: c.textSecondary,
+      fontSize: 11,
+    },
+    dateRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      paddingHorizontal: 12,
+      marginTop: 4,
+    },
+  });
+}

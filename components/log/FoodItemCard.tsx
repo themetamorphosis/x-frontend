@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { Card } from "../ui/Card";
-import { Colors } from "../../utils/colors";
+import { Card } from "../ui/v2/Card";
+import { useTheme, ColorPalette } from "../../utils/theme";
 import { haptic } from "../../utils/haptics";
 import type { ParsedFood } from "../../types/food";
 
@@ -13,6 +13,9 @@ interface Props {
 }
 
 export const FoodItemCard = React.memo(function FoodItemCard({ food, onEdit, onSaveToLibrary, onRemove }: Props) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
   return (
     <Card style={styles.card}>
       <View style={styles.row}>
@@ -42,15 +45,17 @@ export const FoodItemCard = React.memo(function FoodItemCard({ food, onEdit, onS
   );
 });
 
-const styles = StyleSheet.create({
-  card: { marginBottom: 8 },
-  row: { flexDirection: "row", alignItems: "flex-start" },
-  info: { flex: 1 },
-  name: { color: Colors.white, fontSize: 15, fontWeight: "500" },
-  portion: { color: Colors.gray500, fontSize: 12, marginTop: 2 },
-  macros: { flexDirection: "row", marginTop: 6, gap: 12 },
-  cal: { color: Colors.gray600, fontSize: 11 },
-  macro: { color: Colors.gray500, fontSize: 11 },
-  actions: { flexDirection: "row", gap: 8 },
-  actionText: { color: Colors.gray500, fontSize: 12 },
-});
+function createStyles(c: ColorPalette) {
+  return StyleSheet.create({
+    card: { marginBottom: 8 },
+    row: { flexDirection: "row", alignItems: "flex-start" },
+    info: { flex: 1 },
+    name: { color: c.text, fontSize: 15, fontWeight: "500" },
+    portion: { color: c.textSecondary, fontSize: 12, marginTop: 2 },
+    macros: { flexDirection: "row", marginTop: 6, gap: 12 },
+    cal: { color: c.textSecondary, fontSize: 11 },
+    macro: { color: c.textSecondary, fontSize: 11 },
+    actions: { flexDirection: "row", gap: 8 },
+    actionText: { color: c.textSecondary, fontSize: 12 },
+  });
+}

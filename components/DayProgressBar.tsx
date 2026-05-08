@@ -1,10 +1,12 @@
 import { memo, useState, useEffect } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Clock } from "lucide-react-native";
-import { Colors } from "../utils/colors";
+import { useTheme, ColorPalette } from "../utils/theme";
 import { caption, label } from "../utils/typography";
 
 export const DayProgressBar = memo(function DayProgressBar() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -27,7 +29,7 @@ export const DayProgressBar = memo(function DayProgressBar() {
     <View style={styles.container}>
       <View style={styles.row}>
         <View style={styles.titleRow}>
-          <Clock size={12} color={Colors.textTertiary} />
+          <Clock size={12} color={colors.textTertiary} />
           <Text style={styles.title}>Day Progress</Text>
         </View>
         <Text style={styles.percentText}>{dayPercent}%</Text>
@@ -45,67 +47,59 @@ export const DayProgressBar = memo(function DayProgressBar() {
   );
 });
 
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: 16,
-    backgroundColor: Colors.background,
-    borderRadius: 16,
-    padding: 14,
-    // Subtle neumorphic
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  title: {
-    ...label,
-    fontSize: 9,
-    marginBottom: 0,
-    color: Colors.textTertiary,
-  },
-  percentText: {
-    ...caption,
-    fontSize: 12,
-    fontWeight: "600",
-    color: Colors.accent,
-  },
-  track: {
-    height: 6,
-    backgroundColor: Colors.surfaceDark,
-    borderRadius: 3,
-    overflow: "hidden",
-    marginBottom: 8,
-    // Inset shadow
-    shadowColor: Colors.shadowDark,
-    shadowOffset: { width: 1, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  fill: {
-    height: 6,
-    backgroundColor: Colors.accent,
-    borderRadius: 3,
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  footerText: {
-    ...caption,
-    fontSize: 10,
-    color: Colors.textTertiary,
-  },
-});
+function createStyles(c: ColorPalette) {
+  return StyleSheet.create({
+    container: {
+      marginBottom: 16,
+      backgroundColor: c.surface,
+      borderRadius: 16,
+      padding: 14,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    row: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 10,
+    },
+    titleRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+    },
+    title: {
+      ...label,
+      fontSize: 9,
+      marginBottom: 0,
+      color: c.textTertiary,
+    },
+    percentText: {
+      ...caption,
+      fontSize: 12,
+      fontWeight: "600",
+      color: c.primary,
+    },
+    track: {
+      height: 6,
+      backgroundColor: c.border,
+      borderRadius: 3,
+      overflow: "hidden",
+      marginBottom: 8,
+    },
+    fill: {
+      height: 6,
+      backgroundColor: c.primary,
+      borderRadius: 3,
+    },
+    footer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+    },
+    footerText: {
+      ...caption,
+      fontSize: 10,
+      color: c.textTertiary,
+    },
+  });
+}

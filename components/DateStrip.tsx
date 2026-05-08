@@ -1,7 +1,7 @@
 import { memo, useRef, useEffect, useCallback, useMemo } from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { MotiPressable } from "moti/interactions";
-import { Colors } from "../utils/colors";
+import { useTheme, ColorPalette } from "../utils/theme";
 import { label, buttonTextSmall } from "../utils/typography";
 
 const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -33,6 +33,8 @@ function getWeekDates(referenceDate: Date): { date: string; day: number; dayName
 }
 
 function DatePill({ item, isSelected, onSelect }: { item: { date: string; day: number; dayName: string; isToday: boolean }; isSelected: boolean; onSelect: (date: string) => void }) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const handlePress = useCallback(() => onSelect(item.date), [item.date, onSelect]);
   return (
     <MotiPressable
@@ -60,6 +62,8 @@ function DatePill({ item, isSelected, onSelect }: { item: { date: string; day: n
 }
 
 export const DateStrip = memo(function DateStrip({ selectedDate, onSelectDate }: DateStripProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const scrollRef = useRef<ScrollView>(null);
   const weekDates = useMemo(() => getWeekDates(new Date(selectedDate)), [selectedDate]);
 
@@ -92,69 +96,56 @@ export const DateStrip = memo(function DateStrip({ selectedDate, onSelectDate }:
   );
 });
 
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: 20,
-  },
-  scrollContent: {
-    gap: 8,
-    paddingHorizontal: 4,
-  },
-  pill: {
-    width: 54,
-    height: 72,
-    borderRadius: 18,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 4,
-    // Neumorphic raised shadow
-    shadowColor: "#000",
-    shadowOffset: { width: -3, height: -3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  pillDefault: {
-    backgroundColor: Colors.background,
-    // Light shadow (top-left)
-    shadowColor: "#FFFFFF",
-    shadowOffset: { width: -3, height: -3 },
-    shadowOpacity: 0.7,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  pillSelected: {
-    backgroundColor: Colors.accent,
-    shadowColor: Colors.accentDark,
-    shadowOffset: { width: 2, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  dayName: {
-    ...label,
-    fontSize: 9,
-    color: Colors.textTertiary,
-    letterSpacing: 0.5,
-  },
-  dayNameSelected: {
-    color: "rgba(255, 255, 255, 0.8)",
-  },
-  dayNumber: {
-    ...buttonTextSmall,
-    fontSize: 16,
-    color: Colors.text,
-  },
-  dayNumberSelected: {
-    color: Colors.white,
-    fontWeight: "700",
-  },
-  todayDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: Colors.accent,
-    position: "absolute",
-    bottom: 8,
-  },
-});
+function createStyles(c: ColorPalette) {
+  return StyleSheet.create({
+    container: {
+      marginBottom: 20,
+    },
+    scrollContent: {
+      gap: 8,
+      paddingHorizontal: 4,
+    },
+    pill: {
+      width: 54,
+      height: 72,
+      borderRadius: 18,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 4,
+    },
+    pillDefault: {
+      backgroundColor: c.surface,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    pillSelected: {
+      backgroundColor: c.primary,
+    },
+    dayName: {
+      ...label,
+      fontSize: 9,
+      color: c.textTertiary,
+      letterSpacing: 0.5,
+    },
+    dayNameSelected: {
+      color: "rgba(255, 255, 255, 0.8)",
+    },
+    dayNumber: {
+      ...buttonTextSmall,
+      fontSize: 16,
+      color: c.text,
+    },
+    dayNumberSelected: {
+      color: c.primaryText,
+      fontWeight: "700",
+    },
+    todayDot: {
+      width: 5,
+      height: 5,
+      borderRadius: 2.5,
+      backgroundColor: c.primary,
+      position: "absolute",
+      bottom: 8,
+    },
+  });
+}

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Modal, KeyboardAvoidingView, Platform, ActivityIndicator, StyleSheet } from "react-native";
-import { Card } from "../ui/Card";
-import { Colors } from "../../utils/colors";
+import { Card } from "../ui/v2/Card";
+import { useTheme, ColorPalette } from "../../utils/theme";
 import type { FoodDbItem } from "../../services/foodDb";
 
 interface Props {
@@ -13,6 +13,8 @@ interface Props {
 }
 
 export function QuickLogModal({ visible, food, saving, onClose, onLog }: Props) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [quantity, setQuantity] = useState("1");
 
   const handleClose = () => {
@@ -85,7 +87,7 @@ export function QuickLogModal({ visible, food, saving, onClose, onLog }: Props) 
                 accessibilityRole="button"
                 accessibilityLabel="Log food"
               >
-                {saving ? <ActivityIndicator color={Colors.black} size="small" /> : <Text style={styles.logText}>Log</Text>}
+                {saving ? <ActivityIndicator color={colors.text} size="small" /> : <Text style={styles.logText}>Log</Text>}
               </TouchableOpacity>
             </View>
           </Card>
@@ -95,23 +97,25 @@ export function QuickLogModal({ visible, food, saving, onClose, onLog }: Props) 
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.85)", justifyContent: "center", padding: 24 },
-  foodName: { color: Colors.white, fontSize: 15, fontWeight: "600", marginBottom: 4 },
-  portion: { color: Colors.gray500, fontSize: 12, marginBottom: 16 },
-  label: { color: Colors.gray500, fontSize: 11, marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 },
-  quantityRow: { flexDirection: "row", alignItems: "center", marginBottom: 16, gap: 12 },
-  qtyBtn: { width: 40, height: 40, backgroundColor: Colors.gray200, alignItems: "center", justifyContent: "center" },
-  qtyBtnText: { color: Colors.white, fontSize: 20 },
-  qtyInput: { flex: 1, textAlign: "center", color: Colors.white, fontSize: 18, fontWeight: "600", borderBottomWidth: 1, borderBottomColor: Colors.gray300, paddingVertical: 8 },
-  nutrition: { backgroundColor: Colors.gray100, padding: 12, marginBottom: 16 },
-  nutritionRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 4 },
-  nutritionLabel: { color: Colors.gray600, fontSize: 12 },
-  nutritionValue: { color: Colors.white, fontSize: 12, fontWeight: "500" },
-  nutritionSmall: { color: Colors.gray600, fontSize: 11 },
-  buttonRow: { flexDirection: "row", gap: 8 },
-  cancelBtn: { flex: 1, paddingVertical: 12, borderWidth: 1, borderColor: Colors.gray400, alignItems: "center" },
-  cancelText: { color: Colors.gray500, fontSize: 13 },
-  logBtn: { flex: 1, paddingVertical: 12, backgroundColor: Colors.white, alignItems: "center" },
-  logText: { color: Colors.black, fontSize: 13, fontWeight: "600" },
-});
+function createStyles(c: ColorPalette) {
+  return StyleSheet.create({
+    backdrop: { flex: 1, backgroundColor: c.overlay, justifyContent: "center", padding: 24 },
+    foodName: { color: c.text, fontSize: 15, fontWeight: "600", marginBottom: 4 },
+    portion: { color: c.textSecondary, fontSize: 12, marginBottom: 16 },
+    label: { color: c.textSecondary, fontSize: 11, marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 },
+    quantityRow: { flexDirection: "row", alignItems: "center", marginBottom: 16, gap: 12 },
+    qtyBtn: { width: 40, height: 40, backgroundColor: c.border, alignItems: "center", justifyContent: "center" },
+    qtyBtnText: { color: c.text, fontSize: 20 },
+    qtyInput: { flex: 1, textAlign: "center", color: c.text, fontSize: 18, fontWeight: "600", borderBottomWidth: 1, borderBottomColor: c.border, paddingVertical: 8 },
+    nutrition: { backgroundColor: c.surface, padding: 12, marginBottom: 16, borderRadius: 8 },
+    nutritionRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 4 },
+    nutritionLabel: { color: c.textSecondary, fontSize: 12 },
+    nutritionValue: { color: c.text, fontSize: 12, fontWeight: "500" },
+    nutritionSmall: { color: c.textSecondary, fontSize: 11 },
+    buttonRow: { flexDirection: "row", gap: 8 },
+    cancelBtn: { flex: 1, paddingVertical: 12, borderWidth: 1, borderColor: c.border, alignItems: "center" },
+    cancelText: { color: c.textSecondary, fontSize: 13 },
+    logBtn: { flex: 1, paddingVertical: 12, backgroundColor: c.primary, alignItems: "center" },
+    logText: { color: c.primaryText, fontSize: 13, fontWeight: "600" },
+  });
+}
