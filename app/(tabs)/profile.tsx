@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
 import { Bell } from "lucide-react-native";
 import { ScreenWrapper, Card, Button, Text, Input, Toast, MenuItem } from "../../components/ui/v2";
+import { Skeleton, SkeletonCard } from "../../components/ui/v2/Skeleton";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { useAuthStore } from "../../stores/authStore";
 import { useProfileStore } from "../../stores/profileStore";
@@ -21,9 +22,10 @@ export default function ProfileScreen() {
   const [editAge, setEditAge] = useState("");
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [initialLoad, setInitialLoad] = useState(true);
 
   useEffect(() => {
-    fetchProfile();
+    fetchProfile().finally(() => setInitialLoad(false));
   }, [fetchProfile]);
 
   useEffect(() => {
@@ -75,6 +77,14 @@ export default function ProfileScreen() {
         <Text preset="overline">Profile</Text>
       </View>
 
+      {initialLoad ? (
+        <View style={{ gap: 16 }}>
+          <SkeletonCard lines={2} />
+          <SkeletonCard lines={4} />
+          <SkeletonCard lines={3} />
+        </View>
+      ) : (
+      <>
       {/* Avatar Card */}
       <Card style={{ marginBottom: spacing.lg, paddingVertical: spacing["2xl"], alignItems: "center" }}>
         <View style={{
@@ -166,6 +176,8 @@ export default function ProfileScreen() {
 
       {/* Sign Out */}
       <Button title="Sign Out" onPress={clearAuth} variant="ghost" style={{ marginTop: spacing.sm }} />
+      </>
+      )}
 
       <Toast
         message={toast?.message || ""}

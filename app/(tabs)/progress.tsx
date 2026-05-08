@@ -6,7 +6,7 @@ import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
 import { Card } from "../../components/ui/v2/Card";
 import { Text } from "../../components/ui/v2/Text";
 import { Button } from "../../components/ui/v2/Button";
-import { SkeletonCard } from "../../components/ui/Skeleton";
+import { Skeleton, SkeletonCard } from "../../components/ui/v2/Skeleton";
 import { Toast } from "../../components/ui/Toast";
 import { WeightChart } from "../../components/WeightChart";
 import { WeeklyTrend } from "../../components/WeeklyTrend";
