@@ -1,14 +1,12 @@
-import { View, Text, Switch, ScrollView, Alert, StyleSheet } from "react-native";
+import { View, Switch, Alert, StyleSheet } from "react-native";
 import { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
-import { Shadow } from "react-native-shadow-2";
 import { MotiPressable } from "moti/interactions";
 import { ChevronLeft } from "lucide-react-native";
-import { ScreenWrapper } from "../../components/ui/ScreenWrapper";
-import { Button } from "../../components/ui/Button";
-import { Colors } from "../../utils/colors";
-import { label, body, caption, buttonText, heading } from "../../utils/typography";
-import { raisedShadowProps, neuInset } from "../../utils/neumorphic";
+import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
+import { Button } from "../../components/ui/v2/Button";
+import { Text } from "../../components/ui/v2/Text";
+import { useTheme } from "../../utils/theme";
 import {
   getNotificationSettings,
   updateNotificationSettings,
@@ -17,6 +15,7 @@ import {
 
 export default function NotificationSettingsScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -53,9 +52,9 @@ export default function NotificationSettingsScreen() {
 
   if (loading || !settings) {
     return (
-      <ScreenWrapper>
-        <View style={styles.centered}>
-          <Text style={styles.loadingText}>Loading...</Text>
+      <ScreenWrapper noScroll>
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+          <Text preset="caption" color="textSecondary">Loading...</Text>
         </View>
       </ScreenWrapper>
     );
@@ -77,76 +76,58 @@ export default function NotificationSettingsScreen() {
 
   return (
     <ScreenWrapper>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <MotiPressable
-            onPress={() => router.back()}
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
-            animate={({ pressed }) => ({ scale: pressed ? 0.9 : 1 })}
-            style={styles.backButton}
-          >
-            <ChevronLeft size={24} color={Colors.text} />
-          </MotiPressable>
-          <Text style={styles.headerTitle}>Notifications</Text>
-        </View>
+      <View style={{ paddingTop: 16, paddingBottom: 24, flexDirection: "row", alignItems: "center", gap: 12 }}>
+        <MotiPressable
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+          animate={({ pressed }) => ({ scale: pressed ? 0.9 : 1 })}
+          style={{ width: 36, height: 36, alignItems: "center", justifyContent: "center" }}
+        >
+          <ChevronLeft size={24} color={colors.text} />
+        </MotiPressable>
+        <Text preset="overline">Notifications</Text>
+      </View>
 
-        {/* Reminders Card */}
-        <Shadow {...raisedShadowProps(5)} style={styles.card}>
-          <View style={styles.cardInner}>
-            <Text style={styles.sectionLabel}>Reminders</Text>
-            {toggleItems.map((item, i) => (
-              <View key={item.key} style={[styles.toggleRow, i < toggleItems.length - 1 && styles.rowBorder]}>
-                <Text style={styles.rowLabel}>{item.label}</Text>
-                <Switch
-                  value={settings[item.key] as boolean}
-                  onValueChange={() => toggle(item.key)}
-                  trackColor={{ false: Colors.surfaceDark, true: Colors.accent }}
-                  thumbColor={settings[item.key] ? Colors.white : Colors.textTertiary}
-                  accessibilityLabel={`${item.label} toggle`}
-                />
-              </View>
-            ))}
+      {/* Reminders Card */}
+      <View style={{ marginBottom: 16, borderRadius: 20, backgroundColor: colors.bg, padding: 16 }}>
+        <Text preset="overline" style={{ marginBottom: 16 }}>Reminders</Text>
+        {toggleItems.map((item, i) => (
+          <View key={item.key} style={[styles.toggleRow, i < toggleItems.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
+            <Text preset="body" style={{ fontSize: 15 }}>{item.label}</Text>
+            <Switch
+              value={settings[item.key] as boolean}
+              onValueChange={() => toggle(item.key)}
+              trackColor={{ false: colors.border, true: colors.primary }}
+              thumbColor={settings[item.key] ? colors.primaryText : colors.textTertiary}
+              accessibilityLabel={`${item.label} toggle`}
+            />
           </View>
-        </Shadow>
+        ))}
+      </View>
 
-        {/* Reminder Times Card */}
-        <Shadow {...raisedShadowProps(5)} style={styles.card}>
-          <View style={styles.cardInner}>
-            <Text style={styles.sectionLabel}>Reminder Times</Text>
-            {timeItems.map((item, i) => (
-              <View key={item.key} style={[styles.toggleRow, i < timeItems.length - 1 && styles.rowBorder]}>
-                <Text style={styles.rowLabel}>{item.label}</Text>
-                <Text style={styles.timeValue}>{settings[item.key]}</Text>
-              </View>
-            ))}
-            <Text style={styles.comingSoon}>Time editing coming soon</Text>
+      {/* Reminder Times Card */}
+      <View style={{ marginBottom: 16, borderRadius: 20, backgroundColor: colors.bg, padding: 16 }}>
+        <Text preset="overline" style={{ marginBottom: 16 }}>Reminder Times</Text>
+        {timeItems.map((item, i) => (
+          <View key={item.key} style={[styles.toggleRow, i < timeItems.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
+            <Text preset="body" style={{ fontSize: 15 }}>{item.label}</Text>
+            <Text preset="body" color="textSecondary" style={{ fontSize: 15 }}>{settings[item.key]}</Text>
           </View>
-        </Shadow>
+        ))}
+        <Text preset="caption" style={{ fontSize: 11, marginTop: 12 }}>Time editing coming soon</Text>
+      </View>
 
-        <Button title="Save" onPress={handleSave} loading={saving} variant="accent" />
-      </ScrollView>
+      <Button title="Save" onPress={handleSave} loading={saving} variant="primary" />
     </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  centered: { flex: 1, alignItems: "center", justifyContent: "center" },
-  loadingText: { ...caption, color: Colors.textSecondary },
-  header: { paddingTop: 16, paddingBottom: 24, flexDirection: "row", alignItems: "center", gap: 12 },
-  backButton: { width: 36, height: 36, alignItems: "center", justifyContent: "center" },
-  headerTitle: { ...label, fontSize: 13 },
-  card: { marginBottom: 16, borderRadius: 20, backgroundColor: Colors.background },
-  cardInner: { padding: 16 },
-  sectionLabel: { ...label, marginBottom: 16 },
   toggleRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: 14,
   },
-  rowBorder: { borderBottomWidth: 1, borderBottomColor: Colors.surfaceDark },
-  rowLabel: { ...body, fontSize: 15, color: Colors.text },
-  timeValue: { ...body, fontSize: 15, color: Colors.textSecondary },
-  comingSoon: { ...caption, fontSize: 11, marginTop: 12 },
 });
