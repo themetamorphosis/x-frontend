@@ -21,10 +21,6 @@ jest.mock("../../utils/haptics", () => ({
   haptic: { light: jest.fn() },
 }));
 
-jest.mock("react-native-shadow-2", () => ({
-  Shadow: ({ children }: any) => children,
-}));
-
 jest.mock("moti/interactions", () => ({
   MotiPressable: ({ children, onPress, ...rest }: any) => {
     const React = require("react");

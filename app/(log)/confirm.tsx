@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
 import { Button } from "../../components/ui/v2/Button";
 import { Text } from "../../components/ui/v2/Text";
-import { Toast } from "../../components/ui/Toast";
+import { Toast } from "../../components/ui/v2/Toast";
 import { MealTypeSelector } from "../../components/log/MealTypeSelector";
 import { FoodItemCard } from "../../components/log/FoodItemCard";
 import { EditModal } from "../../components/log/EditModal";

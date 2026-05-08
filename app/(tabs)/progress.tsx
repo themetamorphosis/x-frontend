@@ -7,7 +7,7 @@ import { Card } from "../../components/ui/v2/Card";
 import { Text } from "../../components/ui/v2/Text";
 import { Button } from "../../components/ui/v2/Button";
 import { Skeleton, SkeletonCard } from "../../components/ui/v2/Skeleton";
-import { Toast } from "../../components/ui/Toast";
+import { Toast } from "../../components/ui/v2/Toast";
 import { WeightChart } from "../../components/WeightChart";
 import { WeeklyTrend } from "../../components/WeeklyTrend";
 import { ErrorBoundary } from "../../components/ErrorBoundary";

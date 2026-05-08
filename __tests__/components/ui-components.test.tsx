@@ -1,82 +1,8 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react-native";
-import { Card } from "../../components/ui/Card";
-import { Button } from "../../components/ui/Button";
-import { EmptyState } from "../../components/ui/EmptyState";
 import { OfflineBanner } from "../../components/OfflineBanner";
 import { TotalCard } from "../../components/log/TotalCard";
 import { MealTypeSelector } from "../../components/log/MealTypeSelector";
-
-describe("Card", () => {
-  it("renders children", () => {
-    const { toJSON } = render(<Card><span>hello</span></Card>);
-    expect(toJSON()).toBeTruthy();
-  });
-
-  it("renders with noPadding", () => {
-    const { toJSON } = render(<Card noPadding><span>test</span></Card>);
-    expect(toJSON()).toBeTruthy();
-  });
-
-  it("applies accessibility props", () => {
-    const { toJSON } = render(
-      <Card accessible accessibilityLabel="Test card"><span>x</span></Card>
-    );
-    expect(toJSON()).toBeTruthy();
-  });
-});
-
-describe("Button", () => {
-  it("renders title", () => {
-    render(<Button title="CLICK ME" onPress={() => {}} />);
-    expect(screen.getByText("CLICK ME")).toBeTruthy();
-  });
-
-  it("calls onPress when pressed", () => {
-    const fn = jest.fn();
-    render(<Button title="Press" onPress={fn} />);
-    fireEvent.press(screen.getByText("Press"));
-    expect(fn).toHaveBeenCalled();
-  });
-
-  it("renders loading state (no title shown)", () => {
-    render(<Button title="Save" onPress={() => {}} loading />);
-    expect(screen.queryByText("Save")).toBeNull();
-  });
-
-  it("renders secondary variant", () => {
-    render(<Button title="Cancel" onPress={() => {}} variant="secondary" />);
-    expect(screen.getByText("Cancel")).toBeTruthy();
-  });
-
-  it("renders ghost variant", () => {
-    render(<Button title="Skip" onPress={() => {}} variant="ghost" />);
-    expect(screen.getByText("Skip")).toBeTruthy();
-  });
-});
-
-describe("EmptyState", () => {
-  it("renders title", () => {
-    render(<EmptyState title="NO DATA" />);
-    expect(screen.getByText("NO DATA")).toBeTruthy();
-  });
-
-  it("renders description", () => {
-    render(<EmptyState title="Empty" description="Nothing here" />);
-    expect(screen.getByText("Nothing here")).toBeTruthy();
-  });
-
-  it("renders action button", () => {
-    const fn = jest.fn();
-    render(<EmptyState title="Empty" actionLabel="Add Item" onAction={fn} />);
-    expect(screen.getByText("Add Item")).toBeTruthy();
-  });
-
-  it("does not render action when not provided", () => {
-    render(<EmptyState title="No action" />);
-    expect(screen.queryByText("Add Item")).toBeNull();
-  });
-});
 
 describe("OfflineBanner", () => {
   it("renders Offline text", () => {

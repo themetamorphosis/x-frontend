@@ -5,7 +5,7 @@ import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
 import { Card } from "../../components/ui/v2/Card";
 import { Button } from "../../components/ui/v2/Button";
 import { Text } from "../../components/ui/v2/Text";
-import { Toast } from "../../components/ui/Toast";
+import { Toast } from "../../components/ui/v2/Toast";
 import { parseText } from "../../services/food";
 import { useFoodLogStore } from "../../stores/foodLogStore";
 import { useTheme } from "../../utils/theme";

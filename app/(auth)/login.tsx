@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
 import { Button } from "../../components/ui/v2/Button";
 import { Text } from "../../components/ui/v2/Text";
-import { Toast } from "../../components/ui/Toast";
+import { Toast } from "../../components/ui/v2/Toast";
 import { useAuthStore } from "../../stores/authStore";
 import { useProfileStore } from "../../stores/profileStore";
 import { api } from "../../services/api";
