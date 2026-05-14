@@ -5,17 +5,18 @@ import { Minus, Plus, Droplets } from "lucide-react-native";
 import { api } from "../services/api";
 import { useDailyStore } from "../stores/dailyStore";
 import { useTheme, ColorPalette } from "../utils/theme";
-import { label, caption, buttonTextSmall, statMedium } from "../utils/typography";
+import { label, caption, buttonTextSmall, statMedium } from "../utils/typography-v2";
 import { haptic } from "../utils/haptics";
 
 interface WaterTrackerProps {
   current_ml: number;
   target_ml?: number;
+  onError?: (message: string) => void;
 }
 
 const CUP_ML = 240; // 1 cup = 240ml
 
-export const WaterTracker = memo(function WaterTracker({ current_ml, target_ml = 2400 }: WaterTrackerProps) {
+export const WaterTracker = memo(function WaterTracker({ current_ml, target_ml = 2400, onError }: WaterTrackerProps) {
   const { colors } = useTheme();
   const styles = createStyles(colors);
   const setWater = useDailyStore((s) => s.setWater);
@@ -33,8 +34,9 @@ export const WaterTracker = memo(function WaterTracker({ current_ml, target_ml =
       await api.post("/logs/water", { amount_ml: amount });
     } catch (e: unknown) {
       setWater(current_ml);
+      onError?.("Failed to log water. Please try again.");
     }
-  }, [current_ml, setWater]);
+  }, [current_ml, setWater, onError]);
 
   const removeWater = useCallback(async () => {
     if (current_ml <= 0) return;
@@ -46,8 +48,9 @@ export const WaterTracker = memo(function WaterTracker({ current_ml, target_ml =
       await api.post("/logs/water", { amount_ml: -amount });
     } catch (e: unknown) {
       setWater(current_ml);
+      onError?.("Failed to update water. Please try again.");
     }
-  }, [current_ml, setWater]);
+  }, [current_ml, setWater, onError]);
 
   return (
     <View style={styles.card}>

@@ -66,3 +66,38 @@ export function createTextStyles(colors: ColorPalette) {
 }
 
 export type TextStyles = ReturnType<typeof createTextStyles>;
+
+// Static presets for components that don't use createTextStyles()
+export const label = {
+  fontFamily: fonts.semibold,
+  fontSize: 11,
+  fontWeight: "600" as const,
+  letterSpacing: 1,
+  textTransform: "uppercase" as const,
+};
+
+export const caption = {
+  fontFamily: fonts.regular,
+  fontSize: 13,
+  fontWeight: "400" as const,
+};
+
+export const buttonTextSmall = {
+  fontFamily: fonts.semibold,
+  fontSize: 13,
+  fontWeight: "600" as const,
+  letterSpacing: 0.2,
+};
+
+export const statNumber = {
+  fontFamily: fonts.bold,
+  fontSize: 32,
+  fontWeight: "700" as const,
+  letterSpacing: -1,
+};
+
+export const statMedium = {
+  fontFamily: fonts.semibold,
+  fontSize: 20,
+  fontWeight: "600" as const,
+};

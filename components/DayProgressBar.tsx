@@ -2,7 +2,7 @@ import { memo, useState, useEffect } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Clock } from "lucide-react-native";
 import { useTheme, ColorPalette } from "../utils/theme";
-import { caption, label } from "../utils/typography";
+import { caption, label } from "../utils/typography-v2";
 
 export const DayProgressBar = memo(function DayProgressBar() {
   const { colors } = useTheme();

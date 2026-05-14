@@ -15,7 +15,7 @@ export const Skeleton = React.memo(function Skeleton({ width = "100%", height = 
   const opacity = useSharedValue(0.3);
   useEffect(() => { opacity.value = withRepeat(withTiming(0.7, { duration: 800 }), -1, true); }, []);
   const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
-  return <Animated.View style={[{ width: width as any, height, borderRadius, backgroundColor: colors.border }, animatedStyle, style]} />;
+  return <Animated.View style={[{ width: width as number | string, height, borderRadius, backgroundColor: colors.border }, animatedStyle, style]} />;
 });
 
 export function SkeletonCard({ lines = 3 }: { lines?: number }) {

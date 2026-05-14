@@ -2,7 +2,7 @@ import { memo, useRef, useEffect, useCallback, useMemo } from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { MotiPressable } from "moti/interactions";
 import { useTheme, ColorPalette } from "../utils/theme";
-import { label, buttonTextSmall } from "../utils/typography";
+import { label, buttonTextSmall } from "../utils/typography-v2";
 
 const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 

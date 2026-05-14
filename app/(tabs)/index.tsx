@@ -17,6 +17,7 @@ import { useProgressStore } from "../../stores/progressStore";
 import { useAuthStore } from "../../stores/authStore";
 import { useTheme } from "../../utils/theme";
 import { haptic } from "../../utils/haptics";
+import { api } from "../../services/api";
 
 interface ChatMessage {
   id: string;
@@ -37,13 +38,14 @@ export default function DashboardScreen() {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const chatScrollRef = useRef<ScrollView>(null);
+  const idCounter = useRef(0);
 
   useFocusEffect(
     useCallback(() => {
       let cancelled = false;
       fetchDaily(selectedDate).finally(() => { if (!cancelled) setInitialLoad(false); });
       fetchWeekly();
-      return () => { cancelled = true; };
+      return () => { cancelled = true; api.cancelAll(); };
     }, [fetchDaily, fetchWeekly, selectedDate])
   );
 
@@ -55,7 +57,7 @@ export default function DashboardScreen() {
 
   const handleSend = useCallback((message: string) => {
     const userMsg: ChatMessage = {
-      id: Date.now().toString(),
+      id: `msg-${++idCounter.current}`,
       text: message,
       variant: "user",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
@@ -63,7 +65,7 @@ export default function DashboardScreen() {
     setMessages((prev) => [...prev, userMsg]);
     setTimeout(() => {
       const aiMsg: ChatMessage = {
-        id: (Date.now() + 1).toString(),
+        id: `msg-${++idCounter.current}`,
         text: `Logged: "${message}". I'll analyze the nutrition for you.`,
         variant: "ai",
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),

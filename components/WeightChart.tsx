@@ -6,7 +6,7 @@ import type { WeightEntry } from "../stores/progressStore";
 const isWeb = Platform.OS === "web";
 
 // Conditional import for victory-native (native only)
-let VictoryNative: { CartesianChart: React.ComponentType<any>; Line: React.ComponentType<any>; Scatter: React.ComponentType<any> } | null = null;
+let VictoryNative: { CartesianChart: React.ComponentType<Record<string, unknown>>; Line: React.ComponentType<Record<string, unknown>>; Scatter: React.ComponentType<Record<string, unknown>> } | null = null;
 if (!isWeb) {
   try {
     VictoryNative = require("victory-native");

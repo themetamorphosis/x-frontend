@@ -20,9 +20,18 @@ class ApiClient {
   private baseUrl: string;
   private token: string | null = null;
   private onUnauthorized: UnauthorizedHandler | null = null;
+  private activeControllers = new Set<AbortController>();
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
+  }
+
+  /** Cancel all in-flight requests. Call in useFocusEffect cleanup to prevent stale updates. */
+  cancelAll() {
+    for (const controller of this.activeControllers) {
+      controller.abort();
+    }
+    this.activeControllers.clear();
   }
 
   setToken(token: string | null) {
@@ -33,17 +42,19 @@ class ApiClient {
     this.onUnauthorized = handler;
   }
 
-  async rawRequest<T>(method: string, path: string, body?: unknown): Promise<T> {
-    return this.request<T>(method, path, body);
+  async rawRequest<T>(method: string, path: string, body?: unknown, extraHeaders?: Record<string, string>): Promise<T> {
+    return this.request<T>(method, path, body, extraHeaders);
   }
 
   private async request<T>(
     method: string,
     path: string,
-    body?: unknown
+    body?: unknown,
+    extraHeaders?: Record<string, string>,
   ): Promise<T> {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
+      ...extraHeaders,
     };
     if (this.token) {
       headers["Authorization"] = `Bearer ${this.token}`;
@@ -53,6 +64,7 @@ class ApiClient {
 
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       const controller = new AbortController();
+      this.activeControllers.add(controller);
       const timeoutId = setTimeout(() => controller.abort(), 30000);
 
       try {
@@ -65,6 +77,7 @@ class ApiClient {
         });
 
         clearTimeout(timeoutId);
+        this.activeControllers.delete(controller);
 
         // Handle 401 Unauthorized — trigger logout
         if (response.status === 401) {
@@ -113,10 +126,11 @@ class ApiClient {
         return response.json();
       } catch (err) {
         clearTimeout(timeoutId);
+        this.activeControllers.delete(controller);
 
-        // Handle AbortError (timeout) — don't retry, fail immediately
+        // Handle AbortError (timeout or external cancel) — don't retry
         if (err instanceof Error && err.name === "AbortError") {
-          throw new Error("Request timed out");
+          throw new Error("Request cancelled");
         }
 
         lastError = err as Error;

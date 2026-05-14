@@ -2,7 +2,7 @@ import { memo } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Flame } from "lucide-react-native";
 import { useTheme, ColorPalette } from "../utils/theme";
-import { label, statNumber, caption } from "../utils/typography";
+import { label, statNumber, caption } from "../utils/typography-v2";
 
 interface CaloriesWidgetProps {
   consumed: number;

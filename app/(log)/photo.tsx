@@ -53,8 +53,9 @@ export default function PhotoLogScreen() {
       const result = await parsePhoto(imageBase64);
       setAIResult(result, "ai_photo");
       router.push("/(log)/confirm");
-    } catch (e: any) {
-      Alert.alert("Error", e.message || "Failed to analyze photo");
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Failed to analyze photo";
+      Alert.alert("Error", message);
     } finally {
       setLoading(false);
     }

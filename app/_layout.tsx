@@ -1,11 +1,11 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useCallback } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { View, ActivityIndicator, ErrorUtils, Platform } from "react-native";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { View, ActivityIndicator, Platform } from "react-native";
+
 import * as Sentry from "@sentry/react-native";
 import * as SplashScreen from "expo-splash-screen";
-import { useFonts, Nunito_300Light, Nunito_400Regular, Nunito_600SemiBold, Nunito_700Bold } from "@expo-google-fonts/nunito";
+import { useFonts } from "expo-font";
 import {
   Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold,
 } from "@expo-google-fonts/inter";
@@ -20,13 +20,16 @@ import { useAuthGuard } from "../hooks/useAuthGuard";
 import { mutationQueue } from "../utils/mutationQueue";
 import { initSentry } from "../utils/sentry";
 import { api } from "../services/api";
-import { Colors } from "../utils/colors";
-import "../global.css";
+import { lightColors } from "../utils/theme";
 
 initSentry();
 
 // Keep splash screen visible while loading fonts
-SplashScreen.preventAutoHideAsync();
+try {
+  SplashScreen.preventAutoHideAsync();
+} catch {
+  // May fail on web — non-critical
+}
 
 export default function RootLayout() {
   const { isAuthenticated, isLoading, loadToken } = useAuthStore();
@@ -35,34 +38,18 @@ export default function RootLayout() {
 
   // Load Nunito font family
   const [fontsLoaded, fontError] = useFonts({
-    Nunito_300Light,
-    Nunito_400Regular,
-    Nunito_600SemiBold,
-    Nunito_700Bold,
     Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold,
   });
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded || fontError) {
-      // Hide splash screen once fonts are loaded (or if there's an error)
-      await SplashScreen.hideAsync();
+      try {
+        await SplashScreen.hideAsync();
+      } catch {
+        // May fail on web
+      }
     }
   }, [fontsLoaded, fontError]);
-
-  const queryClientRef = useRef(new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 30_000,        // 30 seconds
-        retry: 2,
-        refetchOnWindowFocus: true,
-        networkMode: "offlineFirst",
-      },
-      mutations: {
-        networkMode: "offlineFirst",
-      },
-    },
-  }));
-  const queryClient = queryClientRef.current;
 
   useEffect(() => {
     mutationQueue.init((method, path, body) => api.rawRequest(method, path, body));
@@ -70,13 +57,16 @@ export default function RootLayout() {
       if (ok) fetchProfile();
     });
 
-    // Global unhandled rejection handler
+    // Global unhandled rejection handler (native only)
     if (Platform.OS !== "web") {
-      const defaultHandler = ErrorUtils.getGlobalHandler?.();
-      ErrorUtils.setGlobalHandler?.((error: Error, isFatal?: boolean) => {
-        Sentry.captureException(error);
-        if (defaultHandler) defaultHandler(error, isFatal);
-      });
+      const ErrorUtils = require("react-native").ErrorUtils;
+      if (ErrorUtils) {
+        const defaultHandler = ErrorUtils.getGlobalHandler?.();
+        ErrorUtils.setGlobalHandler?.((error: Error, isFatal?: boolean) => {
+          Sentry.captureException(error);
+          if (defaultHandler) defaultHandler(error, isFatal);
+        });
+      }
     }
 
     return () => { mutationQueue.destroy(); };
@@ -101,27 +91,25 @@ export default function RootLayout() {
   if (isLoading) {
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <ActivityIndicator color={Colors.accent} size="small" />
+        <ActivityIndicator color={lightColors.primary} size="small" />
       </View>
     );
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <ErrorBoundary>
-          <StatusBar style="dark-content" />
-          {!isConnected && <OfflineBanner />}
-          <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: "transparent" },
-              }}
-            />
-          </View>
-        </ErrorBoundary>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <ErrorBoundary>
+        <StatusBar style="dark-content" />
+        {!isConnected && <OfflineBanner />}
+        <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: "transparent" },
+            }}
+          />
+        </View>
+      </ErrorBoundary>
+    </ThemeProvider>
   );
 }

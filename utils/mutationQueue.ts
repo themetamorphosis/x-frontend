@@ -15,7 +15,7 @@ const STORAGE_KEY = "nutrilog-mutation-queue";
 const MAX_RETRIES = 5;
 const MAX_QUEUE_SIZE = 50;
 
-type ExecuteFn = (method: string, path: string, body?: unknown) => Promise<unknown>;
+type ExecuteFn = (method: string, path: string, body?: unknown, headers?: Record<string, string>) => Promise<unknown>;
 
 class MutationQueue {
   private queue: QueuedMutation[] = [];
@@ -63,7 +63,9 @@ class MutationQueue {
 
     for (const mutation of toProcess) {
       try {
-        await this.executeFn(mutation.method, mutation.path, mutation.body);
+        await this.executeFn(mutation.method, mutation.path, mutation.body, {
+          "Idempotency-Key": mutation.id,
+        });
         this.queue = this.queue.filter((m) => m.id !== mutation.id);
       } catch (e: unknown) {
         mutation.retryCount++;

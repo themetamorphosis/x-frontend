@@ -21,6 +21,8 @@ export const Toast = React.memo(function Toast({ visible, message, type = "succe
   return (
     <MotiView from={{ opacity: 0, translateY: -20 }} animate={{ opacity: 1, translateY: 0 }}
       exit={{ opacity: 0, translateY: -20 }}
+      accessibilityRole="alert"
+      accessibilityLiveRegion="polite"
       style={{ position: "absolute", top: 60, left: 20, right: 20, zIndex: 9999,
         backgroundColor: colors.surface, borderWidth: 1, borderColor: type === "error" ? colors.error : colors.border,
         borderRadius: 12, padding: 14, flexDirection: "row", alignItems: "center" }}>

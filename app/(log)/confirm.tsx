@@ -11,7 +11,7 @@ import { EditModal } from "../../components/log/EditModal";
 import { TotalCard } from "../../components/log/TotalCard";
 import { useFoodLogStore } from "../../stores/foodLogStore";
 import { saveFoodLog } from "../../services/food";
-import type { ParsedFood } from "../../types/food";
+import type { ParsedFood, FoodLogEntry } from "../../types/food";
 import { useDailyStore } from "../../stores/dailyStore";
 import { createCustomFood } from "../../services/foodDb";
 import { haptic } from "../../utils/haptics";

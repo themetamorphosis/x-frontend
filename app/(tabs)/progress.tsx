@@ -16,6 +16,7 @@ import { fonts } from "../../utils/typography-v2";
 import { haptic } from "../../utils/haptics";
 import { useProgressStore } from "../../stores/progressStore";
 import { useProfileStore } from "../../stores/profileStore";
+import { api } from "../../services/api";
 
 export default function ProgressScreen() {
   const { colors } = useTheme();
@@ -37,7 +38,7 @@ export default function ProgressScreen() {
       fetchAll().finally(() => {
         if (!cancelled) setInitialLoad(false);
       });
-      return () => { cancelled = true; };
+      return () => { cancelled = true; api.cancelAll(); };
     }, [fetchAll])
   );
 
@@ -102,7 +103,7 @@ export default function ProgressScreen() {
         ) : (
         <>
         {/* Streak Card */}
-        <Card style={styles.streakCard as any}>
+        <Card style={styles.streakCard}>
           <View style={styles.streakInner}>
             <Text preset="overline" style={styles.sectionLabel}>Current Streak</Text>
             <Text preset="display" style={styles.streakNumber}>{streaks?.current_streak ?? 0}</Text>
@@ -122,7 +123,7 @@ export default function ProgressScreen() {
 
         {/* Goal Adherence */}
         {weekly && (
-          <Card style={styles.card as any}>
+          <Card style={styles.card}>
             <Text preset="overline" style={styles.sectionLabel}>This Week {"·"} Goal Adherence</Text>
             <View style={styles.adherenceRow}>
               {adherenceItems.map((item) => (
@@ -137,7 +138,7 @@ export default function ProgressScreen() {
         )}
 
         {/* Weekly Calories */}
-        <Card style={styles.card as any}>
+        <Card style={styles.card}>
           <Text preset="overline" style={styles.sectionLabel}>Weekly Calories</Text>
           <WeeklyTrend
             dailyTotals={weekly?.daily_totals ?? []}
@@ -146,7 +147,7 @@ export default function ProgressScreen() {
         </Card>
 
         {/* Weight */}
-        <Card style={styles.card as any}>
+        <Card style={styles.card}>
           <View style={styles.weightHeader}>
             <Text preset="overline" style={styles.sectionLabel}>Weight</Text>
             <View style={styles.rangeButtons}>

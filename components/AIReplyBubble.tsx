@@ -7,28 +7,25 @@ import Animated, {
   withDelay,
   runOnJS,
 } from "react-native-reanimated";
-import { Colors } from "../utils/colors";
-import { caption } from "../utils/typography";
+import { useTheme } from "../utils/theme";
 
 interface AIReplyBubbleProps {
   message: string | null;
   onDismiss: () => void;
 }
 
-const DISPLAY_DURATION = 3000; // 3 seconds
+const DISPLAY_DURATION = 3000;
 const FADE_DURATION = 400;
 
 export const AIReplyBubble = memo(function AIReplyBubble({ message, onDismiss }: AIReplyBubbleProps) {
+  const { colors } = useTheme();
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(10);
 
   useEffect(() => {
     if (message) {
-      // Fade in
       opacity.value = withTiming(1, { duration: 250 });
       translateY.value = withTiming(0, { duration: 250 });
-
-      // Fade out after delay
       opacity.value = withDelay(
         DISPLAY_DURATION,
         withTiming(0, { duration: FADE_DURATION }, (finished) => {
@@ -59,12 +56,15 @@ export const AIReplyBubble = memo(function AIReplyBubble({ message, onDismiss }:
       style={[
         styles.bubble,
         animatedStyle,
-        isError ? styles.bubbleError : styles.bubbleSuccess,
+        {
+          backgroundColor: isError ? "#FDECEA" : colors.surface,
+          borderLeftColor: isError ? colors.error : colors.primary,
+        },
       ]}
       accessibilityLiveRegion="polite"
       accessibilityRole="text"
     >
-      <Text style={[styles.text, isError && styles.textError]} numberOfLines={2}>
+      <Text style={[styles.text, { color: isError ? colors.error : colors.text }]} numberOfLines={2}>
         {message}
       </Text>
     </Animated.View>
@@ -81,29 +81,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 16,
     zIndex: 997,
-    // Inset neumorphic
-    shadowColor: Colors.shadowDark,
-    shadowOffset: { width: 2, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  bubbleSuccess: {
-    backgroundColor: Colors.surfaceDark,
     borderLeftWidth: 3,
-    borderLeftColor: Colors.accent,
-  },
-  bubbleError: {
-    backgroundColor: "#FDECEA",
-    borderLeftWidth: 3,
-    borderLeftColor: Colors.error,
   },
   text: {
-    ...caption,
     fontSize: 13,
-    color: Colors.text,
-  },
-  textError: {
-    color: Colors.error,
+    fontFamily: "Inter_400Regular",
   },
 });

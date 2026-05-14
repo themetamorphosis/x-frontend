@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import Animated, { useSharedValue, useAnimatedProps, withTiming, Easing } from "react-native-reanimated";
 import { useTheme, ColorPalette } from "../utils/theme";
-import { label, caption, buttonTextSmall } from "../utils/typography";
+import { label, caption, buttonTextSmall } from "../utils/typography-v2";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 

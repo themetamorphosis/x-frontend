@@ -108,6 +108,8 @@ export default function ProfileScreen() {
             color="textSecondary"
             onPress={() => setEditing(!editing)}
             style={{ letterSpacing: 0, textTransform: "none", color: colors.textSecondary }}
+            accessibilityRole="button"
+            accessibilityLabel={editing ? "Cancel editing" : "Edit body stats"}
           >
             {editing ? "Cancel" : "Edit"}
           </Text>

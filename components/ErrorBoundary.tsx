@@ -1,15 +1,8 @@
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Sentry } from "../utils/sentry";
-import { Colors } from "../utils/colors";
+import { lightColors } from "../utils/theme";
 
-/**
- * Global error boundary component that catches React rendering errors.
- *
- * Displays a user-friendly error screen with a "Try Again" button.
- * Reports errors to Sentry with component stack trace.
- * Uses a resetKey to force remount of children on retry.
- */
 interface Props {
   children: ReactNode;
 }
@@ -70,9 +63,9 @@ export class ErrorBoundary extends Component<Props, State> {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.black, alignItems: "center", justifyContent: "center", padding: 24 },
-  title: { color: Colors.white, fontSize: 20, fontWeight: "700", marginBottom: 12 },
-  message: { color: Colors.gray500, fontSize: 14, textAlign: "center", marginBottom: 24 },
-  button: { backgroundColor: Colors.white, paddingHorizontal: 24, paddingVertical: 12 },
-  buttonText: { color: Colors.black, fontWeight: "600" },
+  container: { flex: 1, backgroundColor: lightColors.bg, alignItems: "center", justifyContent: "center", padding: 24 },
+  title: { color: lightColors.text, fontSize: 20, fontWeight: "700", marginBottom: 12 },
+  message: { color: lightColors.textSecondary, fontSize: 14, textAlign: "center", marginBottom: 24 },
+  button: { backgroundColor: lightColors.primary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 8 },
+  buttonText: { color: lightColors.primaryText, fontWeight: "600" },
 });

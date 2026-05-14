@@ -74,14 +74,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem(THEME_KEY).then((saved) => {
-      if (saved === "light" || saved === "dark") {
-        setMode(saved);
-      } else {
-        setMode(systemScheme === "dark" ? "dark" : "light");
-      }
-      setLoaded(true);
-    });
+    AsyncStorage.getItem(THEME_KEY)
+      .then((saved) => {
+        if (saved === "light" || saved === "dark") {
+          setMode(saved);
+        } else {
+          setMode(systemScheme === "dark" ? "dark" : "light");
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoaded(true));
   }, [systemScheme]);
 
   const toggleTheme = useCallback(() => {

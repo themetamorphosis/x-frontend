@@ -1,8 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { View } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
-import { useEffect } from "react";
 import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
 import { Button } from "../../components/ui/v2/Button";
 import { Text } from "../../components/ui/v2/Text";
@@ -27,9 +26,9 @@ interface LoginResponse {
   user: LoginUser;
 }
 
-const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com";
-const IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || "YOUR_IOS_CLIENT_ID.apps.googleusercontent.com";
-const ANDROID_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || "YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com";
+const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? "";
+const IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ?? "";
+const ANDROID_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID ?? "";
 
 // Validate OAuth config at module load (fails fast in production builds)
 if (!__DEV__) {
@@ -38,7 +37,7 @@ if (!__DEV__) {
     EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID: IOS_CLIENT_ID,
     EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID: ANDROID_CLIENT_ID,
   })) {
-    if (value.startsWith("YOUR_")) {
+    if (!value) {
       throw new Error(`Missing OAuth config: ${name}. Set it in your .env file.`);
     }
   }
@@ -92,7 +91,9 @@ export default function LoginScreen() {
   const devLogin = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await api.post<LoginResponse>("/auth/dev-login");
+      const data = await api.post<LoginResponse>("/auth/dev-login", {
+        secret: process.env.EXPO_PUBLIC_DEV_LOGIN_SECRET ?? "",
+      });
       setAuth(
         data.access_token,
         data.refresh_token,

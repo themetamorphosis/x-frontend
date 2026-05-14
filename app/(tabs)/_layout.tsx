@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Stack, useRouter } from "expo-router";
+import { Stack, useRouter, type Href } from "expo-router";
 import { Header } from "../../components/Header";
 import { FullMenu } from "../../components/FullMenu";
 import { useAuthStore } from "../../stores/authStore";
@@ -13,7 +13,7 @@ export default function TabsLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleNavigate = useCallback((route: string) => {
-    router.push(route as any);
+    router.push(route as Href);
   }, [router]);
 
   return (

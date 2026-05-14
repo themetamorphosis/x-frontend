@@ -93,7 +93,7 @@ export function AddFoodModal({ visible, saving, onClose, onSave }: Props) {
               <TouchableOpacity onPress={handleClose} style={styles.cancelBtn} accessibilityRole="button" accessibilityLabel="Cancel adding food">
                 <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleSave} disabled={saving} style={styles.saveBtn} accessibilityRole="button" accessibilityLabel="Save custom food">
+              <TouchableOpacity onPress={handleSave} disabled={saving} style={styles.saveBtn} accessibilityRole="button" accessibilityLabel="Save custom food" accessibilityState={{ disabled: saving }}>
                 {saving ? <ActivityIndicator color={colors.text} size="small" /> : <Text style={styles.saveText}>Save</Text>}
               </TouchableOpacity>
             </View>

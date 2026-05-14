@@ -5,11 +5,11 @@ import { MotiPressable } from "moti/interactions";
 import { Camera, Image as ImageIcon, Send } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useTheme, ColorPalette } from "../utils/theme";
-import { buttonTextSmall } from "../utils/typography";
+import { buttonTextSmall } from "../utils/typography-v2";
 import { parseText, parsePhoto, saveFoodLog } from "../services/food";
 import { useDailyStore } from "../stores/dailyStore";
 import { haptic } from "../utils/haptics";
-import { imageToBase64 } from "../utils/imageCompression";
+import { compressImage } from "../utils/imageCompression";
 import { AIReplyBubble } from "./AIReplyBubble";
 import type { AIParseResponse, MealType } from "../types/food";
 import { detectMealType } from "../utils/mealType";
@@ -82,7 +82,7 @@ export function AIChatBar() {
       if (result.canceled || !result.assets?.[0]) return;
 
       setLoading(true);
-      const base64 = await imageToBase64(result.assets[0].uri);
+      const base64 = await compressImage(result.assets[0].uri);
       const response = await parsePhoto(base64);
       const { foodNames, totalCalories } = await _saveFoods(response, "ai_photo");
       setReply(`Photo logged: ${foodNames} — ${totalCalories} cal`);
@@ -106,7 +106,7 @@ export function AIChatBar() {
       if (result.canceled || !result.assets?.[0]) return;
 
       setLoading(true);
-      const base64 = await imageToBase64(result.assets[0].uri);
+      const base64 = await compressImage(result.assets[0].uri);
       const response = await parsePhoto(base64);
       const { foodNames, totalCalories } = await _saveFoods(response, "ai_photo");
       setReply(`Logged: ${foodNames} — ${totalCalories} cal`);

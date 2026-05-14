@@ -1,14 +1,15 @@
 import { Stack } from "expo-router";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
-import { Colors } from "../../utils/colors";
+import { useTheme } from "../../utils/theme";
 
 export default function SettingsLayout() {
+  const { colors } = useTheme();
   return (
     <ErrorBoundary>
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: Colors.background },
+        contentStyle: { backgroundColor: colors.bg },
         animation: "slide_from_right",
       }}
     />

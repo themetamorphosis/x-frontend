@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware/persist";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { ParsedFood, AIParseResponse, MealType, FoodSource } from "../types/food";
 import { detectMealType } from "../utils/mealType";

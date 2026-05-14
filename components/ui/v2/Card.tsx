@@ -4,7 +4,7 @@ import { useTheme, lightShadow, darkShadow } from "../../../utils/theme";
 
 interface CardProps {
   children: ReactNode;
-  style?: ViewStyle;
+  style?: ViewStyle | ViewStyle[];
   noPadding?: boolean;
 }
 

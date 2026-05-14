@@ -2,7 +2,7 @@ import { memo } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Target, BarChart3 } from "lucide-react-native";
 import { useTheme, ColorPalette } from "../utils/theme";
-import { label, statMedium, caption } from "../utils/typography";
+import { label, statMedium, caption } from "../utils/typography-v2";
 
 interface MiniStatTilesProps {
   remaining: number;

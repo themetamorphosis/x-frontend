@@ -43,6 +43,7 @@ export const ChatInput = React.memo(function ChatInput({
           style={{ flex: 1, fontFamily: fonts.regular, fontSize: 15, color: colors.text, paddingVertical: 8, paddingHorizontal: 12,
             backgroundColor: colors.bg, borderRadius: 20, maxHeight: 100 }} multiline />
         <MotiPressable onPress={handleSend} disabled={!text.trim()} accessibilityRole="button" accessibilityLabel="Send message"
+          accessibilityState={{ disabled: !text.trim() }}
           animate={({ pressed }) => ({ scale: pressed ? 0.9 : 1 })}
           style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: text.trim() ? colors.primary : colors.border,
             alignItems: "center", justifyContent: "center" }}>
