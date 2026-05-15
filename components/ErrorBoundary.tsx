@@ -1,7 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Sentry } from "../utils/sentry";
-import { lightColors } from "../utils/theme";
+import { useTheme } from "../utils/theme";
 
 interface Props {
   children: ReactNode;
@@ -11,6 +11,32 @@ interface State {
   hasError: boolean;
   error: Error | null;
   resetKey: number;
+}
+
+function ErrorFallback({ error, onReset }: { error: Error | null; onReset: () => void }) {
+  const { colors } = useTheme();
+  return (
+    <View
+      style={[styles.container, { backgroundColor: colors.bg }]}
+      accessibilityLiveRegion="assertive"
+      accessible
+      accessibilityRole="alert"
+    >
+      <Text style={[styles.title, { color: colors.text }]}>Something went wrong</Text>
+      <Text style={[styles.message, { color: colors.textSecondary }]}>
+        {error?.message || "An unexpected error occurred."}
+      </Text>
+      <TouchableOpacity
+        onPress={onReset}
+        style={[styles.button, { backgroundColor: colors.primary }]}
+        accessibilityRole="button"
+        accessibilityLabel="Try again"
+        accessibilityHint="Resets the app and attempts to recover from the error"
+      >
+        <Text style={[styles.buttonText, { color: colors.primaryText }]}>Try Again</Text>
+      </TouchableOpacity>
+    </View>
+  );
 }
 
 export class ErrorBoundary extends Component<Props, State> {
@@ -24,7 +50,6 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("ErrorBoundary caught:", error, errorInfo);
     Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
   }
 
@@ -34,28 +59,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
-      return (
-        <View
-          style={styles.container}
-          accessibilityLiveRegion="assertive"
-          accessible
-          accessibilityRole="alert"
-        >
-          <Text style={styles.title}>Something went wrong</Text>
-          <Text style={styles.message}>
-            {this.state.error?.message || "An unexpected error occurred."}
-          </Text>
-          <TouchableOpacity
-            onPress={this.handleReset}
-            style={styles.button}
-            accessibilityRole="button"
-            accessibilityLabel="Try again"
-            accessibilityHint="Resets the app and attempts to recover from the error"
-          >
-            <Text style={styles.buttonText}>Try Again</Text>
-          </TouchableOpacity>
-        </View>
-      );
+      return <ErrorFallback error={this.state.error} onReset={this.handleReset} />;
     }
 
     return <View key={this.state.resetKey} style={{ flex: 1 }}>{this.props.children}</View>;
@@ -63,9 +67,9 @@ export class ErrorBoundary extends Component<Props, State> {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: lightColors.bg, alignItems: "center", justifyContent: "center", padding: 24 },
-  title: { color: lightColors.text, fontSize: 20, fontWeight: "700", marginBottom: 12 },
-  message: { color: lightColors.textSecondary, fontSize: 14, textAlign: "center", marginBottom: 24 },
-  button: { backgroundColor: lightColors.primary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 8 },
-  buttonText: { color: lightColors.primaryText, fontWeight: "600" },
+  container: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
+  title: { fontSize: 20, fontWeight: "700", marginBottom: 12 },
+  message: { fontSize: 14, textAlign: "center", marginBottom: 24 },
+  button: { paddingHorizontal: 24, paddingVertical: 12, borderRadius: 8 },
+  buttonText: { fontWeight: "600" },
 });

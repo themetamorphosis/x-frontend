@@ -1,7 +1,7 @@
 import { View, Switch, Alert, StyleSheet } from "react-native";
 import { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
-import { MotiPressable } from "moti/interactions";
+import { PressableScale } from "../../components/ui/v2/PressableScale";
 import { ChevronLeft } from "lucide-react-native";
 import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
 import { Button } from "../../components/ui/v2/Button";
@@ -77,20 +77,19 @@ export default function NotificationSettingsScreen() {
   return (
     <ScreenWrapper>
       <View style={{ paddingTop: 16, paddingBottom: 24, flexDirection: "row", alignItems: "center", gap: 12 }}>
-        <MotiPressable
+        <PressableScale
           onPress={() => router.back()}
           accessibilityRole="button"
           accessibilityLabel="Go back"
-          animate={({ pressed }) => ({ scale: pressed ? 0.9 : 1 })}
           style={{ width: 36, height: 36, alignItems: "center", justifyContent: "center" }}
         >
           <ChevronLeft size={24} color={colors.text} />
-        </MotiPressable>
+        </PressableScale>
         <Text preset="overline">Notifications</Text>
       </View>
 
       {/* Reminders Card */}
-      <View style={{ marginBottom: 16, borderRadius: 20, backgroundColor: colors.bg, padding: 16 }}>
+      <View style={{ marginBottom: 16, borderRadius: 20, backgroundColor: colors.surface, padding: 16 }}>
         <Text preset="overline" style={{ marginBottom: 16 }}>Reminders</Text>
         {toggleItems.map((item, i) => (
           <View key={item.key} style={[styles.toggleRow, i < toggleItems.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
@@ -107,7 +106,7 @@ export default function NotificationSettingsScreen() {
       </View>
 
       {/* Reminder Times Card */}
-      <View style={{ marginBottom: 16, borderRadius: 20, backgroundColor: colors.bg, padding: 16 }}>
+      <View style={{ marginBottom: 16, borderRadius: 20, backgroundColor: colors.surface, padding: 16 }}>
         <Text preset="overline" style={{ marginBottom: 16 }}>Reminder Times</Text>
         {timeItems.map((item, i) => (
           <View key={item.key} style={[styles.toggleRow, i < timeItems.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>

@@ -1,14 +1,17 @@
 import { View, TextInput, ScrollView, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { MotiPressable } from "moti/interactions";
+import { PressableScale } from "../../components/ui/v2/PressableScale";
 import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
 import { Button } from "../../components/ui/v2/Button";
 import { Card } from "../../components/ui/v2/Card";
 import { Text } from "../../components/ui/v2/Text";
+import { ProgressBar } from "../../components/ui/v2/ProgressBar";
+import { DecorativeBlobs } from "../../components/ui/v2/DecorativeBlobs";
 import { useProfileStore } from "../../stores/profileStore";
 import { useTheme } from "../../utils/theme";
 import { fonts } from "../../utils/typography-v2";
+import { X } from "lucide-react-native";
 
 export default function StatsScreen() {
   const router = useRouter();
@@ -34,37 +37,44 @@ export default function StatsScreen() {
 
   return (
     <ScreenWrapper noScroll>
+      <DecorativeBlobs variant="circles" />
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <Text preset="overline" style={styles.stepLabel}>Step 2 of 4</Text>
-        <Text preset="h1">Your body</Text>
+        {/* Close button */}
+        <PressableScale onPress={() => router.replace("/(auth)/login")} accessibilityRole="button" accessibilityLabel="Close onboarding"
+          style={styles.closeButton}>
+          <X size={20} color={colors.textSecondary} />
+        </PressableScale>
+
+        <ProgressBar totalSteps={4} currentStep={2} style={styles.progressBar} />
+
+        <Text preset="h1" style={styles.title}>Your body</Text>
         <Text preset="caption" style={styles.subtitle}>Used to calculate your metabolic rate.</Text>
 
         <Text preset="overline" style={styles.fieldLabel}>Sex</Text>
         <View style={styles.sexRow}>
           {[
-            { key: "male", label: "MALE" },
-            { key: "female", label: "FEMALE" },
+            { key: "male", label: "Male" },
+            { key: "female", label: "Female" },
           ].map((s) => (
-            <MotiPressable
+            <PressableScale
               key={s.key}
               onPress={() => setSex(s.key)}
               accessibilityRole="button"
               accessibilityLabel={`Sex: ${s.label}`}
-              animate={({ pressed }) => ({ scale: pressed ? 0.97 : 1 })}
               style={{ flex: 1 }}
             >
               <Card style={StyleSheet.flatten([styles.sexButton, sex === s.key && { backgroundColor: colors.primary }])}>
-                <Text preset="overline" style={[styles.sexButtonText, sex === s.key && { color: colors.primaryText }]}>
+                <Text preset="body" style={[styles.sexButtonText, sex === s.key && { color: colors.primaryText }]}>
                   {s.label}
                 </Text>
               </Card>
-            </MotiPressable>
+            </PressableScale>
           ))}
         </View>
 
         <Text preset="overline" style={styles.fieldLabel}>Age</Text>
-        <View style={[styles.inputWrapper, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <View style={[styles.inputWrapper, { backgroundColor: colors.surface }]}>
           <TextInput
             value={age}
             onChangeText={setAge}
@@ -77,7 +87,7 @@ export default function StatsScreen() {
         </View>
 
         <Text preset="overline" style={styles.fieldLabel}>Height (cm)</Text>
-        <View style={[styles.inputWrapper, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <View style={[styles.inputWrapper, { backgroundColor: colors.surface }]}>
           <TextInput
             value={height}
             onChangeText={setHeight}
@@ -90,7 +100,7 @@ export default function StatsScreen() {
         </View>
 
         <Text preset="overline" style={styles.fieldLabel}>Weight (kg)</Text>
-        <View style={[styles.inputWrapper, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <View style={[styles.inputWrapper, { backgroundColor: colors.surface }]}>
           <TextInput
             value={weight}
             onChangeText={setWeight}
@@ -116,23 +126,24 @@ export default function StatsScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  scrollContent: { paddingTop: 60, paddingBottom: 40 },
-  stepLabel: { fontSize: 11, marginBottom: 4 },
-  subtitle: { fontSize: 14, marginBottom: 32 },
+  scrollContent: { paddingTop: 60, paddingBottom: 40, paddingHorizontal: 24 },
+  closeButton: { width: 40, height: 40, alignItems: "center", justifyContent: "center", alignSelf: "flex-end" },
+  progressBar: { marginBottom: 40, marginTop: 8 },
+  title: { fontSize: 28, marginBottom: 8, textAlign: "center" },
+  subtitle: { fontSize: 15, marginBottom: 36, textAlign: "center" },
   fieldLabel: { marginBottom: 8 },
   sexRow: { flexDirection: "row", gap: 12, marginBottom: 24 },
   sexButton: {
-    borderRadius: 14,
-    paddingVertical: 16,
+    borderRadius: 20,
+    paddingVertical: 18,
     alignItems: "center",
   },
-  sexButtonText: { fontSize: 14 },
+  sexButtonText: { fontSize: 15 },
   inputWrapper: {
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 14,
-    marginBottom: 24,
-    borderWidth: 1,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+    borderRadius: 16,
+    marginBottom: 20,
   },
   textInput: {
     fontSize: 16,

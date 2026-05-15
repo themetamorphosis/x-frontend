@@ -2,11 +2,11 @@ import { TextStyle } from "react-native";
 import type { ColorPalette } from "./theme";
 
 export const fonts = {
-  regular: "Inter_400Regular",
-  medium: "Inter_500Medium",
-  semibold: "Inter_600SemiBold",
-  bold: "Inter_700Bold",
-  extrabold: "Inter_800ExtraBold",
+  regular: "PlusJakartaSans_400Regular",
+  medium: "PlusJakartaSans_500Medium",
+  semibold: "PlusJakartaSans_600SemiBold",
+  bold: "PlusJakartaSans_700Bold",
+  extrabold: "PlusJakartaSans_800ExtraBold",
 } as const;
 
 export function createTextStyles(colors: ColorPalette) {
@@ -17,7 +17,7 @@ export function createTextStyles(colors: ColorPalette) {
       fontWeight: "800",
       color: colors.text,
       lineHeight: 52,
-      letterSpacing: -1,
+      letterSpacing: -0.8,
     } as TextStyle,
 
     h1: {
@@ -26,7 +26,7 @@ export function createTextStyles(colors: ColorPalette) {
       fontWeight: "700",
       color: colors.text,
       lineHeight: 34,
-      letterSpacing: -0.5,
+      letterSpacing: -0.3,
     } as TextStyle,
 
     h2: {
@@ -35,6 +35,7 @@ export function createTextStyles(colors: ColorPalette) {
       fontWeight: "700",
       color: colors.text,
       lineHeight: 26,
+      letterSpacing: -0.2,
     } as TextStyle,
 
     body: {

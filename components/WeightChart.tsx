@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { View, Text, Platform, StyleSheet } from "react-native";
+import { View, Platform, StyleSheet } from "react-native";
+import { Text } from "./ui/v2/Text";
 import { useTheme, ColorPalette } from "../utils/theme";
 import type { WeightEntry } from "../stores/progressStore";
 

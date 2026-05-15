@@ -5,14 +5,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const THEME_KEY = "@nutrilog/theme";
 
 export const lightColors = {
-  bg: "#F5F5F5",
+  bg: "#F7F5F0",
   surface: "#FFFFFF",
-  border: "#EBEBEB",
-  text: "#111111",
-  textSecondary: "#888888",
-  textTertiary: "#AAAAAA",
-  primary: "#111111",
+  border: "#EDEBE6",
+  text: "#1A1A1A",
+  textSecondary: "#7A7A7A",
+  textTertiary: "#B0B0B0",
+  primary: "#1A1A1A",
   primaryText: "#FFFFFF",
+  accent: "#FF6B35",
   error: "#E53935",
   overlay: "rgba(0, 0, 0, 0.3)",
 } as const;
@@ -26,11 +27,12 @@ export const darkColors = {
   textTertiary: "#555555",
   primary: "#FFFFFF",
   primaryText: "#000000",
+  accent: "#FF8A65",
   error: "#FF453A",
   overlay: "rgba(0, 0, 0, 0.6)",
 } as const;
 
-export type ColorPalette = typeof lightColors;
+export type ColorPalette = typeof lightColors | typeof darkColors;
 
 export const spacing = {
   xs: 4, sm: 8, md: 12, lg: 16, xl: 20,
@@ -38,15 +40,15 @@ export const spacing = {
 } as const;
 
 export const radius = {
-  sm: 8, md: 12, card: 16, modal: 20, pill: 999,
+  sm: 12, md: 16, card: 20, modal: 24, pill: 999,
 } as const;
 
 export const lightShadow = {
   shadowColor: "#000",
-  shadowOffset: { width: 0, height: 1 },
-  shadowOpacity: 0.04,
-  shadowRadius: 3,
-  elevation: 1,
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.06,
+  shadowRadius: 8,
+  elevation: 2,
 };
 
 export const darkShadow = {
@@ -79,7 +81,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         if (saved === "light" || saved === "dark") {
           setMode(saved);
         } else {
-          setMode(systemScheme === "dark" ? "dark" : "light");
+          setMode(systemScheme ?? "light");
         }
       })
       .catch(() => {})
@@ -96,7 +98,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const colors = mode === "dark" ? darkColors : lightColors;
 
-  if (!loaded) return null;
+  if (!loaded) {
+    return (
+      <ThemeContext.Provider value={{ mode: "light", colors: lightColors, isDark: false, toggleTheme }}>
+        {children}
+      </ThemeContext.Provider>
+    );
+  }
 
   return (
     <ThemeContext.Provider value={{ mode, colors, isDark: mode === "dark", toggleTheme }}>

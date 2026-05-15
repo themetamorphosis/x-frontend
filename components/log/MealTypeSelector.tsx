@@ -1,4 +1,5 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
+import { Text } from "../ui/v2/Text";
 import { haptic } from "../../utils/haptics";
 import { useTheme, ColorPalette } from "../../utils/theme";
 import type { MealType } from "../../utils/mealType";

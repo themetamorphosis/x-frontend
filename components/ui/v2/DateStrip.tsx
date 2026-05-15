@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useEffect } from "react";
 import { ScrollView, View } from "react-native";
-import { MotiPressable } from "moti/interactions";
+import { PressableScale } from "./PressableScale";
 import { Text } from "./Text";
 import { useTheme } from "../../../utils/theme";
 import { haptic } from "../../../utils/haptics";
@@ -26,7 +26,7 @@ function formatDate(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
-export const DateStrip = React.memo(function DateStrip({ selectedDate, onSelectDate }: DateStripProps) {
+export function DateStrip({ selectedDate, onSelectDate }: DateStripProps) {
   const { colors } = useTheme();
   const scrollRef = useRef<ScrollView>(null);
   const today = new Date();
@@ -37,7 +37,7 @@ export const DateStrip = React.memo(function DateStrip({ selectedDate, onSelectD
     if (idx >= 0 && scrollRef.current) {
       scrollRef.current.scrollTo({ x: idx * 52 - 150, animated: false });
     }
-  }, []);
+  }, [selectedDate]);
 
   return (
     <ScrollView ref={scrollRef} horizontal showsHorizontalScrollIndicator={false}
@@ -47,10 +47,9 @@ export const DateStrip = React.memo(function DateStrip({ selectedDate, onSelectD
         const isSelected = dateStr === selectedDate;
         const isToday = dateStr === formatDate(today);
         return (
-          <MotiPressable key={dateStr} onPress={() => { haptic.light(); onSelectDate(dateStr); }}
+          <PressableScale key={dateStr} onPress={() => { haptic.light(); onSelectDate(dateStr); }}
             accessibilityRole="button" accessibilityLabel={`${DAY_NAMES[date.getDay()]} ${date.getDate()}`}
-            animate={({ pressed }) => ({ scale: pressed ? 0.95 : 1 })}
-            style={{ width: 48, alignItems: "center", paddingVertical: 8, borderRadius: 12,
+            style={{ width: 52, alignItems: "center", paddingVertical: 10, borderRadius: 14,
               backgroundColor: isSelected ? colors.primary : "transparent" }}>
             <Text style={{ fontSize: 10, fontWeight: "600", color: isSelected ? colors.primaryText : colors.textTertiary,
               letterSpacing: 1, textTransform: "uppercase" }}>{DAY_NAMES[date.getDay()]}</Text>
@@ -58,9 +57,12 @@ export const DateStrip = React.memo(function DateStrip({ selectedDate, onSelectD
               color: isSelected ? colors.primaryText : (isToday ? colors.primary : colors.text), marginTop: 4 }}>
               {date.getDate()}
             </Text>
-          </MotiPressable>
+            {isToday && !isSelected && (
+              <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: colors.accent, marginTop: 4 }} />
+            )}
+          </PressableScale>
         );
       })}
     </ScrollView>
   );
-});
+}

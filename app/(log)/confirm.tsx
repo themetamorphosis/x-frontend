@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, TouchableOpacity, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import { View, TouchableOpacity, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform, Alert, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
 import { Button } from "../../components/ui/v2/Button";
@@ -10,7 +10,7 @@ import { FoodItemCard } from "../../components/log/FoodItemCard";
 import { EditModal } from "../../components/log/EditModal";
 import { TotalCard } from "../../components/log/TotalCard";
 import { useFoodLogStore } from "../../stores/foodLogStore";
-import { saveFoodLog } from "../../services/food";
+import { saveFoodLogWithOffline } from "../../services/food";
 import type { ParsedFood, FoodLogEntry } from "../../types/food";
 import { useDailyStore } from "../../stores/dailyStore";
 import { createCustomFood } from "../../services/foodDb";
@@ -74,7 +74,7 @@ export default function ConfirmScreen() {
     try {
       const results = await Promise.allSettled(
         editedFoods.map((food) =>
-          saveFoodLog({
+          saveFoodLogWithOffline({
             meal_type: mealType,
             food_name: food.name,
             portion: food.portion,
@@ -108,9 +108,18 @@ export default function ConfirmScreen() {
 
       if (failed.length > 0) {
         haptic.error();
+        // Remove succeeded items from editedFoods so user only sees what failed
+        const failedIndices = new Set(failed.map((r) => results.indexOf(r)));
+        const remaining = editedFoods.filter((_, i) => failedIndices.has(i));
+        useFoodLogStore.getState().reset();
+        if (remaining.length > 0) {
+          useFoodLogStore.setState({ editedFoods: remaining, mealType, source });
+        }
         setToast({
           visible: true,
-          message: `${succeeded.length} saved, ${failed.length} failed`,
+          message: succeeded.length > 0
+            ? `${succeeded.length} saved, ${failed.length} failed`
+            : "Failed to save. Please try again.",
           type: succeeded.length > 0 ? "success" : "error",
         });
       } else {
@@ -138,7 +147,10 @@ export default function ConfirmScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
         <View style={styles.header}>
           <Text preset="overline" style={{ flex: 1 }}>Review</Text>
-          <TouchableOpacity onPress={reset}>
+          <TouchableOpacity onPress={() => Alert.alert("Clear all?", "This will remove all food items from this log.", [
+            { text: "Cancel", style: "cancel" },
+            { text: "Clear", style: "destructive", onPress: reset },
+          ])}>
             <Text preset="caption">Clear</Text>
           </TouchableOpacity>
         </View>
@@ -206,5 +218,5 @@ const styles = StyleSheet.create({
   header: { paddingTop: 16, paddingBottom: 16, flexDirection: "row", alignItems: "center" },
   aiInfo: { marginBottom: 12 },
   scrollContent: { paddingBottom: 16 },
-  addItemBtn: { paddingVertical: 12, alignItems: "center", borderWidth: 1, marginBottom: 16 },
+  addItemBtn: { paddingVertical: 12, alignItems: "center", borderWidth: 1, borderRadius: 16, marginBottom: 16 },
 });

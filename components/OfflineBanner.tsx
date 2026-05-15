@@ -1,6 +1,7 @@
 import { View, Text } from "react-native";
 import { WifiOff } from "lucide-react-native";
 import { useTheme } from "../utils/theme";
+import { fonts } from "../utils/typography-v2";
 
 export function OfflineBanner() {
   const { colors } = useTheme();
@@ -19,7 +20,7 @@ export function OfflineBanner() {
       }}
     >
       <WifiOff size={14} color={colors.primary} />
-      <Text style={{ fontSize: 10, fontFamily: "Inter_600SemiBold", color: colors.primary, letterSpacing: 1, textTransform: "uppercase" }}>
+      <Text style={{ fontSize: 10, fontFamily: fonts.semibold, color: colors.primary, letterSpacing: 1, textTransform: "uppercase" }}>
         Offline
       </Text>
     </View>

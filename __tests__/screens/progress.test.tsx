@@ -47,9 +47,9 @@ jest.mock("../../utils/theme", () => ({
   useTheme: () => ({
     mode: "light",
     colors: {
-      bg: "#F5F5F5", surface: "#FFFFFF", border: "#EBEBEB",
-      text: "#111111", textSecondary: "#888888", textTertiary: "#AAAAAA",
-      primary: "#111111", primaryText: "#FFFFFF", error: "#E53935",
+      bg: "#F7F5F0", surface: "#FFFFFF", border: "#EDEBE6",
+      text: "#1A1A1A", textSecondary: "#7A7A7A", textTertiary: "#B0B0B0",
+      primary: "#1A1A1A", primaryText: "#FFFFFF", accent: "#FF6B35", error: "#E53935",
       overlay: "rgba(0, 0, 0, 0.3)",
     },
     isDark: false,
@@ -61,9 +61,11 @@ jest.mock("../../utils/theme", () => ({
 
 jest.mock("../../utils/typography-v2", () => ({
   fonts: {
-    light: "Inter_400Regular", regular: "Inter_400Regular",
-    medium: "Inter_500Medium", semiBold: "Inter_600SemiBold",
-    bold: "Inter_700Bold", extraBold: "Inter_800ExtraBold",
+    regular: "PlusJakartaSans_400Regular",
+    medium: "PlusJakartaSans_500Medium",
+    semibold: "PlusJakartaSans_600SemiBold",
+    bold: "PlusJakartaSans_700Bold",
+    extrabold: "PlusJakartaSans_800ExtraBold",
   },
 }));
 

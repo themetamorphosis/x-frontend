@@ -238,7 +238,7 @@ export default function SearchScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
-  searchBox: { borderRadius: 8, paddingHorizontal: 14, paddingVertical: 12, marginBottom: 16, borderWidth: 1 },
+  searchBox: { borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, marginBottom: 16, borderWidth: 1 },
   searchInput: { fontSize: 15 },
   loadingBox: { paddingVertical: 20, alignItems: "center" },
   resultCard: { marginBottom: 8 },
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   backLink: { marginBottom: 16 },
   nutritionRow: { flexDirection: "row", justifyContent: "space-between" },
   quantityRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", marginVertical: 20, gap: 16 },
-  qtyBtn: { width: 40, height: 40, borderRadius: 8, justifyContent: "center", alignItems: "center", borderWidth: 1 },
+  qtyBtn: { width: 40, height: 40, borderRadius: 12, justifyContent: "center", alignItems: "center", borderWidth: 1 },
   saveContainer: { marginTop: 20 },
   footerLoader: { paddingVertical: 16, alignItems: "center" },
 });

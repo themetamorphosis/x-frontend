@@ -1,5 +1,7 @@
 import React, { ReactNode } from "react";
-import { View, SafeAreaView, StatusBar, ScrollView } from "react-native";
+import { View, ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 import { useTheme } from "../../../utils/theme";
 
 interface ScreenWrapperProps {
@@ -14,7 +16,7 @@ export function ScreenWrapper({ children, noScroll = false, noPadding = false }:
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={colors.bg} />
+      <StatusBar style={isDark ? "light" : "dark"} />
       {noScroll ? content : (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
           {content}

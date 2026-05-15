@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { Card } from "../ui/v2/Card";
+import { Text } from "../ui/v2/Text";
 import { useTheme, ColorPalette } from "../../utils/theme";
 
 interface MacroTotals {

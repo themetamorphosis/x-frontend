@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "scheme": "nutrilog",
     "newArchEnabled": true,
     "splash": {
@@ -22,7 +22,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#000000"
       },
-      "edgeToEdgeEnabled": true,
+      "softwareKeyboardLayoutMode": "adjustResize",
       "package": "com.nutrilog.app"
     },
     "web": {
@@ -39,7 +39,6 @@
           "photosPermission": "Allow NutriLog to access your photos to photograph meals"
         }
       ],
-      "expo-barcode-scanner",
       [
         "expo-notifications",
         {

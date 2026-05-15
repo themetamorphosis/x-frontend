@@ -16,12 +16,14 @@ const MAX_RETRIES = 5;
 const MAX_QUEUE_SIZE = 50;
 
 type ExecuteFn = (method: string, path: string, body?: unknown, headers?: Record<string, string>) => Promise<unknown>;
+type FlushCallback = (method: string, path: string, body: unknown, result: unknown) => void;
 
 class MutationQueue {
   private queue: QueuedMutation[] = [];
   private executeFn: ExecuteFn | null = null;
   private flushing = false;
   private unsubscribeNetInfo: (() => void) | null = null;
+  private onFlushSuccess: FlushCallback | null = null;
 
   init(executeFn: ExecuteFn) {
     this.executeFn = executeFn;
@@ -33,6 +35,10 @@ class MutationQueue {
     });
   }
 
+  setFlushCallback(callback: FlushCallback) {
+    this.onFlushSuccess = callback;
+  }
+
   destroy() {
     this.unsubscribeNetInfo?.();
     this.unsubscribeNetInfo = null;
@@ -40,7 +46,8 @@ class MutationQueue {
 
   async enqueue(method: "POST" | "PUT" | "DELETE", path: string, body?: unknown): Promise<void> {
     if (this.queue.length >= MAX_QUEUE_SIZE) {
-      this.queue.shift();
+      const dropped = this.queue.shift();
+      Sentry.captureMessage("Mutation queue full, dropping oldest", { extra: { dropped } });
     }
     const mutation: QueuedMutation = {
       id: crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
@@ -63,10 +70,13 @@ class MutationQueue {
 
     for (const mutation of toProcess) {
       try {
-        await this.executeFn(mutation.method, mutation.path, mutation.body, {
+        const result = await this.executeFn(mutation.method, mutation.path, mutation.body, {
           "Idempotency-Key": mutation.id,
         });
         this.queue = this.queue.filter((m) => m.id !== mutation.id);
+        if (this.onFlushSuccess) {
+          this.onFlushSuccess(mutation.method, mutation.path, mutation.body, result);
+        }
       } catch (e: unknown) {
         mutation.retryCount++;
         if (mutation.retryCount < MAX_RETRIES) {

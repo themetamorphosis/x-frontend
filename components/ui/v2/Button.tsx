@@ -1,6 +1,5 @@
-import React, { useCallback } from "react";
-import { Text, ActivityIndicator, ViewStyle } from "react-native";
-import { MotiPressable } from "moti/interactions";
+import React, { useCallback, useState } from "react";
+import { Pressable, Text, ActivityIndicator, ViewStyle, PressableProps } from "react-native";
 import { useTheme } from "../../../utils/theme";
 import { fonts } from "../../../utils/typography-v2";
 import { haptic } from "../../../utils/haptics";
@@ -20,9 +19,9 @@ interface ButtonProps {
 }
 
 const SIZES = {
-  sm: { height: 36, paddingH: 16, fontSize: 13 },
-  md: { height: 44, paddingH: 24, fontSize: 15 },
-  lg: { height: 52, paddingH: 32, fontSize: 16 },
+  sm: { height: 40, paddingH: 18, fontSize: 13 },
+  md: { height: 48, paddingH: 28, fontSize: 15 },
+  lg: { height: 56, paddingH: 36, fontSize: 16 },
 } as const;
 
 export const Button = React.memo(function Button({
@@ -31,21 +30,23 @@ export const Button = React.memo(function Button({
 }: ButtonProps) {
   const { colors } = useTheme();
   const s = SIZES[size];
+  const [pressed, setPressed] = useState(false);
 
   const handlePress = useCallback(() => {
     haptic.light();
     onPress();
   }, [onPress]);
 
-  const getContainerStyle = (pressed: boolean): ViewStyle => {
+  const getContainerStyle = (): ViewStyle => {
     const base: ViewStyle = {
       height: s.height, paddingHorizontal: s.paddingH, borderRadius: 999,
       alignItems: "center", justifyContent: "center", flexDirection: "row",
       gap: 8, opacity: disabled ? 0.4 : 1,
+      transform: [{ scale: pressed && !disabled ? 0.97 : 1 }],
     };
     if (variant === "primary") return { ...base, backgroundColor: pressed ? colors.textSecondary : colors.primary };
-    if (variant === "secondary") return { ...base, backgroundColor: "transparent", borderWidth: 1.5, borderColor: pressed ? colors.textSecondary : colors.border };
-    return { ...base, backgroundColor: pressed ? colors.border : "transparent" };
+    if (variant === "secondary") return { ...base, backgroundColor: colors.bg };
+    return { ...base, backgroundColor: "transparent" };
   };
 
   const getTextColor = () => {
@@ -54,19 +55,15 @@ export const Button = React.memo(function Button({
   };
 
   return (
-    <MotiPressable onPress={handlePress} disabled={disabled || loading}
+    <Pressable onPress={handlePress} disabled={disabled || loading}
+      onPressIn={() => setPressed(true)} onPressOut={() => setPressed(false)}
       accessibilityRole="button" accessibilityLabel={title || "Button"}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: disabled || loading, busy: loading }}
-      animate={({ pressed }) => ({ scale: pressed && !disabled ? 0.97 : 1 })}
-      style={[getContainerStyle(false), style]}>
-      {({ pressed }) => (
-        <>
-          {Icon && <Icon size={iconSize} color={getTextColor()} />}
-          {loading ? <ActivityIndicator color={getTextColor()} size="small" /> :
-            title ? <Text style={{ fontFamily: fonts.medium, fontSize: s.fontSize, color: getTextColor() }}>{title}</Text> : null}
-        </>
-      )}
-    </MotiPressable>
+      style={[getContainerStyle(), style]}>
+      {Icon && <Icon size={iconSize} color={getTextColor()} />}
+      {loading ? <ActivityIndicator color={getTextColor()} size="small" /> :
+        title ? <Text style={{ fontFamily: fonts.medium, fontSize: s.fontSize, color: getTextColor() }}>{title}</Text> : null}
+    </Pressable>
   );
 });

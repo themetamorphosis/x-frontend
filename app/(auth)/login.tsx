@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { View } from "react-native";
+import { View, StyleSheet } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
@@ -112,11 +112,16 @@ export default function LoginScreen() {
 
   return (
     <ScreenWrapper noScroll>
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", gap: 16 }}>
+      <View style={styles.container}>
+        {/* Decorative dots */}
+        <View style={[styles.dot, { top: 80, right: 40, width: 8, height: 8, borderRadius: 4, backgroundColor: colors.border, opacity: 0.5 }]} />
+        <View style={[styles.dot, { top: 120, left: 50, width: 5, height: 5, borderRadius: 2.5, backgroundColor: colors.border, opacity: 0.3 }]} />
+        <View style={[styles.dot, { bottom: 140, right: 60, width: 6, height: 6, borderRadius: 3, backgroundColor: colors.border, opacity: 0.4 }]} />
+
         {/* Brand */}
-        <View style={{ width: "100%", marginBottom: 32, padding: 32, alignItems: "center", backgroundColor: colors.bg, borderRadius: 28 }}>
-          <Text preset="display" style={{ marginBottom: 8 }}>NutriLog</Text>
-          <Text preset="caption" color="textSecondary" style={{ letterSpacing: 0.5 }}>AI-powered nutrition tracking</Text>
+        <View style={styles.brand}>
+          <Text preset="display" style={{ marginBottom: 12, letterSpacing: -1.5 }}>NutriLog</Text>
+          <Text preset="caption" color="textSecondary" style={{ letterSpacing: 0.8, fontSize: 14 }}>AI-powered nutrition tracking</Text>
         </View>
 
         {/* Google Sign In */}
@@ -145,3 +150,9 @@ export default function LoginScreen() {
     </ScreenWrapper>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: "center", alignItems: "center", gap: 20, paddingHorizontal: 32 },
+  dot: { position: "absolute" },
+  brand: { alignItems: "center", marginBottom: 48 },
+});

@@ -4,6 +4,7 @@ import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
 import { Button } from "../../components/ui/v2/Button";
 import { Card } from "../../components/ui/v2/Card";
 import { Text } from "../../components/ui/v2/Text";
+import { DecorativeBlobs } from "../../components/ui/v2/DecorativeBlobs";
 import { useProfileStore } from "../../stores/profileStore";
 import { useTheme } from "../../utils/theme";
 
@@ -13,19 +14,19 @@ export default function TargetsScreen() {
   const { colors } = useTheme();
 
   const items = [
-    { label: "CALORIES", value: targets?.calories?.toString() || "0", unit: "kcal" },
-    { label: "PROTEIN", value: Math.round(targets?.protein_g || 0).toString(), unit: "g" },
-    { label: "CARBS", value: Math.round(targets?.carbs_g || 0).toString(), unit: "g" },
-    { label: "FAT", value: Math.round(targets?.fat_g || 0).toString(), unit: "g" },
-    { label: "FIBER", value: Math.round(targets?.fiber_g || 0).toString(), unit: "g" },
-    { label: "WATER", value: (targets?.water_ml || 0).toString(), unit: "ml" },
+    { label: "Calories", value: targets?.calories?.toString() || "0", unit: "kcal" },
+    { label: "Protein", value: Math.round(targets?.protein_g || 0).toString(), unit: "g" },
+    { label: "Carbs", value: Math.round(targets?.carbs_g || 0).toString(), unit: "g" },
+    { label: "Fat", value: Math.round(targets?.fat_g || 0).toString(), unit: "g" },
+    { label: "Fiber", value: Math.round(targets?.fiber_g || 0).toString(), unit: "g" },
+    { label: "Water", value: (targets?.water_ml || 0).toString(), unit: "ml" },
   ];
 
   return (
     <ScreenWrapper noScroll>
+      <DecorativeBlobs variant="dots" />
       <View style={styles.container}>
-        <Text preset="overline" style={styles.stepLabel}>Your targets</Text>
-        <Text preset="h1">Personalized for you</Text>
+        <Text preset="h1" style={styles.title}>Personalized for you</Text>
         <Text preset="caption" style={styles.subtitle}>Based on your body, activity level, and goals.</Text>
 
         <Card style={styles.card}>
@@ -54,11 +55,11 @@ export default function TargetsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingTop: 60 },
-  stepLabel: { fontSize: 11, marginBottom: 4 },
-  subtitle: { fontSize: 14, marginBottom: 32 },
+  container: { flex: 1, paddingTop: 60, paddingHorizontal: 24 },
+  title: { fontSize: 28, marginBottom: 8, textAlign: "center" },
+  subtitle: { fontSize: 15, marginBottom: 36, textAlign: "center" },
   card: { marginBottom: 24, borderRadius: 20 },
-  row: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 16 },
+  row: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 18 },
   rowLabel: { fontSize: 12 },
   valueRow: { flexDirection: "row", alignItems: "baseline", gap: 4 },
   rowValue: { fontSize: 22 },

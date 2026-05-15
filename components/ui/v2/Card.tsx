@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 import { View, ViewStyle } from "react-native";
-import { useTheme, lightShadow, darkShadow } from "../../../utils/theme";
+import { useTheme, lightShadow, darkShadow, radius } from "../../../utils/theme";
 
 interface CardProps {
   children: ReactNode;
@@ -13,10 +13,8 @@ export const Card = React.memo(function Card({ children, style, noPadding = fals
 
   const cardStyle: ViewStyle = {
     backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: noPadding ? 0 : 16,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderRadius: radius.card,
+    padding: noPadding ? 0 : 20,
     ...(isDark ? darkShadow : lightShadow),
   };
 

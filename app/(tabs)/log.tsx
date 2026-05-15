@@ -1,8 +1,9 @@
 import { View } from "react-native";
 import { useRouter } from "expo-router";
 import { PenLine, Camera, Search, ScanBarcode, Star } from "lucide-react-native";
-import { MotiView } from "moti";
+import { FadeInView } from "../../components/ui/v2/FadeInView";
 import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
+import { Text } from "../../components/ui/v2/Text";
 import { MenuItem } from "../../components/ui/v2/MenuItem";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { useFoodLogStore } from "../../stores/foodLogStore";
@@ -17,7 +18,10 @@ export default function LogScreen() {
   return (
     <ErrorBoundary>
       <ScreenWrapper>
-        <View style={{ gap: 4, marginTop: 8 }}>
+        <View style={{ paddingTop: 16, paddingBottom: 24 }}>
+          <Text preset="overline">Log Food</Text>
+        </View>
+        <View style={{ gap: 12 }}>
           {[
             { icon: PenLine, label: "Describe it", path: "/(log)/text" as const },
             { icon: Camera, label: "Photo", path: "/(log)/photo" as const },
@@ -25,12 +29,9 @@ export default function LogScreen() {
             { icon: ScanBarcode, label: "Barcode", path: "/(log)/barcode" as const },
             { icon: Star, label: "My Foods", path: "/(log)/custom-foods" as const },
           ].map((item, index) => (
-            <MotiView key={item.label}
-              from={{ opacity: 0, translateY: 10 }}
-              animate={{ opacity: 1, translateY: 0 }}
-              transition={{ type: "timing", duration: 300, delay: index * 50 }}>
+            <FadeInView key={item.label} delay={index * 50}>
               <MenuItem icon={item.icon} label={item.label} onPress={() => goTo(item.path)} />
-            </MotiView>
+            </FadeInView>
           ))}
         </View>
       </ScreenWrapper>

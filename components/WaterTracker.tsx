@@ -1,6 +1,7 @@
 import { memo, useCallback } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { MotiPressable } from "moti/interactions";
+import { View, StyleSheet } from "react-native";
+import { Text } from "./ui/v2/Text";
+import { PressableScale } from "./ui/v2/PressableScale";
 import { Minus, Plus, Droplets } from "lucide-react-native";
 import { api } from "../services/api";
 import { useDailyStore } from "../stores/dailyStore";
@@ -28,29 +29,29 @@ export const WaterTracker = memo(function WaterTracker({ current_ml, target_ml =
   const addWater = useCallback(async (amount: number) => {
     if (amount <= 0) return;
     haptic.light();
-    const newTotal = current_ml + amount;
-    setWater(newTotal);
+    const prev = useDailyStore.getState().summary?.water_ml ?? 0;
+    setWater(prev + amount);
     try {
       await api.post("/logs/water", { amount_ml: amount });
     } catch (e: unknown) {
-      setWater(current_ml);
+      setWater(prev);
       onError?.("Failed to log water. Please try again.");
     }
-  }, [current_ml, setWater, onError]);
+  }, [setWater, onError]);
 
   const removeWater = useCallback(async () => {
-    if (current_ml <= 0) return;
+    const prev = useDailyStore.getState().summary?.water_ml ?? 0;
+    if (prev <= 0) return;
     haptic.light();
     const amount = CUP_ML;
-    const newTotal = Math.max(current_ml - amount, 0);
-    setWater(newTotal);
+    setWater(Math.max(prev - amount, 0));
     try {
       await api.post("/logs/water", { amount_ml: -amount });
     } catch (e: unknown) {
-      setWater(current_ml);
+      setWater(prev);
       onError?.("Failed to update water. Please try again.");
     }
-  }, [current_ml, setWater, onError]);
+  }, [setWater, onError]);
 
   return (
     <View style={styles.card}>
@@ -72,38 +73,32 @@ export const WaterTracker = memo(function WaterTracker({ current_ml, target_ml =
         </View>
 
         <View style={styles.controls}>
-          <MotiPressable
+          <PressableScale
             onPress={removeWater}
             accessibilityRole="button"
             accessibilityLabel="Remove one cup of water"
-            animate={({ pressed }) => ({
-              scale: pressed ? 0.92 : 1,
-            })}
             style={styles.circleButton}
           >
             <View style={styles.minusCircle}>
               <Minus size={18} color={colors.textSecondary} />
             </View>
-          </MotiPressable>
+          </PressableScale>
 
           <View style={styles.remainingContainer}>
             <Text style={styles.remainingNumber}>{cupsRemaining}</Text>
             <Text style={styles.remainingLabel}>cups remaining</Text>
           </View>
 
-          <MotiPressable
+          <PressableScale
             onPress={() => addWater(CUP_ML)}
             accessibilityRole="button"
             accessibilityLabel="Add one cup of water"
-            animate={({ pressed }) => ({
-              scale: pressed ? 0.92 : 1,
-            })}
             style={styles.circleButton}
           >
             <View style={styles.plusCircle}>
               <Plus size={18} color={colors.primary} />
             </View>
-          </MotiPressable>
+          </PressableScale>
         </View>
       </View>
     </View>
@@ -113,14 +108,12 @@ export const WaterTracker = memo(function WaterTracker({ current_ml, target_ml =
 function createStyles(c: ColorPalette) {
   return StyleSheet.create({
     card: {
-      borderRadius: 16,
+      borderRadius: 20,
       backgroundColor: c.surface,
-      borderWidth: 1,
-      borderColor: c.border,
       marginBottom: 16,
     },
     inner: {
-      padding: 16,
+      padding: 20,
     },
     header: {
       flexDirection: "row",

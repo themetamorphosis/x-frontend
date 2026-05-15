@@ -16,7 +16,8 @@ export const ProgressRing = React.memo(function ProgressRing({
   const { colors } = useTheme();
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const offset = circumference - progress * circumference;
+  const clamped = Math.max(0, Math.min(1, progress));
+  const offset = circumference - clamped * circumference;
 
   return (
     <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }}>

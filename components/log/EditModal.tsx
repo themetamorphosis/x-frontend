@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Modal, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import { View, TextInput, TouchableOpacity, Modal, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
 import { Card } from "../ui/v2/Card";
+import { Text } from "../ui/v2/Text";
 import { useTheme, ColorPalette } from "../../utils/theme";
 import type { ParsedFood } from "../../types/food";
 
@@ -84,13 +85,13 @@ export function EditModal({ visible, food, onClose, onSave }: Props) {
               <TouchableOpacity
                 onPress={() =>
                   onSave({
-                    name: name || "Unknown",
-                    portion: portion || null,
-                    calories: parseInt(calories) || 0,
-                    protein_g: parseFloat(protein) || 0,
-                    carbs_g: parseFloat(carbs) || 0,
-                    fat_g: parseFloat(fat) || 0,
-                    fiber_g: parseFloat(fiber) || 0,
+                    name: name.trim() || "Unknown",
+                    portion: portion.trim() || null,
+                    calories: Math.max(0, parseInt(calories) || 0),
+                    protein_g: Math.max(0, parseFloat(protein) || 0),
+                    carbs_g: Math.max(0, parseFloat(carbs) || 0),
+                    fat_g: Math.max(0, parseFloat(fat) || 0),
+                    fiber_g: Math.max(0, parseFloat(fiber) || 0),
                   })
                 }
                 style={styles.saveBtn}

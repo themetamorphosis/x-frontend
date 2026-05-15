@@ -2,13 +2,14 @@ import { useEffect, useCallback } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { View, ActivityIndicator, Platform } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import * as Sentry from "@sentry/react-native";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "expo-font";
 import {
-  Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold,
-} from "@expo-google-fonts/inter";
+  PlusJakartaSans_400Regular, PlusJakartaSans_500Medium, PlusJakartaSans_600SemiBold, PlusJakartaSans_700Bold, PlusJakartaSans_800ExtraBold,
+} from "@expo-google-fonts/plus-jakarta-sans";
 import { ThemeProvider } from "../utils/theme";
 import { useAuthStore } from "../stores/authStore";
 import { useProfileStore } from "../stores/profileStore";
@@ -36,9 +37,9 @@ export default function RootLayout() {
   const { profileLoaded, fetchProfile } = useProfileStore();
   const isConnected = useNetworkStatus();
 
-  // Load Nunito font family
+  // Load PlusJakartaSans font family
   const [fontsLoaded, fontError] = useFonts({
-    Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold,
+    PlusJakartaSans_400Regular, PlusJakartaSans_500Medium, PlusJakartaSans_600SemiBold, PlusJakartaSans_700Bold, PlusJakartaSans_800ExtraBold,
   });
 
   const onLayoutRootView = useCallback(async () => {
@@ -53,6 +54,13 @@ export default function RootLayout() {
 
   useEffect(() => {
     mutationQueue.init((method, path, body) => api.rawRequest(method, path, body));
+    mutationQueue.setFlushCallback((method, path, _body, result) => {
+      if (method === "POST" && path === "/logs/food" && result) {
+        const entry = result as { id: string; food_name: string; portion: string | null; calories: number; protein_g: number; carbs_g: number; fat_g: number; fiber_g: number; meal_type: string };
+        const { addFoodLog } = require("../stores/dailyStore").useDailyStore.getState();
+        addFoodLog({ ...entry, meal_type: entry.meal_type as import("../types/food").MealType });
+      }
+    });
     loadToken().then((ok) => {
       if (ok) fetchProfile();
     });
@@ -97,19 +105,21 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider>
-      <ErrorBoundary>
-        <StatusBar style="dark-content" />
-        {!isConnected && <OfflineBanner />}
-        <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: "transparent" },
-            }}
-          />
-        </View>
-      </ErrorBoundary>
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider>
+        <ErrorBoundary>
+          <StatusBar style="dark" />
+          {!isConnected && <OfflineBanner />}
+          <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: "transparent" },
+              }}
+            />
+          </View>
+        </ErrorBoundary>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }

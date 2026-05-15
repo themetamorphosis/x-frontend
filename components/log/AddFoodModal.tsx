@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Modal, KeyboardAvoidingView, Platform, ActivityIndicator, StyleSheet } from "react-native";
+import { View, TextInput, TouchableOpacity, Modal, KeyboardAvoidingView, Platform, ActivityIndicator, StyleSheet } from "react-native";
 import { Card } from "../ui/v2/Card";
+import { Text } from "../ui/v2/Text";
 import { useTheme, ColorPalette } from "../../utils/theme";
 
 interface AddFoodData {

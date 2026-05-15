@@ -1,7 +1,7 @@
 import { View, ScrollView, TextInput, TouchableOpacity, RefreshControl, StyleSheet } from "react-native";
 import { useState, useCallback } from "react";
 import { useFocusEffect } from "expo-router";
-import { MotiPressable } from "moti/interactions";
+import { PressableScale } from "../../components/ui/v2/PressableScale";
 import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
 import { Card } from "../../components/ui/v2/Card";
 import { Text } from "../../components/ui/v2/Text";
@@ -152,12 +152,11 @@ export default function ProgressScreen() {
             <Text preset="overline" style={styles.sectionLabel}>Weight</Text>
             <View style={styles.rangeButtons}>
               {[7, 30, 90].map((r) => (
-                <MotiPressable
+                <PressableScale
                   key={r}
                   onPress={() => setWeightRange(r)}
                   accessibilityRole="button"
                   accessibilityLabel={`Show last ${r} days`}
-                  animate={({ pressed }) => ({ scale: pressed ? 0.95 : 1 })}
                 >
                   <Text
                     preset="caption"
@@ -165,7 +164,7 @@ export default function ProgressScreen() {
                   >
                     {r}D
                   </Text>
-                </MotiPressable>
+                </PressableScale>
               ))}
             </View>
           </View>
@@ -252,14 +251,13 @@ const styles = StyleSheet.create({
   inputRow: { flexDirection: "row", gap: 8, alignItems: "center" },
   textInputWrapper: {
     flex: 1,
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
   },
   textInput: {
     fontSize: 15,
-    fontFamily: "Inter_400Regular",
+    fontFamily: fonts.regular,
     padding: 0,
     margin: 0,
   },

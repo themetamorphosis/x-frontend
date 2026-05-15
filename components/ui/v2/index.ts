@@ -12,3 +12,8 @@ export { MenuItem } from "./MenuItem";
 export { Toggle } from "./Toggle";
 export { Toast } from "./Toast";
 export { Skeleton, SkeletonCard, SkeletonStat } from "./Skeleton";
+export { ProgressBar } from "./ProgressBar";
+export { DotIndicator } from "./DotIndicator";
+export { DecorativeBlobs } from "./DecorativeBlobs";
+export { PressableScale } from "./PressableScale";
+export { FadeInView, SlideInView } from "./FadeInView";

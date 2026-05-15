@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { View, ScrollView, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
-import { BarCodeScanner } from "expo-barcode-scanner";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
 import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
 import { Card } from "../../components/ui/v2/Card";
@@ -15,7 +15,7 @@ import { useTheme } from "../../utils/theme";
 export default function BarcodeScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [product, setProduct] = useState<FoodDbItem | null>(null);
   const [loading, setLoading] = useState(false);
@@ -24,10 +24,7 @@ export default function BarcodeScreen() {
   const { mealType } = useFoodLogStore();
   const { saving, save } = useSaveFoodLog();
 
-  const requestPermission = async () => {
-    const { status } = await BarCodeScanner.requestPermissionsAsync();
-    setHasPermission(status === "granted");
-  };
+  const hasPermission = permission?.granted ?? null;
 
   const handleBarCodeScanned = async ({ data }: { data: string }) => {
     if (scanned) return;
@@ -69,7 +66,7 @@ export default function BarcodeScreen() {
       <ScreenWrapper>
         <View style={styles.centered}>
           <Text preset="body" color="textSecondary" style={{ marginBottom: 16 }}>Camera permission needed for barcode scanning</Text>
-          <Button title="Grant Permission" onPress={requestPermission} />
+          <Button title="Grant Permission" onPress={async () => { await requestPermission(); }} />
         </View>
       </ScreenWrapper>
     );
@@ -165,9 +162,10 @@ export default function BarcodeScreen() {
   return (
     <ScreenWrapper noPadding>
       <View style={styles.flex}>
-        <BarCodeScanner
-          onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+        <CameraView
+          onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
           style={styles.flex}
+          barcodeScannerSettings={{ barcodeTypes: ["ean13", "ean8", "upc_a", "upc_e"] }}
         />
         <View style={styles.overlay}>
           <View style={[styles.scanFrame, { borderColor: colors.text }]} />
@@ -207,7 +205,7 @@ const styles = StyleSheet.create({
   quantityButton: {
     width: 40,
     height: 40,
-    borderRadius: 8,
+    borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
@@ -226,7 +224,7 @@ const styles = StyleSheet.create({
     width: 250,
     height: 150,
     borderWidth: 2,
-    borderRadius: 8,
+    borderRadius: 12,
     opacity: 0.5,
   },
   loadingOverlay: {
@@ -242,6 +240,6 @@ const styles = StyleSheet.create({
     left: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 6,
+    borderRadius: 12,
   },
 });

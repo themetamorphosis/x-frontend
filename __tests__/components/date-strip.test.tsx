@@ -9,14 +9,15 @@ jest.mock("../../utils/theme", () => ({
   useTheme: () => ({
     mode: "light",
     colors: {
-      bg: "#F5F5F5",
+      bg: "#F7F5F0",
       surface: "#FFFFFF",
-      border: "#EBEBEB",
-      text: "#111111",
-      textSecondary: "#888888",
-      textTertiary: "#AAAAAA",
-      primary: "#111111",
+      border: "#EDEBE6",
+      text: "#1A1A1A",
+      textSecondary: "#7A7A7A",
+      textTertiary: "#B0B0B0",
+      primary: "#1A1A1A",
       primaryText: "#FFFFFF",
+      accent: "#FF6B35",
       error: "#E53935",
       overlay: "rgba(0, 0, 0, 0.3)",
     },
@@ -25,6 +26,7 @@ jest.mock("../../utils/theme", () => ({
   }),
   lightShadow: {},
   darkShadow: {},
+  radius: { sm: 12, md: 16, card: 20, modal: 24, pill: 999 },
 }));
 
 jest.mock("moti/interactions", () => ({
@@ -38,7 +40,7 @@ jest.mock("moti/interactions", () => ({
   },
 }));
 
-import { DateStrip } from "../../components/DateStrip";
+import { DateStrip } from "../../components/ui/v2/DateStrip";
 
 describe("DateStrip", () => {
   const today = new Date().toISOString().slice(0, 10);

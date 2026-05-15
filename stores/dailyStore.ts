@@ -106,7 +106,7 @@ export const useDailyStore = create<DailyState>()(
     storage: createJSONStorage(() => AsyncStorage),
     partialize: (state) => ({
       summary: state.summary,
-      _summaryDate: new Date().toISOString().slice(0, 10),
+      _summaryDate: state.summary?.date ?? new Date().toISOString().slice(0, 10),
     }),
     onRehydrateStorage: () => (state, error) => {
       if (error) {

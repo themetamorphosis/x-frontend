@@ -1,5 +1,6 @@
 import { Platform } from "react-native";
 import { api } from "./api";
+import { Sentry } from "../utils/sentry";
 
 type NotificationsModule = typeof import("expo-notifications");
 type DeviceModule = typeof import("expo-device");
@@ -54,8 +55,12 @@ export async function registerForPushNotifications(): Promise<string | null> {
     });
   }
 
-  const tokenData = await _notifications.getExpoPushTokenAsync();
-  return tokenData.data;
+  try {
+    const tokenData = await _notifications.getExpoPushTokenAsync();
+    return tokenData.data;
+  } catch {
+    return null;
+  }
 }
 
 export async function savePushToken(token: string) {
@@ -66,7 +71,7 @@ export async function savePushToken(token: string) {
       push_token: token,
     });
   } catch (e: unknown) {
-    // silently fail
+    Sentry.captureException(e, { tags: { context: "savePushToken" } });
   }
 }
 

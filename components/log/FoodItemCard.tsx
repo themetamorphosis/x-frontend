@@ -1,6 +1,7 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Card } from "../ui/v2/Card";
+import { Text } from "../ui/v2/Text";
 import { useTheme, ColorPalette } from "../../utils/theme";
 import { haptic } from "../../utils/haptics";
 import type { ParsedFood } from "../../types/food";

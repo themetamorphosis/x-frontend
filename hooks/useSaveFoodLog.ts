@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "expo-router";
-import { saveFoodLog } from "../services/food";
+import { saveFoodLogWithOffline } from "../services/food";
 import { useDailyStore } from "../stores/dailyStore";
 import { haptic } from "../utils/haptics";
 import type { FoodLogCreate } from "../types/food";
@@ -23,7 +23,7 @@ export function useSaveFoodLog(): UseSaveFoodLogResult {
     async (entry: FoodLogCreate): Promise<boolean> => {
       setSaving(true);
       try {
-        const log = await saveFoodLog(entry);
+        const log = await saveFoodLogWithOffline(entry);
         addFoodLog({
           id: log.id,
           food_name: log.food_name,

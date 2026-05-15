@@ -76,8 +76,6 @@ export const useFoodLogStore = create<FoodLogState>()(
       name: "nutrilog-food-log",
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
-        aiResult: state.aiResult,
-        editedFoods: state.editedFoods,
         mealType: state.mealType,
         source: state.source,
       }),

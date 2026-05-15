@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { TextInput, View, Text, ViewStyle, TextInputProps, NativeSyntheticEvent, TextInputFocusEventData } from "react-native";
+import { TextInput, View, Text, ViewStyle, TextInputProps } from "react-native";
 import { useTheme } from "../../../utils/theme";
 import { fonts } from "../../../utils/typography-v2";
 
@@ -12,8 +12,8 @@ export const Input = React.memo(function Input({ label, containerStyle, onFocus,
   const { colors } = useTheme();
   const [focused, setFocused] = useState(false);
 
-  const handleFocus = useCallback((e: NativeSyntheticEvent<TextInputFocusEventData>) => { setFocused(true); onFocus?.(e); }, [onFocus]);
-  const handleBlur = useCallback((e: NativeSyntheticEvent<TextInputFocusEventData>) => { setFocused(false); onBlur?.(e); }, [onBlur]);
+  const handleFocus = useCallback((e: any) => { setFocused(true); onFocus?.(e); }, [onFocus]);
+  const handleBlur = useCallback((e: any) => { setFocused(false); onBlur?.(e); }, [onBlur]);
 
   return (
     <View style={containerStyle}>

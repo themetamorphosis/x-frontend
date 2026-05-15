@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { View, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import { View, ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { ScreenWrapper } from "../../components/ui/v2/ScreenWrapper";
-import { Card } from "../../components/ui/v2/Card";
+import { Input } from "../../components/ui/v2/Input";
 import { Button } from "../../components/ui/v2/Button";
 import { Text } from "../../components/ui/v2/Text";
 import { Toast } from "../../components/ui/v2/Toast";
@@ -48,19 +48,16 @@ export default function TextLogScreen() {
           <Text preset="overline">Describe Your Food</Text>
         </View>
 
-        <Card>
-          <TextInput
-            style={[styles.textInput, { color: colors.text }]}
-            placeholder="e.g. 2 scrambled eggs with toast and butter"
-            placeholderTextColor={colors.textTertiary}
-            value={description}
-            onChangeText={setDescription}
-            multiline
-            autoFocus
-            editable={!loading}
-            accessibilityLabel="Food description"
-          />
-        </Card>
+        <Input
+          placeholder="e.g. 2 scrambled eggs with toast and butter"
+          value={description}
+          onChangeText={setDescription}
+          multiline
+          autoFocus
+          editable={!loading}
+          accessibilityLabel="Food description"
+          containerStyle={{ minHeight: 120 }}
+        />
 
         <Text preset="caption" style={styles.hint}>
           Be as specific as possible — include portions, cooking methods, and brands if known.
@@ -81,6 +78,5 @@ export default function TextLogScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   header: { paddingTop: 16, paddingBottom: 24 },
-  textInput: { fontSize: 16, minHeight: 120, textAlignVertical: "top" },
   hint: { marginTop: 8, marginBottom: 24 },
 });
